@@ -9,3 +9,5 @@
 !*.cpp
 !.gitignore
 !README.md
+logs
+obj_dir

@@ -53,7 +53,7 @@ all: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$^
+	$(VBIN)
 
 clean:
 	rm -rf $(BUILD_DIR) $(LOGS_DIR)

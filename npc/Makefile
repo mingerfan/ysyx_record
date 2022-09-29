@@ -41,8 +41,9 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -D TOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS +=  -lSDL2 -lSDL2_image
 
+all: $(VBIN)
 
-all: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+$(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \
@@ -51,7 +52,7 @@ all: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 	@mkdir -p $(LOGS_DIR)
 
-sim: all
+sim: $(VBIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VBIN)
 

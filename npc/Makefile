@@ -50,13 +50,12 @@ default: all
 all: $(VBIN)
 
 $(VSRC_TOP): split
+	echo $(VSRC_TOP)
 
 VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 $(VBIN): $(VBIN_DP)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
-	echo $(VSRC_TOP)
-	echo $(VSRCS)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $(VBIN_DP) \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \

@@ -34,7 +34,7 @@ SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
-VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.v")
+VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.v" ! -name "top.v")
 VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/top.v
 CSRCS = $(shell find $(abspath ./playground/verilator_test/csrc/) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
@@ -49,9 +49,9 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): verilog split
+$(VSRC_TOP): verilog split
 
-$(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+$(VBIN): $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \

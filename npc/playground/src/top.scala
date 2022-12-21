@@ -59,5 +59,5 @@ class top extends Module {
 }
 
 object TopMain extends App {
-    emitVerilog(new HWTop, Array("--target-dir", "generated"))
+    emitVerilog(new top, Array("--target-dir", "generated"))
 }

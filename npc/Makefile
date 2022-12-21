@@ -48,7 +48,7 @@ all: $(VBIN)
 
 $(VSRCS): verilog split
 
-$(VBIN): $(NVBOARD_ARCHIVE)
+$(VBIN): $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \

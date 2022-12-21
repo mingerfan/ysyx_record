@@ -23,6 +23,7 @@ OBJ_DIR = $(BUILD_DIR)/v_obj_dir
 LOGS_DIR = ./out/v_logs
 
 VBIN = $(OBJ_DIR)/$(TOPNAME)
+VGEN = $(BUILD_DIR)/$(TOPNAME).v
 
 SRC_AUTO_BIND = $(abspath $(OBJ_DIR)/auto_bind.cpp)
 
@@ -46,7 +47,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): verilog
+$(VSRCS): verilog split
 
 $(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
@@ -62,12 +63,14 @@ export PATH := $(PATH):$(abspath ./utils)
 test:
 	mill -i __.test
 
-verilog:
+$(VGEN):
 	mkdir -p $(BUILD_DIR)
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
 	$(call git_commit, "generate verilog")
 
-split:
+verilog: $(VGEN)
+
+split: $(VGEN) $(VSRCS)
 	python3 split.py
 
 help:

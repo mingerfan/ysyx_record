@@ -49,7 +49,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): verilog split
+$(VSRCS): 
 
 $(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
@@ -72,8 +72,11 @@ $(VGEN):
 
 verilog: $(VGEN)
 
-split: verilog
+$(VSRC_TOP): verilog 
 	python3 split.py
+
+split: $(VSRC_TOP)
+	
 
 help:
 	mill -i __.test.runMain Elaborate --help

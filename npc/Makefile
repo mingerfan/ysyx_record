@@ -46,7 +46,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): 
+$(VSRCS): verilog
 
 $(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)

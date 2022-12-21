@@ -70,7 +70,7 @@ $(VGEN):
 
 verilog: $(VGEN)
 
-split: $(VGEN) $(VSRCS)
+split: $(VGEN)
 	python3 split.py
 
 help:

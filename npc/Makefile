@@ -51,7 +51,7 @@ all: $(VBIN)
 
 $(VSRC_TOP): verilog split
 
-VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+VBIN_DP := $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 $(VBIN): $(VBIN_DP)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)

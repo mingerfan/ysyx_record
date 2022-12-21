@@ -49,7 +49,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): $(VSRC_TOP)
+$(VSRCS): $(VGEN)
 
 $(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)

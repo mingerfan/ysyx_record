@@ -90,8 +90,9 @@ clean:
 
 .PHONY: default all test verilog split help compile bsp reformat checkformat clean
 
-sim: verilog
-	# $(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+sim: $(VBIN)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by yourself."
+	$(VBIN)
 
 include ../Makefile

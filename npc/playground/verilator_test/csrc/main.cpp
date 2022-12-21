@@ -14,7 +14,7 @@ static void single_cycle() {
 static void reset(int n) {
   dut.reset = 1;
   while (n -- > 0) single_cycle();
-  dut.rst = 0;
+  dut.reset = 0;
 }
 
 int main() {

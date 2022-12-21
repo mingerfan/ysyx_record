@@ -51,12 +51,14 @@ all: $(VBIN)
 
 $(VSRC_TOP): verilog split
 
-$(VBIN): $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+
+$(VBIN): $(VBIN_DP)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	echo $(VSRC_TOP)
 	echo $(VSRCS)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
-		--top-module $(TOPNAME) $^ \
+		--top-module $(TOPNAME) $(VBIN_DP) \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(VBIN))
 

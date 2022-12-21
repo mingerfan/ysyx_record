@@ -49,7 +49,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRC_TOP): verilog split
+
 
 $(VBIN): $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)

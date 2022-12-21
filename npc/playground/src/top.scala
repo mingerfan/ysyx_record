@@ -7,7 +7,7 @@ class top extends Module {
         val led = Output(UInt(16.W))
     })
 
-    io.led := 0.U
+    io.led := "hFF".U
 }
 
 // object TopMain extends App {

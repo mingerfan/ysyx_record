@@ -10,6 +10,9 @@ verilog:
 	mkdir -p $(BUILD_DIR)
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
 
+split:
+	python3 split.py
+
 help:
 	mill -i __.test.runMain Elaborate --help
 
@@ -28,7 +31,7 @@ checkformat:
 clean:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: test verilog help compile bsp reformat checkformat clean
+.PHONY: test verilog split help compile bsp reformat checkformat clean
 
 sim: verilog
 	# $(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

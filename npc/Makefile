@@ -51,9 +51,9 @@ all: $(VBIN)
 
 # $(VSRC_TOP): split
 
-VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+VBIN_DP = $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
-$(VBIN): 
+$(VBIN): $(VBIN_DP)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $(VBIN_DP) \

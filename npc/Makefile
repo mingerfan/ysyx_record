@@ -49,7 +49,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRC_TOP): verilog split
+$(VSRC_TOP): split
 
 VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
@@ -75,12 +75,9 @@ $(VGEN):
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
 
 verilog: $(VGEN)
-
-$(VSRC_TOP):
-	python3 split.py
-
-split: $(VSRC_TOP)
 	
+split: $(VSRC_TOP) $(VGEN)
+	python3 split.py
 
 help:
 	mill -i __.test.runMain Elaborate --help

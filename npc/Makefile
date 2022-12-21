@@ -49,7 +49,7 @@ default: all
 
 all: $(VBIN)
 
-$(VSRCS): $(VSRC_TOP)
+$(VSRCS): verilog split
 
 $(VBIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
@@ -65,10 +65,12 @@ export PATH := $(PATH):$(abspath ./utils)
 test:
 	mill -i __.test
 
-verilog: $(VSRC_TOP)
+$(VGEN):
 	mkdir -p $(BUILD_DIR)
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
 	$(call git_commit, "generate verilog")
+
+verilog: $(VGEN)
 
 split: verilog
 	python3 split.py

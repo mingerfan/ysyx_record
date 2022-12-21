@@ -53,6 +53,7 @@ $(VSRC_TOP): verilog split
 
 $(VBIN): $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
+	echo $(VSRC_TOP)
 	echo $(VSRCS)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \

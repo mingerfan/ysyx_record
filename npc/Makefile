@@ -26,7 +26,7 @@ VBIN = $(OBJ_DIR)/$(TOPNAME)
 
 SRC_AUTO_BIND = $(abspath $(OBJ_DIR)/auto_bind.cpp)
 
-$(shell mkdir -p $(BUILD_DIR))
+# $(shell mkdir -p $(BUILD_DIR))
 
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)

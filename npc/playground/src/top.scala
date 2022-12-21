@@ -6,7 +6,7 @@ class top extends Module {
     val io = IO(new Bundle {
         val led = Output(UInt(16.W))
     })
-    val cnt = RegInit(0.U(32.W))
+    val cnt = RegInit(0.U(64.W))
     cnt := cnt + 1.U
     val ledReg = RegInit("h01".U(16.W))
     when (cnt === 0.U) {

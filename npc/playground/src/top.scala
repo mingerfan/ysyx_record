@@ -6,8 +6,13 @@ class top extends Module {
     val io = IO(new Bundle {
         val led = Output(UInt(16.W))
     })
-
-    io.led := "hFF".U
+    val cnt = RegInit(0.U(16.W))
+    cnt := cnt + 1.U
+    val ledReg = RegInit("h01".U(16.W))
+    when (cnt === 0.U) {
+        ledReg := Cat(ledReg(14,0), ledReg(15))
+    }
+    io.led := ledReg
 }
 
 // object TopMain extends App {

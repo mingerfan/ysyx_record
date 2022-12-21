@@ -34,8 +34,9 @@ SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
-VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.v" ! -name "top.v")
-VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/top.v
+VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.v" ! -name "$(TOPNAME).v")
+VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).v
+EX_FILE = $(BUILD_DIR)/$(TOPNAME)_splited/~generated
 CSRCS = $(shell find $(abspath ./playground/verilator_test/csrc/) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 
@@ -49,7 +50,7 @@ default: all
 
 all: $(VBIN)
 
-# $(VSRC_TOP): split
+$(VSRC_TOP): split
 
 VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
@@ -73,9 +74,11 @@ $(VGEN):
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
 
 verilog: $(VGEN)
-	
-split: $(VGEN)
+
+$(EX_FILE): $(VGEN)
 	python3 split.py
+
+split: $(EX_FILE)	
 
 help:
 	mill -i __.test.runMain Elaborate --help

@@ -63,9 +63,9 @@ test:
 	mill -i __.test
 
 verilog:
-	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
+	$(call git_commit, "generate verilog")
 
 split:
 	python3 split.py
@@ -91,8 +91,8 @@ clean:
 .PHONY: default all test verilog split help compile bsp reformat checkformat clean
 
 sim: $(VBIN)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by yourself."
 	$(VBIN)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 include ../Makefile

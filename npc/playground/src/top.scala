@@ -7,9 +7,9 @@ class top extends Module {
         val led = Output(UInt(16.W))
     })
 
-    io.led := "hFF".U
+    io.led := 0.U
 }
 
-object TopMain extends App {
-    emitVerilog(new top, Array("--target-dir", "generated"))
-}
+// object TopMain extends App {
+//     emitVerilog(new top, Array("--target-dir", "generated"))
+// }

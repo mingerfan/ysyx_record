@@ -1,6 +1,7 @@
 import chisel3._
+import chisel3.util._
 
 object Elaborate extends App {
-    val top = new top
-    // emitVerilog(top, Array("--target-dir", "./build/top"))
+    def top = new HomeWorkHDL.top
+    emitVerilog(top, Array("--target-dir", "./build/top"))
 }

@@ -23,9 +23,9 @@ class top extends Module {
     io.unused := un_reg
 
     val Mux4_1 = Module(new MuxAbs(UInt(2.W), 4))
-    Mux4_1.io.key := Cat(io.sw(1), io.sw(1))
+    Mux4_1.io.key := Cat(io.sw(1), io.sw(0))
     for (i <- 0 until 4) {
-        Mux4_1.io.in(i) := Cat(io.sw(i*2+2), io.sw(i*2+3))
+        Mux4_1.io.in(i) := Cat(io.sw(i*2+3), io.sw(i*2+2))
     }
     io.led := Mux4_1.io.out
 }

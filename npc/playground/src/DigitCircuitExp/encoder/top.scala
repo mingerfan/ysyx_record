@@ -34,7 +34,7 @@ class top extends Module {
         is (4.U) { io.seg := ~"b110_0110".U }
         is (5.U) { io.seg := ~"b110_1101".U }
         is (6.U) { io.seg := ~"b111_1101".U }
-        is (7.U) { io.seg := ~"b000_0111".U }
+        is (7.U) { io.seg := "b000_0111".U }
         is (8.U) { io.seg := ~"b111_1111".U }
         is (9.U) { io.seg := ~"b110_1111".U }
     }

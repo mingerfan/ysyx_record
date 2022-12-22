@@ -27,15 +27,15 @@ class top extends Module {
 
     io.seg := 0.U
     switch (enc_result) {
-        is (0.U) { io.seg := "b011_1111".U }
-        is (1.U) { io.seg := "b000_0011".U }
-        is (2.U) { io.seg := "b101_1011".U }
-        is (3.U) { io.seg := "b100_1111".U }
-        is (4.U) { io.seg := "b110_0110".U }
-        is (5.U) { io.seg := "b110_1101".U }
-        is (6.U) { io.seg := "b111_1101".U }
-        is (7.U) { io.seg := "b000_0111".U }
-        is (8.U) { io.seg := "b111_1111".U }
-        is (9.U) { io.seg := "b110_1111".U }
+        is (0.U) { io.seg := ~"b011_1111".U }
+        is (1.U) { io.seg := ~"b000_0011".U }
+        is (2.U) { io.seg := ~"b101_1011".U }
+        is (3.U) { io.seg := ~"b100_1111".U }
+        is (4.U) { io.seg := ~"b110_0110".U }
+        is (5.U) { io.seg := ~"b110_1101".U }
+        is (6.U) { io.seg := ~"b111_1101".U }
+        is (7.U) { io.seg := ~"b000_0111".U }
+        is (8.U) { io.seg := ~"b111_1111".U }
+        is (9.U) { io.seg := ~"b110_1111".U }
     }
 }

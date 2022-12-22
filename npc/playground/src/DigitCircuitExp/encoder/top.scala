@@ -14,7 +14,7 @@ class top extends Module {
     val un_reg = RegInit(2.U)
     un_reg := un_reg + 1.U
     io.unused := un_reg
-    val seg_wire = Wire()
+    val seg_wire = Wire(UInt(7.W))
     val enc_in = Wire(UInt(8.W))
     enc_in := io.sw(7, 0)
 

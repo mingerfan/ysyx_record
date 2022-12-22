@@ -14,7 +14,7 @@ class top extends Module {
     val un_reg = RegInit(2.U)
     un_reg := un_reg + 1.U
     io.unused := un_reg
-
+    val seg_wire = Wire()
     val enc_in = Wire(UInt(8.W))
     enc_in := io.sw(7, 0)
 
@@ -25,17 +25,19 @@ class top extends Module {
     val enc_result = Mux(io.sw(8), last_mux, 0.U)
     io.led := Cat(io.sw(8), enc_result)
 
-    io.seg := 0.U
+    io.seg := seg_wire
+
+    seg_wire := 0.U
     switch (enc_result) {
-        is (0.U) { io.seg := ~"b011_1111".U }
-        is (1.U) { io.seg := ~"b000_0011".U }
-        is (2.U) { io.seg := ~"b101_1011".U }
-        is (3.U) { io.seg := ~"b100_1111".U }
-        is (4.U) { io.seg := ~"b110_0110".U }
-        is (5.U) { io.seg := ~"b110_1101".U }
-        is (6.U) { io.seg := ~"b111_1101".U }
-        is (7.U) { io.seg := "b000_0111".U }
-        is (8.U) { io.seg := ~"b111_1111".U }
-        is (9.U) { io.seg := ~"b110_1111".U }
+        is (0.U) { seg_wire := "b011_1111".U }
+        is (1.U) { seg_wire := "b000_0011".U }
+        is (2.U) { seg_wire := "b101_1011".U }
+        is (3.U) { seg_wire := "b100_1111".U }
+        is (4.U) { seg_wire := "b110_0110".U }
+        is (5.U) { seg_wire := "b110_1101".U }
+        is (6.U) { seg_wire := "b111_1101".U }
+        is (7.U) { seg_wire := "b000_0111".U }
+        is (8.U) { seg_wire := "b111_1111".U }
+        is (9.U) { seg_wire := "b110_1111".U }
     }
 }

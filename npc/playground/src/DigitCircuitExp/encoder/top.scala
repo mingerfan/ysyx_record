@@ -15,7 +15,7 @@ class top extends Module {
     un_reg := un_reg + 1.U
     io.unused := un_reg
 
-    val enc_in = Wire(UInt(7.W))
+    val enc_in = Wire(UInt(8.W))
     enc_in := io.sw(7, 0)
 
     var last_mux = 0.U(3.W)

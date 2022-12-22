@@ -30,7 +30,7 @@ class top extends Module {
     seg_wire := 0.U
     switch (enc_result) {
         is (0.U) { seg_wire := "b011_1111".U }
-        is (1.U) { seg_wire := "b000_0011".U }
+        is (1.U) { seg_wire := "b000_0110".U }
         is (2.U) { seg_wire := "b101_1011".U }
         is (3.U) { seg_wire := "b100_1111".U }
         is (4.U) { seg_wire := "b110_0110".U }

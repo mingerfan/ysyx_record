@@ -25,7 +25,7 @@ class top extends Module {
     val enc_result = Mux(io.sw(8), last_mux, 0.U)
     io.led := Cat(io.sw(8), enc_result)
 
-    io.seg := seg_wire
+    io.seg := ~seg_wire
 
     seg_wire := 0.U
     switch (enc_result) {

@@ -38,7 +38,7 @@ class IsEqu(width: Int) extends aluAbs(width) {
     io.out := Mux(io.A === io.B, 1.U, 0.U)
 }
 
-class AddSub(width) extends aluAbs(width) {
+class AddSub(width: Int) extends aluAbs(width) {
     val exio = IO(new Bundle {
         val mode = Input(UInt(1.U))
         val carry = Output(Bool())

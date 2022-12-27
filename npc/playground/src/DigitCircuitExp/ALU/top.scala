@@ -24,7 +24,7 @@ class XorG(width: Int) extends aluAbs(width) {
 
 class Cmp(width: Int) extends aluAbs(width) {
     when (io.A(width-1) === 0.U && io.B(width-1) === 0.U) {
-        io.out := (io.A > io.B).asUInt
+        io.out := (io.A < io.B).asUInt
     } .elsewhen (io.A(width-1) === 0.U && io.B(width-1) === 1.U) {
         io.out := 1.U
     } .elsewhen (io.A(width-1) === 1.U && io.B(width-1) === 0.U) {
@@ -99,18 +99,21 @@ class top extends Module {
     addSub.io.A := inA
     addSub.io.B := inB
     addSub.exio.mode := 0.U
-    ares := addSub.exio.overflow.asUInt ## addSub.exio.zero.asUInt ## addSub.exio.carry.asUInt
+
+    ares := 0.U
 
     switch (sel) {
         // add
         is ("b000".U) {
             addSub.exio.mode := 0.U
             res := addSub.io.out
+            ares := addSub.exio.overflow.asUInt ## addSub.exio.zero.asUInt ## addSub.exio.carry.asUInt
         }
         // sub
         is ("b001".U) {
             addSub.exio.mode := 1.U
             res := addSub.io.out
+            ares := addSub.exio.overflow.asUInt ## addSub.exio.zero.asUInt ## addSub.exio.carry.asUInt
         }
         // not
         is ("b010".U) {

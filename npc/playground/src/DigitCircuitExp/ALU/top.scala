@@ -40,7 +40,7 @@ class IsEqu(width: Int) extends aluAbs(width) {
 
 class AddSub(width: Int) extends aluAbs(width) {
     val exio = IO(new Bundle {
-        val mode = Input(UInt(1.U))
+        val mode = Input(UInt(1.W))
         val carry = Output(Bool())
         val zero = Output(Bool())
         val overflow = Output(Bool())
@@ -122,7 +122,7 @@ class top extends Module {
         }
         // xor
         is ("b101".U) {
-            res := xor.io.out
+            res := xorG.io.out
         }
         // cmp
         is ("b110".U) {

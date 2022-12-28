@@ -9,13 +9,15 @@ class top extends Module {
         val seg = Output(Vec(2, UInt(7.W)))
     })
 
-    val clockGen = Module(new ClockGen(500000000, 1))
+    val clockGen = Module(new ClockGen(5000000, 1))
     val risingEdge = WireDefault(!RegNext(clockGen.io.outClk) & clockGen.io.outClk)
     
     val shiftreg = RegInit(1.U(8.W))
     val x8 = WireDefault(shiftreg(4)^shiftreg(3)^shiftreg(2)^shiftreg(0))
     
-    shiftreg := Cat(x8, shiftreg(7, 1))
+    when (risingEdge) {
+        shiftreg := Cat(x8, shiftreg(7, 1))
+    }
 
     val dec1 = Module(new Decoder)
     dec1.io.inNum := shiftreg(3, 0)

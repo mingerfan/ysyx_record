@@ -53,7 +53,7 @@ class AddSub(width: Int) extends aluAbs(width) {
     res := io.A +& B_ + exio.mode
     carry_u := res(width)
     io.out := res(width-1, 0)
-    exio.zero := io.out(width-2, 0) === 0.U
+    exio.zero := io.out === 0.U
     exio.overflow := (io.A(width-1) === B_(width-1)) && (io.A(width-1) =/= io.out(width-1))
     exio.carry := carry_u === 1.U
 }

@@ -24,6 +24,8 @@ class top extends Module {
     val dec2 = Module(new Decoder)
     dec2.io.inNum := shiftreg(7, 4)
     io.seg(1) := dec2.io.out
+
+    io.led := shiftreg
 }
 
 class Decoder extends Module {

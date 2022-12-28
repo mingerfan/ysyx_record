@@ -8,19 +8,23 @@ class Decoder extends Module {
         val out = Output(UInt(7.W))
     })
 
-    io.out := "b0000_000".U
+    val seg_wire = Wire(UInt(7.W))
+
+    seg_wire := 0.U
+
+    io.out := ~seg_wire
 
     switch (io.inNum) {
-        is (0.U) {io.out := "b1111_110".U}
-        is (1.U) {io.out := "b0110_000".U}
-        is (2.U) {io.out := "b1101_101".U}
-        is (3.U) {io.out := "b1111_001".U}
-        is (4.U) {io.out := "b0110_011".U}
-        is (5.U) {io.out := "b1011_011".U}
-        is (6.U) {io.out := "b1011_111".U}
-        is (7.U) {io.out := "b1110_000".U}
-        is (8.U) {io.out := "b1111_111".U}
-        is (9.U) {io.out := "b1111_011".U}
+        is (0.U) { seg_wire := "b011_1111".U }
+        is (1.U) { seg_wire := "b000_0110".U }
+        is (2.U) { seg_wire := "b101_1011".U }
+        is (3.U) { seg_wire := "b100_1111".U }
+        is (4.U) { seg_wire := "b110_0110".U }
+        is (5.U) { seg_wire := "b110_1101".U }
+        is (6.U) { seg_wire := "b111_1101".U }
+        is (7.U) { seg_wire := "b000_0111".U }
+        is (8.U) { seg_wire := "b111_1111".U }
+        is (9.U) { seg_wire := "b110_1111".U }
     }
 }
 

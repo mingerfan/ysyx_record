@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util._
 import Chap26._
 
-class Top extends Module {
+class top extends Module {
     val io = IO(new Bundle {
         // 0 mode select - switch 
         // 1 up/down select - switch

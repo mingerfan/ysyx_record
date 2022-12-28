@@ -13,9 +13,7 @@ class top extends Module {
     val max_num = 16
     val data = new Array[Int](max_num)
     for (i <- 0 until max_num) {
-        data(i) = ((sin(2*Pi/max_num*i) + 1)/2 * 255).toInt
-        val data1 = data(i)
-        // println(s"data[i] = $data1")
+        data(i) = i
     }
     val regs = RegInit(VecInit(data.map(_.U(4.W))))
     when (io.we){

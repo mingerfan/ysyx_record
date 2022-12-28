@@ -11,7 +11,7 @@ class top extends Module {
         val out = Output(UInt(4.W))
     })
     val max_num = 16
-    val data = new List[Int](max_num)
+    val data = new ArrayBuffer[Int](max_num)
     for (i <- 0 until max_num) {
         data(i) = i.toInt
     }

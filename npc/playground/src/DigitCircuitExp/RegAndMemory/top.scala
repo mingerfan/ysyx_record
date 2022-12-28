@@ -13,7 +13,7 @@ class top extends Module {
     val max_num = 16
     val data = new Array[Int](max_num)
     for (i <- 0 until max_num) {
-        data(i) = i
+        data(i) = i.toInt
     }
     val regs = RegInit(VecInit(data.map(_.U(4.W))))
     when (io.we){

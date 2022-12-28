@@ -2,6 +2,7 @@ package RegAndMemory
 import chisel3._
 import chisel3.util._
 import math._
+import scala.collection.immutable.IndexedSeq
 
 class top extends Module {
     val io = IO(new Bundle {
@@ -11,7 +12,7 @@ class top extends Module {
         val out = Output(UInt(4.W))
     })
     val max_num = 16
-    val data = new Array[Int](max_num)
+    val data = new IndexedSeq[Int](max_num)
     for (i <- 0 until max_num) {
         data(i) = i
     }

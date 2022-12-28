@@ -16,7 +16,7 @@ class top extends Module {
         val beepOut = Output(Bool())
     })
 
-    val srcClk = 50000000
+    val srcClk = 5000000
     // val srcClk = 150    // Only for test
 
     val clk1Hz = Module(new ClockGen(srcClk, 1))

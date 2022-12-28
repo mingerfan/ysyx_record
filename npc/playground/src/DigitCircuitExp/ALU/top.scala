@@ -47,10 +47,10 @@ class AddSub(width: Int) extends aluAbs(width) {
     })
     val carry_u = WireDefault(0.U(1.W))
     
-    val B_ = WireDefault(io.B^Fill(width, exio.mode)) + exio.mode
+    val B_ = WireDefault(io.B^Fill(width, exio.mode))
 
     val res = Wire(UInt((width+1).W))
-    res := io.A +& B_
+    res := io.A +& B_ + exio.mode
     carry_u := res(width)
     io.out := res(width-1, 0)
     exio.zero := io.out(width-2, 0) === 0.U

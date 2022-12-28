@@ -17,11 +17,11 @@ class top extends Module {
     
     shiftreg := Cat(x8, shiftreg(7, 1))
 
-    dec1 = Module(new Decoder)
+    val dec1 = Module(new Decoder)
     dec1.io.inNum := shiftreg(3, 0)
     io.seg(0) := dec1.io.out
 
-    dec2 = Module(new Decoder)
+    val dec2 = Module(new Decoder)
     dec2.io.inNum := shiftreg(7, 4)
     io.seg(1) := dec2.io.out
 }

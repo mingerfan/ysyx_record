@@ -15,7 +15,7 @@ class top extends Module {
     for (i <- 0 until max_num) {
         data(i) = i
     }
-    val regs = RegInit(VecInit(data.toSeq.map(_.U(4.W))))
+    val regs = RegInit(VecInit(data.map(_.U(4.W))))
     when (io.we){
         regs(io.addr) := io.in
     }

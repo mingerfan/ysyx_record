@@ -11,11 +11,11 @@ class top extends Module {
         val out = Output(UInt(4.W))
     })
     val max_num = 16
-    val data = new Array[Int](max_num)
+    val data = new Vector[Int](max_num)
     for (i <- 0 until max_num) {
         data(i) = i.toInt
     }
-    val regs = VecInit(data.map(_.U(4.W)))
+    val regs = RegInit(VecInit(data.map(_.U(4.W))))
     when (io.we){
         regs(io.addr) := io.in
     }

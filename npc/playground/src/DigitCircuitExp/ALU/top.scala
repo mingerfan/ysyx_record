@@ -26,9 +26,9 @@ class Cmp(width: Int) extends aluAbs(width) {
     when (io.A(width-1) === 0.U && io.B(width-1) === 0.U) {
         io.out := (io.A < io.B).asUInt
     } .elsewhen (io.A(width-1) === 0.U && io.B(width-1) === 1.U) {
-        io.out := 1.U
-    } .elsewhen (io.A(width-1) === 1.U && io.B(width-1) === 0.U) {
         io.out := 0.U
+    } .elsewhen (io.A(width-1) === 1.U && io.B(width-1) === 0.U) {
+        io.out := 1.U
     } .otherwise {
         io.out := (io.A < io.B).asUInt
     }

@@ -54,7 +54,7 @@ class AddSub(width: Int) extends aluAbs(width) {
     carry_u := res(width)
     io.out := res(width-1, 0)
     exio.zero := io.out(width-2, 0) === 0.U
-    exio.overflow := true.B
+    exio.overflow := (io.A(width-1) === B_(width-1)) && (io.A(width-1) =/= io.out(width-1))
     exio.carry := carry_u === 1.U
 }
  
@@ -107,7 +107,7 @@ class top extends Module {
         is ("b000".U) {
             addSub.exio.mode := 0.U
             res := addSub.io.out
-            ares := addSub.exio.overflow.asUInt ## addSub.exio.zero.asUInt ## addSub.exio.carry.asUInt
+            ares := "b100".U
         }
         // sub
         is ("b001".U) {

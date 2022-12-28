@@ -107,7 +107,7 @@ class top extends Module {
         is ("b000".U) {
             addSub.exio.mode := 0.U
             res := addSub.io.out
-            ares := "b100".U
+            ares := addSub.exio.overflow.asUInt ## addSub.exio.zero.asUInt ## addSub.exio.carry.asUInt
         }
         // sub
         is ("b001".U) {

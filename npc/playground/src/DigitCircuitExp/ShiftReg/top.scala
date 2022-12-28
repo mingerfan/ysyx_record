@@ -9,7 +9,7 @@ class top extends Module {
         val seg = Output(Vec(2, UInt(7.W)))
     })
 
-    val clockGen = Module(new ClockGen(5000000, 1))
+    val clockGen = Module(new ClockGen(50000000, 1))
     val risingEdge = WireDefault(!RegNext(clockGen.io.outClk) & clockGen.io.outClk)
     
     val shiftreg = RegInit(1.U(8.W))

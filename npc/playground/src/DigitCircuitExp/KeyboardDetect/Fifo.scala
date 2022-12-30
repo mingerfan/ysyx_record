@@ -39,7 +39,7 @@ class RegFifo[T<:Data](gen: T, depth: Int) extends Fifo(gen, depth) {
     }
 
     when (io.deq.ready && !isEpty) {
-        isEpty := nextRead == writePtr
+        isEpty := nextRead === writePtr
         isFull := false.B
         incrRead := true.B
     }

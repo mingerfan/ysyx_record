@@ -16,7 +16,7 @@ VERILATOR_FLAGS += --cc --exe -O3
 # so Verilator will call make itself. This is we don't need to manually call make as a separate step.
 VERILATOR_FLAGS += --build
 
-VERILATOR_FLAGS += --trace -Wno-UNUSED
+VERILATOR_FLAGS += --trace
 
 OBJ_DIR = $(BUILD_DIR)/v_obj_dir
 

@@ -26,8 +26,8 @@ class top extends Module {
         } .otherwise {
             timesReg := 0.U
         }
-    } .otherwise {
-            timesReg := 0.U
+    } .elsewhen (regRecord.io.ascii === 0.U) {
+        timesReg := 0.U
     }
 
     val segsArr = new Array[Decoder](6)

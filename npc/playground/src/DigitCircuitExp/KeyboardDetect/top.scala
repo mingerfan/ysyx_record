@@ -26,6 +26,8 @@ class top extends Module {
         } .otherwise {
             timesReg := 0.U
         }
+    } .otherwise {
+            timesReg := 0.U
     }
 
     val segsArr = new Array[Decoder](6)

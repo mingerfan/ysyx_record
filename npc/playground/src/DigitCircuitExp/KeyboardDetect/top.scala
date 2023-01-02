@@ -19,10 +19,12 @@ class top extends Module {
     val timesReg = RegInit(0.U(8.W))
     val lastAscii = RegInit(0.U(8.W))
 
-    when (risingEdge) {
+    when (risingEdge && regRecord.io.ascii =/= 0.U) {
         lastAscii := regRecord.io.ascii
         when (lastAscii === regRecord.io.ascii) {
             timesReg := timesReg + 1.U
+        } .otherwise {
+            timesReg := 0.U
         }
     }
 

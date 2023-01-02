@@ -29,7 +29,7 @@ class top extends Module {
     val segsArr = new Array[Decoder](6)
     for (i <- 0 until 6) {
         segsArr(i) = Module(new Decoder)
-        io.segs := segsArr(i).io.out
+        io.segs(i) := segsArr(i).io.out
     }
 
     boardInputScan.io.ps2_clk := io.ps2_clk

@@ -1,7 +1,7 @@
 package KeyboardDetect
 import chisel3._
 import chisel3.util._
-import shiftreg.Decoder
+import ShiftReg.Decoder
 import HomeWorkHDL.ClockGen
 
 class top extends Module {

@@ -1,0 +1,48 @@
+package KeyboardDetect
+import chisel3._
+import chisel3.util._
+import shiftreg.Decoder
+import HomeWorkHDL.ClockGen
+
+class top extends Module {
+    val io = IO(new Bundle {
+        val ps2_clk = Input(Bool())
+        val ps2_data = Input(Bool())
+        val segs = Output(Vec(6, UInt(7.W)))
+    })
+
+    val boardInputScan = Module(new BoardInputScan)
+    val regRecord = Module(new RegRecord)
+
+    val clockGen = Module(new ClockGen(10000000, 1))
+    val risingEdge = WireDefault(!RegNext(clockGen.io.outClk) & clockGen.io.outClk)
+    val timesReg = RegInit(0.U(8.W))
+    val lastAscii = RegInit(0.U(8.W))
+
+    when (risingEdge) {
+        lastAscii := regRecord.io.ascii
+        when (lastAscii === regRecord.io.ascii) {
+            timesReg := timesReg + 1.U
+        }
+    }
+
+    val segsArr = new Array[Decoder](6)
+    for (i <- 0 until 6) {
+        segsArr(i) = Module(new Decoder)
+        io.segs := segsArr(i).io.out
+    }
+
+    boardInputScan.io.ps2_clk := io.ps2_clk
+    boardInputScan.io.ps2_data := io.ps2_data
+    
+    regRecord.io.fifo <> boardInputScan.io.cmdOut
+
+    segsArr(0).io.inNum := regRecord.io.keyCode(3,0)
+    segsArr(1).io.inNum := regRecord.io.keyCode(7,4)
+
+    segsArr(2).io.inNum := regRecord.io.ascii(3,0)
+    segsArr(3).io.inNum := regRecord.io.ascii(7,4)
+
+    segsArr(4).io.inNum := timesReg(3,0)
+    segsArr(5).io.inNum := timesReg(7,4)
+}

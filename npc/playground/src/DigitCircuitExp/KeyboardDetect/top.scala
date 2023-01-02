@@ -1,7 +1,7 @@
 package KeyboardDetect
 import chisel3._
 import chisel3.util._
-import shiftreg.Decoder
+import ShiftReg.Decoder
 import HomeWorkHDL.ClockGen
 
 class top extends Module {
@@ -19,17 +19,21 @@ class top extends Module {
     val timesReg = RegInit(0.U(8.W))
     val lastAscii = RegInit(0.U(8.W))
 
-    when (risingEdge) {
+    when (risingEdge && regRecord.io.ascii =/= 0.U) {
         lastAscii := regRecord.io.ascii
         when (lastAscii === regRecord.io.ascii) {
             timesReg := timesReg + 1.U
+        } .otherwise {
+            timesReg := 0.U
         }
+    } .elsewhen (regRecord.io.ascii === 0.U) {
+        timesReg := 0.U
     }
 
     val segsArr = new Array[Decoder](6)
     for (i <- 0 until 6) {
         segsArr(i) = Module(new Decoder)
-        io.segs := segsArr(i).io.out
+        io.segs(i) := segsArr(i).io.out
     }
 
     boardInputScan.io.ps2_clk := io.ps2_clk

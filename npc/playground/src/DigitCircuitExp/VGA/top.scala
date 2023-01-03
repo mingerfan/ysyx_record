@@ -17,7 +17,7 @@ class top extends Module {
     val mem = Module(new MemRom(24, 19, "/home/xs/ysyx/ysyx-workbench/nvboard/picture.hex"))
     mem.io.addr := Cat(vgaCtrl.io.hAddr, vgaCtrl.io.vAddr)
     vgaCtrl.io.pclk := clock
-    vgaCtrl.io.vgaData := io.addr
+    vgaCtrl.io.vgaData := mem.io.out
     io.vgaHsync := vgaCtrl.io.hsync
     io.vgaVsync := vgaCtrl.io.vsync
     io.vgaBlank := vgaCtrl.io.valid
@@ -34,4 +34,10 @@ class MemRom(addr_width: Int, out_width: Int, init_file: String) extends AbsRom(
     val dedupBlock = WireInit(mem.hashCode.U)
 
     io.out := mem.read(io.addr)
+}
+
+class AbsRom(addr_width: Int, out_width: Int) extends Module {
+    val io = IO(new RomBundle(addr_width, out_width))
+    val max_num = pow(2, addr_width).toInt
+    val DAC_max = 255
 }

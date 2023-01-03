@@ -17,7 +17,7 @@ class top extends Module {
     vgaCtrl.io.pclk := clockGen.io.outClk.asBool.asClock
     vgaCtrl.io.vgaData := "hFFFFFF".U
     io.vgaHsync := vgaCtrl.io.hsync
-    io.vgaHsync := vgaCtrl.io.vsync
+    io.vgaVsync := vgaCtrl.io.vsync
     io.vgaR := vgaCtrl.io.vgaR
     io.vgaG := vgaCtrl.io.vgaG
     io.vgaB := vgaCtrl.io.vgaB

@@ -27,27 +27,27 @@ class VGA_Ctrl extends Module {
 
     withClock (io.pclk) {
         val xCnt = RegInit(1.U(log2Ceil(h_total).W))
-        val yCnt = RegInit(1.U(log2Ceil(y_total).W))
+        val yCnt = RegInit(1.U(log2Ceil(v_total).W))
 
         xCnt := xCnt + 1.U
-        when (xCnt >= h_total) {
+        when (xCnt >= h_total.U) {
             xCnt := 1.U
         }
 
-        when (xCnt === h_total && yCnt >= v_total) {
+        when (xCnt === h_total.U && yCnt >= v_total.U) {
             yCnt := 1.U
-        } .elsewhen (xCnt === h_total) {
+        } .elsewhen (xCnt === h_total.U) {
             yCnt := yCnt + 1.U
         }
 
-        val h_valid = WireDefault((xCnt > h_active) && (xCnt <= h_backporch))
-        val v_valid = WireDefault((yCnt > v_active) && (yCnt <= v_backporch))
+        val h_valid = WireDefault((xCnt > h_active.U) && (xCnt <= h_backporch.U))
+        val v_valid = WireDefault((yCnt > v_active.U) && (yCnt <= v_backporch.U))
 
-        io.hsync := xCnt > h_frontporch
-        io.vsync := yCnt > v_frontporch
+        io.hsync := xCnt > h_frontporch.U
+        io.vsync := yCnt > v_frontporch.U
         io.valid := h_valid && v_valid
-        io.hAddr := Mux(h_valid, xCnt - h_active - 1.U, 0.U)
-        io.vAddr := Mux(v_valid, yCnt - v_active - 1.U, 0.U)
+        io.hAddr := Mux(h_valid, xCnt - h_active.U - 1.U, 0.U)
+        io.vAddr := Mux(v_valid, yCnt - v_active.U - 1.U, 0.U)
 
         io.vgaR := io.vgaData(23,16)
         io.vgaG := io.vgaData(15,8)

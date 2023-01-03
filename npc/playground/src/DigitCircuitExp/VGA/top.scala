@@ -14,8 +14,8 @@ class top extends Module {
     })
 
     val vgaCtrl = Module(new VGA_Ctrl)
-    // val clockGen = Module(new ClockGen(100000000, 25000000))
-    vgaCtrl.io.pclk := clock
+    val clockGen = Module(new ClockGen(100000000, 25000000))
+    vgaCtrl.io.pclk := clockGen.io.outClk
     vgaCtrl.io.vgaData := "hFFFFFF".U
     io.vgaHsync := vgaCtrl.io.hsync
     io.vgaVsync := vgaCtrl.io.vsync

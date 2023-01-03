@@ -40,7 +40,7 @@ class VGA_Ctrl extends Module {
             yCnt := yCnt + 1.U
         }
 
-        val h_valid = WireDefault((xCnt > 0.U) && (xCnt <= h_backporch.U-h_active.U))
+        val h_valid = WireDefault((xCnt > h_frontporch.U) && (xCnt <= h_backporch.U + h_frontporch.U - h_active.U))
         val v_valid = WireDefault((yCnt > v_active.U) && (yCnt <= v_backporch.U))
 
         io.hsync := xCnt > h_frontporch.U

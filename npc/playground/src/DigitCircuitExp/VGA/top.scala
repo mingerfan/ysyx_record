@@ -14,7 +14,7 @@ class top extends Module {
 
     val vgaCtrl = Module(new VGA_Ctrl)
     vgaCtrl.io.pclk := clock
-    vgaCtrl.io.vgaData := Mux(vgaCtrl.io.hAddr > 300.U, "hFFFFFF".U, "h3F8F5F".U)
+    vgaCtrl.io.vgaData := Mux(vgaCtrl.io.hAddr < 200.U, "hFFFFFF".U, "h3F8F5F".U)
     io.vgaHsync := vgaCtrl.io.hsync
     io.vgaVsync := vgaCtrl.io.vsync
     io.vgaBlank := vgaCtrl.io.valid

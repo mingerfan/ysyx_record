@@ -15,10 +15,10 @@ class top extends Module {
     })
 
     val vgaCtrl = Module(new VGA_Ctrl)
-    val mem = Module(new MemRom(19, 24, "/home/xs/ysyx/ysyx-workbench/nvboard/picture.hex"))
-    mem.io.addr := Cat(vgaCtrl.io.hAddr, vgaCtrl.io.vAddr)
+    val mymem = Module(new MemRom(19, 24, "/home/xs/ysyx/ysyx-workbench/nvboard/picture.hex"))
+    mymem.io.addr := Cat(vgaCtrl.io.hAddr, vgaCtrl.io.vAddr)
     vgaCtrl.io.pclk := clock
-    vgaCtrl.io.vgaData := mem.io.out
+    vgaCtrl.io.vgaData := mymem.io.out
     io.vgaHsync := vgaCtrl.io.hsync
     io.vgaVsync := vgaCtrl.io.vsync
     io.vgaBlank := vgaCtrl.io.valid

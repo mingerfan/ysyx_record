@@ -6,8 +6,8 @@ class VGA_Ctrl extends Module {
     val io = IO(new Bundle {
         val pclk = Input(Clock())
         val vgaData = Input(UInt(24.W))
-        val hAddr = Output(UInt(9.W))
-        val vAddr = Output(UInt(9.W))
+        val hAddr = Output(UInt(10.W))
+        val vAddr = Output(UInt(10.W))
         val hsync = Output(Bool())
         val vsync = Output(Bool())
         val valid = Output(Bool())

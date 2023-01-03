@@ -2,6 +2,7 @@ package DCE_VGA
 import chisel3._
 import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFileInline
+import math._
 
 class top extends Module {
     val io = IO(new Bundle {
@@ -40,4 +41,9 @@ class AbsRom(addr_width: Int, out_width: Int) extends Module {
     val io = IO(new RomBundle(addr_width, out_width))
     val max_num = pow(2, addr_width).toInt
     val DAC_max = 255
+}
+
+class RomBundle(addr_width: Int, out_width: Int) extends Bundle {
+    val addr = Input(UInt(addr_width.W))
+    val out = Output(UInt(out_width.W))
 }

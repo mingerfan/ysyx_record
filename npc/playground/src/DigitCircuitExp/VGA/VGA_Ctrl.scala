@@ -46,7 +46,7 @@ class VGA_Ctrl extends Module {
         io.hsync := xCnt > h_frontporch.U
         io.vsync := yCnt > v_frontporch.U
         io.valid := h_valid && v_valid
-        io.hAddr := Mux(h_valid, xCnt - h_active.U - 1.U + 96.U, 0.U)
+        io.hAddr := Mux(h_valid, xCnt - h_active.U - 1.U, 0.U)
         io.vAddr := Mux(v_valid, yCnt - v_active.U - 1.U, 0.U)
 
         io.vgaR := io.vgaData(23,16)

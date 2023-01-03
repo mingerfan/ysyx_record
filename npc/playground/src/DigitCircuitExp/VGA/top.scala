@@ -19,7 +19,7 @@ class top extends Module {
     vgaCtrl.io.vgaData := "hFFFFFF".U
     io.vgaHsync := vgaCtrl.io.hsync
     io.vgaVsync := vgaCtrl.io.vsync
-    io.vgaBlank := false.B
+    io.vgaBlank := vgaCtrl.io.hsync || vgaCtrl.io.vsync
     io.vgaR := vgaCtrl.io.vgaR
     io.vgaG := vgaCtrl.io.vgaG
     io.vgaB := vgaCtrl.io.vgaB

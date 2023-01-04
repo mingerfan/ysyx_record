@@ -79,11 +79,11 @@ class View extends Module {
 
     when (io.hAddr >= curPosX + hGap.U) {
         io.vgaData := "hFFFFFF".U
-        when (curIndex === io.cursorIndex) {
-            io.vgaData := "hFFFFFF".U
-        } .otherwise {
-            io.vgaData := mData(curCharColumn)
-        }
+        // when (curIndex === io.cursorIndex) {
+        //     io.vgaData := "hFFFFFF".U
+        // } .otherwise {
+        //     io.vgaData := mData(curCharColumn)
+        // }
     } .otherwise {
         io.vgaData := 0.U
     }

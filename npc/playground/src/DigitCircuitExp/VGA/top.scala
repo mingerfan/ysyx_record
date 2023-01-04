@@ -1,8 +1,7 @@
 package DCE_VGA
 import chisel3._
 import chisel3.util._
-import chisel3.util.experimental.loadMemoryFromFileInline
-import math._
+import DDS_HomeWork._
 
 class top extends Module {
     val io = IO(new Bundle {
@@ -27,23 +26,3 @@ class top extends Module {
     io.vgaB := vgaCtrl.io.vgaB
 }
 
-class MemRom(addr_width: Int, out_width: Int, init_file: String) extends AbsRom(addr_width, out_width) {
-    val mem = SyncReadMem(max_num, UInt(out_width.W))
-    loadMemoryFromFileInline(mem, init_file)
-    // This prevents deduping this memory module
-    // Ref. https://github.com/chipsalliance/firrtl/issues/2168
-    val dedupBlock = WireInit(mem.hashCode.U)
-
-    io.out := mem.read(io.addr)
-}
-
-class AbsRom(addr_width: Int, out_width: Int) extends Module {
-    val io = IO(new RomBundle(addr_width, out_width))
-    val max_num = pow(2, addr_width).toInt
-    val DAC_max = 255
-}
-
-class RomBundle(addr_width: Int, out_width: Int) extends Bundle {
-    val addr = Input(UInt(addr_width.W))
-    val out = Output(UInt(out_width.W))
-}

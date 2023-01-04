@@ -7,6 +7,7 @@ class RegRecord extends Module {
         val fifo = Flipped(new DecoupledIO(UInt(8.W)))
         val keyCode = Output(UInt(8.W))
         val ascii = Output(UInt(8.W))
+        val backspace = Output(Bool())
     })
     val charReg = RegInit(0.U(8.W))
     val ctrlReg = RegInit(0.U(8.W))
@@ -107,7 +108,10 @@ class RegRecord extends Module {
 
     finalDec.io.In := charDec.io.dec_step1
     finalDec.io.shift := ctrlDec1.io.shift
+    finalDec.io.enter := ctrlDec1.io.enter
+    finalDec.io.space := ctrlDec1.io.space
 
     io.keyCode := charReg
     io.ascii := finalDec.io.dec
+    io.backspace := ctrlDec1.io.backspace
 }

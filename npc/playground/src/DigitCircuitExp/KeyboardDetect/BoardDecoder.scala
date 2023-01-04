@@ -236,6 +236,8 @@ class CharDec extends Module {
 class FinalDec extends Module {
     val io = IO(new Bundle {
         val shift = Input(Bool())
+        val space = Input(Bool())
+        val enter = Input(Bool())
         val In = Input(UInt(16.W))
         val dec = Output(UInt(8.W))
     })
@@ -311,5 +313,9 @@ class FinalDec extends Module {
                 }
             }
         }
+    } .elsewhen (io.enter) {
+        io.dec := '\n'.U
+    } .elsewhen (io.space) {
+        io.dec := ' '.U
     }
 }

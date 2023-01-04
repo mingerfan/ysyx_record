@@ -1,11 +1,11 @@
-package KeyboardDetect
+package CharShow
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class topTester extends AnyFlatSpec with ChiselScalatestTester {
-    "top" should "pass" in {
-        test(new KeyBoard) .withAnnotations(Seq(WriteVcdAnnotation)) { dut=>
+    "Chartop" should "pass" in {
+        test(new top) .withAnnotations(Seq(WriteVcdAnnotation)) { dut=>
             def step(n: Int) = {
                 for (i <- 0 until n) {
                     dut.clock.step()
@@ -44,6 +44,7 @@ class topTester extends AnyFlatSpec with ChiselScalatestTester {
                 ps2Gen(15, p.B)
                 ps2Gen(15, true.B)
             }
+            dut.clock.setTimeout(0)
             dut.io.ps2_clk.poke(false.B)
             dut.io.ps2_data.poke(false.B)
 
@@ -53,7 +54,7 @@ class topTester extends AnyFlatSpec with ChiselScalatestTester {
 
             ps2GenPerS("h1C", false)
             ps2GenPerS("h12", true)
-            step(200)
+            step(60000)
         }
     }
 }

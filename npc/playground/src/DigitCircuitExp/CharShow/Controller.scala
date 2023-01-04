@@ -27,7 +27,7 @@ class Controller extends Module {
     ram.io.writeData := 0.U
     ram.io.writeEn := false.B
 
-    val lastEnterIndex = RegInit(Vec(row, (column-1).U))
+    val lastEnterIndex = Reg(Vec(row, UInt(6)))
 
     when (cursorIndex - counter >= column.U) {
         counter := counter + column.U

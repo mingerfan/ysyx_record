@@ -23,7 +23,7 @@ class Controller extends Module {
 
     ram.io.readAddr := io.charIndex
     io.charData := ram.io.readData
-    ram.io.writeAddr := 0.U
+    ram.io.writeAddr := 1.U
     ram.io.writeData := 0.U
     ram.io.writeEn := false.B
 

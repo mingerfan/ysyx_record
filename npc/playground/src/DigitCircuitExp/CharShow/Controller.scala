@@ -73,6 +73,7 @@ class Controller extends Module {
                 counter := counter - column.U
                 lastEnterIndex(lineCounter) := 0.U
                 lineCounter := lineCounter - 1.U
+                cursorIndex := lastEnterIndex(lineCounter-1.U)
             } .otherwise {
                 cursorIndex := cursorIndex - 1.U
             }

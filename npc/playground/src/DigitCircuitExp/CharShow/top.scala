@@ -10,7 +10,7 @@ class top extends Module {
         val ps2_clk = Input(Bool())
         val ps2_data = Input(Bool())
         val segs = Output(Vec(6, UInt(7.W)))
-        val segs1 = Output(Vec(6, UInt(7.W)))
+        val segs1 = Output(Vec(2, UInt(7.W)))
         val vgaVsync = Output(Bool())
         val vgaHsync = Output(Bool())
         val vgaBlank = Output(Bool())

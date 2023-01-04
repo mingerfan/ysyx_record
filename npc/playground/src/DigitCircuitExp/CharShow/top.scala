@@ -3,12 +3,14 @@ import chisel3._
 import chisel3.util._
 import KeyboardDetect._
 import DCE_VGA._
+import ShiftReg.Decoder
 
 class top extends Module {
     val io = IO(new Bundle {
         val ps2_clk = Input(Bool())
         val ps2_data = Input(Bool())
         val segs = Output(Vec(6, UInt(7.W)))
+        val segs1 = Output(Vec(6, UInt(7.W)))
         val vgaVsync = Output(Bool())
         val vgaHsync = Output(Bool())
         val vgaBlank = Output(Bool())
@@ -22,6 +24,15 @@ class top extends Module {
     val vga = Module(new VGA_Ctrl)
     val keyB = Module(new KeyBoard)
     val risingEdgeU = WireDefault((!RegNext(keyB.io.clkout) && keyB.io.clkout).asUInt)
+
+    val segsArr = new Array[Decoder](2)
+    for (i <- 0 until 2) {
+        segsArr(i) = Module(new Decoder)
+        io.segs1(i) := segsArr(i).io.out
+    }
+    
+    segsArr(0).io.inNum := controller.io.cursorIndex(3,0)
+    segsArr(1).io.inNum := controller.io.cursorIndex(7,4)
 
     view.io.hAddr := vga.io.hAddr
     view.io.vAddr := vga.io.vAddr

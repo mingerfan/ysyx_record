@@ -46,7 +46,7 @@ class Ram(addr_width: Int, out_width: Int) extends Module {
         val readAddr = Input(UInt(addr_width.W))
         val readData = Output(UInt(out_width.W))
         val writeAddr = Input(UInt(addr_width.W))
-        val writeData = Output(UInt(out_width.W))
+        val writeData = Input(UInt(out_width.W))
         val writeEn = Input(Bool())
     })
     val mem = SyncReadMem(pow(2, addr_width).toInt, UInt(out_width.W))

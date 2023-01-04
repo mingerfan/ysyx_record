@@ -17,7 +17,7 @@ class KeyBoard extends Module {
     val boardInputScan = Module(new BoardInputScan)
     val regRecord = Module(new RegRecord)
 
-    val clockGen = Module(new ClockGen(10000000, 5))
+    val clockGen = Module(new ClockGen(10000000, 10))
     val risingEdge = WireDefault(!RegNext(clockGen.io.outClk) & clockGen.io.outClk)
     val timesReg = RegInit(0.U(8.W))
     val lastAscii = RegInit(0.U(8.W))

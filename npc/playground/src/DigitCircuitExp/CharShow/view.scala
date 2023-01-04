@@ -52,7 +52,7 @@ class View extends Module {
         curCnt := curCnt + column.U
     }
 
-    when (curIndex >= (row * column).U) {
+    when (curIndex >= (row * column - 1.U).U) {
         curIndex := 0.U
     } .elsewhen (io.hAddr === 0.U) {
         curIndex := curCnt

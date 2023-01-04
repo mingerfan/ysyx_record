@@ -78,7 +78,7 @@ class View extends Module {
 
 
     when (io.hAddr >= curPosX + vGap.U && io.vAddr >= curPosY + hGap.U) {
-        when (curIndex === cursorIndex.U) {
+        when (curIndex === io.cursorIndex) {
             io.vgaData := "hFFFFFF".U
         } .otherwise {
             io.vgaData := mData(curCharColumn)

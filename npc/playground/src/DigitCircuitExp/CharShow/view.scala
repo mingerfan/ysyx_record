@@ -82,7 +82,7 @@ class View extends Module {
     val mAddr = WireDefault(mAddrStart + curCharRow)
     val mData = Wire(UInt(9.W))
 
-    val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))
+    val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.he"))
     ModMem.io.addr := mAddr
     mData := ModMem.io.out
 

@@ -49,7 +49,7 @@ class View extends Module {
     when (io.vAddr === nextPosY && curCnt >= ((row-1) * column).U) {
         curCnt := 0.U
     } .elsewhen (io.vAddr === nextPosY) {
-        curCnt := curCnt + column.U
+        curCnt := curCnt + column.U - 1.U
     }
 
     when (curIndex >= (row * column).U) {

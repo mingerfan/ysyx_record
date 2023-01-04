@@ -4,11 +4,13 @@ import chisel3.util._
 import ShiftReg.Decoder
 import HomeWorkHDL.ClockGen
 
-class top extends Module {
+class KeyBoard extends Module {
     val io = IO(new Bundle {
         val ps2_clk = Input(Bool())
         val ps2_data = Input(Bool())
         val segs = Output(Vec(6, UInt(7.W)))
+        val ascii = Output(UInt(8.W))
+        val backspace = Output(Bool())
     })
 
     val boardInputScan = Module(new BoardInputScan)
@@ -49,4 +51,6 @@ class top extends Module {
 
     segsArr(4).io.inNum := timesReg(3,0)
     segsArr(5).io.inNum := timesReg(7,4)
+
+    io.backspace := regRecord.io.backspace
 }

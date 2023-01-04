@@ -41,6 +41,23 @@ class MemRom(addr_width: Int, out_width: Int, init_file: String) extends AbsRom(
     io.out := mem.read(io.addr)
 }
 
+class Ram(addr_width: Int, out_width: Int) extends Module {
+    val io = IO(new Bundle {
+        val readAddr = Input(UInt(addr_width.W))
+        val readData = Output(UInt(out_width.W))
+        val writeAddr = Input(UInt(addr_width.W))
+        val writeData = Output(UInt(out_width.W))
+        val writeEn = Input(Bool())
+    })
+    val mem = SyncReadMem(pow(2, addr_width).toInt, UInt(out_width.W))
+    io.readData := mem.read(io.readAddr)
+
+    when (io.writeEn) {
+        mem.write(io.writeAddr, io.writeData)
+    }
+}
+
+
 object wireMain extends App {
     val s = getVerilogString(new WireRom(8, 8))
     println(s)

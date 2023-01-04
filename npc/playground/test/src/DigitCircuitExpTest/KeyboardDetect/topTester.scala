@@ -5,7 +5,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class topTester extends AnyFlatSpec with ChiselScalatestTester {
     "top" should "pass" in {
-        test(new top) .withAnnotations(Seq(WriteVcdAnnotation)) { dut=>
+        test(new KeyBoard) .withAnnotations(Seq(WriteVcdAnnotation)) { dut=>
             def step(n: Int) = {
                 for (i <- 0 until n) {
                     dut.clock.step()

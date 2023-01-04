@@ -28,6 +28,7 @@ class View extends Module {
     val curAscii = RegInit(0.U(8.W))
     val curCharRow = RegInit(0.U(4.W))
     val curCharColumn = RegInit(0.U(4.W))
+    val curCnt = RegInit(0.U(5.W))
 
     val row = 24
     val column = 49
@@ -45,11 +46,20 @@ class View extends Module {
         curPosY := nextPosY
     }
 
-    when (io.hAddr === nextPosX && curIndex >= (row * column - 1).U) {
+    when (io.vAddr === nextPosY && curCnt >= ((row-1) * column).U) {
+        curCnt := 0.U
+    } .elsewhen (io.vAddr === nextPosY) {
+        curCnt := curCnt + column.U
+    }
+
+    when (curIndex >= (row * column - 1).U) {
         curIndex := 0.U
+    } .elsewhen (io.hAddr === 0.U) {
+        curIndex := curCnt
     } .elsewhen (io.hAddr === nextPosX) {
         curIndex := curIndex + 1.U
     }
+
     io.charIndex := curIndex + 1.U
     
     when (io.hAddr === nextPosX) {
@@ -72,18 +82,18 @@ class View extends Module {
     val mAddr = WireDefault(mAddrStart + curCharRow)
     val mData = Wire(UInt(9.W))
 
-    val ModMem = Module(new MemRom(13, 12, "/home/xs/ysyx/ysyx-workbench/npc/playground/resource/vga_font.hex"))
+    val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))
     ModMem.io.addr := mAddr
     mData := ModMem.io.out
 
 
     when (io.hAddr >= curPosX + hGap.U && io.vAddr >= curPosY + vGap.U) {
         io.vgaData := "hFFFFFF".U
-        // when (curIndex === io.cursorIndex) {
-        //     io.vgaData := "hFFFFFF".U
-        // } .otherwise {
-        //     io.vgaData := mData(curCharColumn)
-        // }
+        when (curIndex === io.cursorIndex) {
+            io.vgaData := "hFFFFFF".U
+        } .otherwise {
+            io.vgaData := mData(curCharColumn)
+        }
     } .otherwise {
         io.vgaData := 0.U
     }

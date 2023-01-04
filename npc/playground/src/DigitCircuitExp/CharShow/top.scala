@@ -1,6 +1,8 @@
 package CharShow
 import chisel3._
 import chisel3.util._
+import KeyboardDetect._
+import DCE_VGA._
 
 class top extends Module {
     val io = IO(new Bundle {

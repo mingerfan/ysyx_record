@@ -33,29 +33,29 @@ class Controller extends Module {
         counter := counter + column.U
     }
 
-    when (cursorIndex - counter >= column.U && cursorIndex < column * row) {
+    when (cursorIndex - counter >= column.U && cursorIndex < (column * row).U) {
         lineCounter := lineCounter + 1.U
-    } .elsewhen (cursorIndex - counter >= column.U && cursorIndex >= column * row) {
+    } .elsewhen (cursorIndex - counter >= column.U && cursorIndex >= (column * row).U) {
         lineCounter := 0.U
     }
     
     when (io.KeyBoardIn =/= 0.U) {
-        ram.io.writeEn := true
+        ram.io.writeEn := true.B
         when (io.KeyBoardIn === '\n') {
-            ram.io.writeData := '\n'
-            cursorIndex := counter + column
+            ram.io.writeData := '\n'.U
+            cursorIndex := counter + column.U
         } .otherwise {
             ram.io.writeData := io.KeyBoardIn
             cursorIndex := cursorIndex + 1.U
         }
     }
 
-    when (cursorIndex >= column * row) {
+    when (cursorIndex >= (column * row).U) {
         cursorIndex := 0.U
     }
 
     when (io.KeyBoardIn =/= 0.U) {
-        when (io.KeyBoardIn === '\n') {
+        when (io.KeyBoardIn === '\n'.U) {
             lastEnterIndex(lineCounter) := cursorIndex
         } .otherwise {
             when (cursorIndex - 1.U - counter >= column.U) {

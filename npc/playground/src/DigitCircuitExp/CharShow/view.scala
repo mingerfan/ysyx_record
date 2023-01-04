@@ -66,7 +66,7 @@ class View extends Module {
         curAscii := io.charData
     }
     
-    when (io.vAddr >= curPosY + vGap.U) {
+    when (io.vAddr >= curPosY + vGap.U && io.hAddr === 0.U) {
         curCharRow := curCharRow + 1.U
     } .otherwise {
         curCharRow := 0.U
@@ -79,7 +79,7 @@ class View extends Module {
     }
 
     val mAddrStart = WireDefault(curAscii << 4.U) // ascii * 16
-    val mAddr = WireDefault(mAddrStart)
+    val mAddr = WireDefault(mAddrStart + curCharRow)
     val mData = Wire(UInt(9.W))
 
     val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))

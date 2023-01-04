@@ -28,7 +28,7 @@ class top extends Module {
     view.io.cursorIndex := controller.io.cursorIndex
     view.io.charData := controller.io.charData
 
-    controller.io.backspace := keyB.io.backspace
+    controller.io.backspace := keyB.io.backspace & risingEdgeU
     controller.io.KeyBoardIn := keyB.io.ascii & Fill(8, risingEdgeU)
     controller.io.charIndex := view.io.charIndex
 

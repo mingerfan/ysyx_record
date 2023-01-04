@@ -52,7 +52,7 @@ class View extends Module {
         curCnt := curCnt + column.U
     }
 
-    when (curIndex >= (row * column).U - 1.U) {
+    when (curIndex >= (row * column).U) {
         curIndex := 0.U
     } .elsewhen (io.hAddr === 0.U) {
         curIndex := curCnt
@@ -60,7 +60,7 @@ class View extends Module {
         curIndex := curIndex + 1.U
     }
 
-    io.charIndex := curIndex
+    io.charIndex := curIndex + 1.U
     
     when (io.hAddr === nextPosX) {
         curAscii := io.charData
@@ -85,11 +85,11 @@ class View extends Module {
     val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))
     ModMem.io.addr := mAddr
     mData := ModMem.io.out
-
+    val clockGen = Module(new ClockGen(10000000, 10))
 
     when (io.hAddr >= curPosX + hGap.U && io.vAddr >= curPosY + vGap.U) {
         when (curIndex === io.cursorIndex) {
-            io.vgaData := "hFFFFFF".U
+            io.vgaData := "hFFFFFF".U & Fill(24, clockGen.outClk)
         } .otherwise {
             when (mData(curCharColumn)){
                 io.vgaData := "hFFFFFF".U

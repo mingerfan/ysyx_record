@@ -2,6 +2,7 @@ package CharShow
 import chisel3._
 import chisel3.util._
 import DDS_HomeWork._
+import HomeWorkHDL._
 
 class View extends Module {
     val io = IO(new Bundle {

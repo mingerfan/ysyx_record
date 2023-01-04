@@ -75,4 +75,6 @@ class Controller extends Module {
             }
         }
     }
+
+    io.cursorIndex := cursorIndex
 }

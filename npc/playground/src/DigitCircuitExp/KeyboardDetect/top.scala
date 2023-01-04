@@ -10,6 +10,7 @@ class KeyBoard extends Module {
         val ps2_data = Input(Bool())
         val segs = Output(Vec(6, UInt(7.W)))
         val ascii = Output(UInt(8.W))
+        val clkout = Output(Bool())
         val backspace = Output(Bool())
     })
 
@@ -20,6 +21,9 @@ class KeyBoard extends Module {
     val risingEdge = WireDefault(!RegNext(clockGen.io.outClk) & clockGen.io.outClk)
     val timesReg = RegInit(0.U(8.W))
     val lastAscii = RegInit(0.U(8.W))
+
+    io.clkout := clockGen.io.clkout
+    io.ascii := regRecord.io.ascii
 
     when (risingEdge && regRecord.io.ascii =/= 0.U) {
         lastAscii := regRecord.io.ascii

@@ -21,6 +21,7 @@ class top extends Module {
     val controller = Module(new Controller)
     val vga = Module(new VGA_Ctrl)
     val keyB = Module(new KeyBoard)
+    val risingEdgeU = WireDefault((!RegNext(keyB.io.clkout) && keyB.io.clkout).asUInt)
 
     view.io.hAddr := vga.io.hAddr
     view.io.vAddr := vga.io.vAddr
@@ -28,7 +29,8 @@ class top extends Module {
     view.io.charData := controller.io.charData
 
     controller.io.backspace := keyB.io.backspace
-    controller.io.KeyBoardIn := keyB.io.ascii
+    controller.io.KeyBoardIn := keyB.io.ascii & Fill(8, risingEdgeU)
+    controller.io.charIndex := view.io.charIndex
 
     vga.io.pclk := clock
     vga.io.vgaData := view.io.vgaData

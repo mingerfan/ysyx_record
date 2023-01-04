@@ -82,17 +82,16 @@ class View extends Module {
     val mAddr = WireDefault(mAddrStart + curCharRow)
     val mData = Wire(UInt(9.W))
 
-    val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.he"))
+    val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))
     ModMem.io.addr := mAddr
     mData := ModMem.io.out
 
 
     when (io.hAddr >= curPosX + hGap.U && io.vAddr >= curPosY + vGap.U) {
-        io.vgaData := "hFFFFFF".U
         when (curIndex === io.cursorIndex) {
             io.vgaData := "hFFFFFF".U
         } .otherwise {
-            io.vgaData := mData(curCharColumn)
+            io.vgaData := curAscii
         }
     } .otherwise {
         io.vgaData := 0.U

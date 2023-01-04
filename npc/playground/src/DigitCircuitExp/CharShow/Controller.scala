@@ -41,7 +41,7 @@ class Controller extends Module {
     
     when (io.KeyBoardIn =/= 0.U) {
         ram.io.writeEn := true.B
-        when (io.KeyBoardIn === '\n') {
+        when (io.KeyBoardIn === '\n'.U) {
             ram.io.writeData := '\n'.U
             cursorIndex := counter + column.U
         } .otherwise {

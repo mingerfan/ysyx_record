@@ -35,8 +35,8 @@ class View extends Module {
     val max_x = column * xWidth
     val max_y = row * yLength
 
-    val nextPosX = WireDefault(Mux(curPosX + xWidth.U >= max_x, 0.U, curPosX + xWidth.U))
-    val nextPosY = WireDefault(Mux(curPosY + yLength.U >= max_y, 0.U, curPosY + yLength.U))
+    val nextPosX = WireDefault(Mux(curPosX + xWidth.U >= max_x.U, 0.U, curPosX + xWidth.U))
+    val nextPosY = WireDefault(Mux(curPosY + yLength.U >= max_y.U, 0.U, curPosY + yLength.U))
 
     when (io.hAddr === nextPosX) {
         curPosX := nextPosX
@@ -56,7 +56,7 @@ class View extends Module {
         curAscii := io.charData
     }
     
-    when (vAddr >= curPosY + vGap.U) {
+    when (io.vAddr >= curPosY + vGap.U) {
         curCharRow := curCharRow + 1.U
     } .otherwise {
         curCharRow := 0.U
@@ -77,8 +77,8 @@ class View extends Module {
     mData := ModMem.io.out
 
 
-    when (hAddr >= curPosX + vGap && vAddr >= curPosY + hGap) {
-        when (curIndex === cursorIndex) {
+    when (io.hAddr >= curPosX + vGap.U && io.vAddr >= curPosY + hGap.U) {
+        when (curIndex === cursorIndex.U) {
             io.vgaData := "hFFFFFF".U
         } .otherwise {
             io.vgaData := mData(curCharColumn)

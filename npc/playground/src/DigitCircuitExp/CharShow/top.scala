@@ -30,7 +30,7 @@ class top extends Module {
     controller.io.backspace := keyB.io.backspace
     controller.io.KeyBoardIn := keyB.io.ascii
 
-    vga.io.pclk := Clock
+    vga.io.pclk := clock
     vga.io.vgaData := view.io.vgaData
 
     keyB.io.ps2_clk := io.ps2_clk

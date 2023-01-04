@@ -86,7 +86,7 @@ class View extends Module {
     val ModMem = Module(new MemRom(13, 12, "playground/resource/vga_font.hex"))
     ModMem.io.addr := mAddr
     mData := ModMem.io.out
-    val clockGen = Module(new ClockGen(10000000, 3))
+    val clockGen = Module(new ClockGen(10000000, 2))
 
     when (io.hAddr >= curPosX + hGap.U && io.vAddr >= curPosY + vGap.U) {
         when (curIndex === io.cursorIndex) {

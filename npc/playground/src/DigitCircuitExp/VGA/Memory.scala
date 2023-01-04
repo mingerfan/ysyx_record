@@ -27,7 +27,7 @@ class WireRom(addr_width: Int, out_width: Int) extends AbsRom(addr_width, out_wi
         val data1 = data(i)
         // println(s"data[i] = $data1")
     }
-    val table = VecInit(data.map(_.U(8.W)))
+    val table = VecInit(data.toSeq.map(_.U(8.W)))
     io.out := RegNext(table(io.addr))
 }
 

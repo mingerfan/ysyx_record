@@ -22,7 +22,7 @@ class KeyBoard extends Module {
     val timesReg = RegInit(0.U(8.W))
     val lastAscii = RegInit(0.U(8.W))
 
-    io.clkout := clockGen.io.clkout
+    io.clkout := clockGen.io.outClk
     io.ascii := regRecord.io.ascii
 
     when (risingEdge && regRecord.io.ascii =/= 0.U) {

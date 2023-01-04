@@ -60,7 +60,7 @@ class View extends Module {
         curIndex := curIndex + 1.U
     }
 
-    io.charIndex := curIndex + 1.U
+    io.charIndex := curIndex
     
     when (io.hAddr === nextPosX) {
         curAscii := io.charData

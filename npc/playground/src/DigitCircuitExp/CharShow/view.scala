@@ -28,7 +28,7 @@ class View extends Module {
     val curAscii = RegInit(0.U(8.W))
     val curCharRow = RegInit(0.U(4.W))
     val curCharColumn = RegInit(0.U(4.W))
-    val curCnt = RegInit(0.U(5.W))
+    val curCnt = RegInit(0.U(11.W))
 
     val row = 24
     val column = 49

@@ -54,7 +54,7 @@ class topTester extends AnyFlatSpec with ChiselScalatestTester {
 
             ps2GenPerS("h1C", false)
             ps2GenPerS("h12", true)
-            step(40000)
+            step(60000)
         }
     }
 }

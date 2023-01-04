@@ -65,6 +65,8 @@ class Controller extends Module {
     }
     
     when (io.backspace) {
+        ram.io.writeEn := true.B
+        ram.io.writeData := 0.U
         when (cursorIndex =/= 0.U) {
             when (cursorIndex === counter) {
                 counter := counter - column.U

@@ -91,7 +91,11 @@ class View extends Module {
         when (curIndex === io.cursorIndex) {
             io.vgaData := "hFFFFFF".U
         } .otherwise {
-            io.vgaData := curAscii
+            when (mData(curCharColumn)){
+                io.vgaData := "hFFFFFF".U
+            } .otherwise {
+                io.vgaData := "h1F1F1F".U
+            }
         }
     } .otherwise {
         io.vgaData := 0.U

@@ -31,7 +31,7 @@ class top extends Module {
         io.segs1(i) := segsArr(i).io.out
     }
     
-    segsArr(0).io.inNum := 0.U
+    segsArr(0).io.inNum := controller.io.cursorIndex(3,0)
     segsArr(1).io.inNum := controller.io.cursorIndex(7,4)
 
     view.io.hAddr := vga.io.hAddr

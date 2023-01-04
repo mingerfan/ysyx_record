@@ -21,7 +21,7 @@ class Controller extends Module {
     val counter = RegInit(0.U(11.W))
     val lineCounter = RegInit(0.U(11.W))
 
-    ram.io.readAddr := 0.U
+    ram.io.readAddr := io.charIndex
     io.charData := ram.io.readData
     ram.io.writeAddr := cursorIndex
     ram.io.writeData := 0.U

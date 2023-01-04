@@ -68,8 +68,6 @@ class View extends Module {
     
     when (io.vAddr >= curPosY + vGap.U && io.hAddr === 0.U) {
         curCharRow := curCharRow + 1.U
-    } .otherwise {
-        curCharRow := 0.U
     }
 
     when (io.hAddr >= curPosX + hGap.U) {

@@ -66,7 +66,7 @@ class View extends Module {
         curAscii := io.charData
     }
     
-    when (io.hAddr === 0.U && curCharRow === 16.U) {
+    when (io.hAddr === 0.U && curCharRow === 15.U) {
         curCharRow := 0.U
     } .elsewhen (io.vAddr >= curPosY + vGap.U && io.hAddr === 0.U) {
         curCharRow := curCharRow + 1.U

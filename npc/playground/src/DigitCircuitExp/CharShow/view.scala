@@ -26,7 +26,7 @@ class View extends Module {
     // 49 in x, 24 in y
     val curIndex = RegInit(0.U(11.W))
     val curAscii = RegInit(0.U(8.W))
-    val curCharRow = RegInit(0.U(4.W))
+    val curCharRow = RegInit(0.U(5.W))
     val curCharColumn = RegInit(0.U(4.W))
     val curCnt = RegInit(0.U(11.W))
 
@@ -66,7 +66,9 @@ class View extends Module {
         curAscii := io.charData
     }
     
-    when (io.vAddr >= curPosY + vGap.U && io.hAddr === 0.U) {
+    when (io.hAddr === 0.U && curCharRow === 16.U) {
+        curCharRow := 0.U
+    } .elsewhen (io.vAddr >= curPosY + vGap.U && io.hAddr === 0.U) {
         curCharRow := curCharRow + 1.U
     }
 

@@ -65,6 +65,7 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args);
+static int cmd_x(char *args);
 
 static struct {
   const char *name;
@@ -74,8 +75,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "Run Instruction by step", cmd_si},
-  { "info", "Get cpu info", cmd_info},
+  { "si", "Run Instruction by step", cmd_si },
+  { "info", "Get cpu info", cmd_info },
+  { "x", "Get memory data", cmd_x },
   /* TODO: Add more commands */
 
 };
@@ -114,6 +116,38 @@ static int cmd_info(char *args) {
   else if (strcmp(arg, "r") == 0) {
     for (i = 0; i < 32; ++i) {
       printf("%3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
+    }
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *arg = strtok(NULL, " ");
+  int i = 0, j = 0;
+  int times;
+  word_t start_addr;
+  uint16_t state = 0;
+  for (i = 0; ;++i) {
+    if (arg == NULL) {
+      break;
+    }
+    else if (state == 0 && strcmp(arg, "x") == 0) {
+      state = 1;
+    }
+    else if (state == 1) {
+      if (sscanf(arg, "%d", &times) != 1) {
+        state = 2;
+        return 0;
+      } 
+    }
+    else if (state == 2) {
+      if (sscanf(arg, "%lx", &start_addr) == 1) {
+        start_addr = start_addr-start_addr%4;
+        for (j = 0; j < times; ++j) {
+          printf("%016lx\t=\t%08lx", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
+        }
+        return 0;
+      } 
     }
   }
   return 0;

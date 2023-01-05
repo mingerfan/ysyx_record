@@ -144,11 +144,12 @@ static int cmd_x(char *args) {
       if (sscanf(arg, "%lx", &start_addr) == 1) {
         start_addr = start_addr-start_addr%4;
         for (j = 0; j < times; ++j) {
-          printf("%016lx\t=\t%08lx", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
+          printf("%016lx\t=\t%08lx\n", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
         }
         return 0;
       } 
     }
+    arg = strtok(NULL, " ");
   }
   return 0;
 }

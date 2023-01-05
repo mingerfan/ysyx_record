@@ -20,6 +20,7 @@
 #include "sdb.h"
 
 static int is_batch_mode = false;
+extern NEMUState nemu_state;
 
 void init_regex();
 void init_wp_pool();

@@ -45,12 +45,12 @@ static char* rl_gets() {
 
 static int cmd_c(char *args) {
   cpu_exec(-1);
-  nemu_state.state = NEMU_QUIT;
   return 0;
 }
 
 
 static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
   return -1;
 }
 

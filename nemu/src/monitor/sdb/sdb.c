@@ -131,16 +131,13 @@ static int cmd_x(char *args) {
     if (arg == NULL) {
       break;
     }
-    else if (state == 0 && strcmp(arg, "x") == 0) {
-      state = 1;
-    }
-    else if (state == 1) {
+    else if (state == 0) {
       if (sscanf(arg, "%d", &times) != 1) {
-        state = 2;
+        state = 1;
         return 0;
       } 
     }
-    else if (state == 2) {
+    else if (state == 1) {
       if (sscanf(arg, "%lx", &start_addr) == 1) {
         start_addr = start_addr-start_addr%4;
         for (j = 0; j < times; ++j) {

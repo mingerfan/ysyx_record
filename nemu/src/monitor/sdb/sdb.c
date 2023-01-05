@@ -113,7 +113,7 @@ static int cmd_info(char *args) {
   }
   else if (strcmp(arg, "r") == 0) {
     for (i = 0; i < 32; ++i) {
-      printf("%-3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
+      printf("%3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
     }
   }
   return 0;

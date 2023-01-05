@@ -20,6 +20,7 @@
 #include "sdb.h"
 #include <memory/vaddr.h>
 #include <stdio.h>
+#include "../local-include/reg.h"
 
 static int is_batch_mode = false;
 extern NEMUState nemu_state;
@@ -63,6 +64,8 @@ static int cmd_si(char *args) {
   return 0;
 }
 
+static int cmd_info(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -72,6 +75,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Run Instruction by step", cmd_si},
+  { "info", "Get cpu info", cmd_info},
   /* TODO: Add more commands */
 
 };
@@ -97,6 +101,20 @@ static int cmd_help(char *args) {
       }
     }
     printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  int i = 0;
+  if (arg == NULL) {
+
+  }
+  else if (strcmp(arg, "r") == 0) {
+    for (i = 0; i < 32; ++i) {
+      printf("%s: 0x%08lx\n", reg_name(i, 0), gpr(i));
+    }
   }
   return 0;
 }

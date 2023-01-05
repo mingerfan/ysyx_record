@@ -132,7 +132,7 @@ static int cmd_x(char *args) {
       break;
     }
     else if (state == 0) {
-      if (sscanf(arg, "%d", &times) != 1) {
+      if (sscanf(arg, "%d", &times) == 1) {
         state = 1;
         return 0;
       } 

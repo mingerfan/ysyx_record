@@ -59,9 +59,6 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-  word_t inst = vaddr_read(cpu.pc, 4);
-  printf("PC: 0x%016lx\t", cpu.pc);
-  printf("Inst: 0x%016lx\n", inst);
   cpu_exec(1);
   return 0;
 }

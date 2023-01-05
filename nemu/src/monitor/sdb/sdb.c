@@ -18,6 +18,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <memory/vaddr.h>
+#include <stdio.h>
 
 static int is_batch_mode = false;
 extern NEMUState nemu_state;
@@ -56,6 +58,14 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args) {
+  word_t inst = vaddr_read(cpu.pc, 4);
+  printf("PC: 0x%016lx\t", cpu.pc);
+  printf("Inst: 0x%016lx\n", inst);
+  cpu_exec(1);
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -64,7 +74,7 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  { "si", "Run Instruction by step", cmd_si},
   /* TODO: Add more commands */
 
 };
@@ -127,6 +137,11 @@ void sdb_mainloop() {
     int i;
     for (i = 0; i < NR_CMD; i ++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
+        if (args)
+          Log("Command Args: %s", args);
+        else
+          Log("Command Args: %s", "(NULL)");
+
         if (cmd_table[i].handler(args) < 0) { return; }
         break;
       }

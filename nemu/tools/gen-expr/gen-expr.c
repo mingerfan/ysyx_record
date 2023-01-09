@@ -26,8 +26,8 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned result = %s; "
-"  printf(\"%%u\", result); "
+"  unsigned long result = %s; "
+"  printf(\"%%lu\", result); "
 "  return 0; "
 "}";
 
@@ -40,11 +40,11 @@ int ex_deep = 0;
 
 void gen_num() {
   ++ex_deep;
-  char temp_buf[12];
-  OVERFLOW_CHECK(11); // consider nagative sign
-  int32_t num = rand() % MAX_NUM - MAX_NUM/2;
-  sprintf(temp_buf, "%d", num);
-  for (int i = 0; i < 11; ++i) {
+  char temp_buf[20];
+  OVERFLOW_CHECK(20); // consider nagative sign
+  int64_t num = rand() % MAX_NUM - MAX_NUM/2;
+  sprintf(temp_buf, "%ld", num);
+  for (int i = 0; i < 20; ++i) {
     if (temp_buf[i] == '\0') {
       break;
     } 
@@ -116,17 +116,18 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue;
+    int ret = system("gcc /tmp/.code.c -o /tmp/.expr -Werror");
+    if (ret != 0) {
+      continue;
+    }
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    int result;
-    fscanf(fp, "%d", &result);
+    unsigned long result;
+    fscanf(fp, "%lu", &result);
     pclose(fp);
-
-    printf("%u %s\n", result, buf);
+    printf("%lu %s\n", result, buf);
   }
   return 0;
 }

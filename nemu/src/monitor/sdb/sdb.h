@@ -18,6 +18,27 @@
 
 #include <common.h>
 
+#define NR_WP 32
+#define WP_BUF_MAX 100
+
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+
+  /* TODO: Add more members if necessary */
+  char buf[WP_BUF_MAX];
+  bool isEnb;
+} WP;
+
 word_t expr(char *e, bool *success);
+
+WP* new_wp();
+void free_wp(WP *wp);
+WP* scan_wp();
+void info_single_wp(WP *p);
+void info_wp();
+WP* scan_wp_idx(int idx);
+WP* scan_wp_cb(bool(*f)(WP*));
+void bind_exprs_wp(WP *p, char *s);
 
 #endif

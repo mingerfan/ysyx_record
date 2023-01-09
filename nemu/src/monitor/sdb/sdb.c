@@ -68,6 +68,8 @@ static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_mt(char *args);
 static int cmd_mtt(char *args);
+static int cmd_d(char *args);
+static int cmd_w(char *args);
 
 static struct {
   const char *name;
@@ -82,6 +84,8 @@ static struct {
   { "x", "Get memory data", cmd_x },
   { "mt", "Match try", cmd_mt },
   { "mtt", "Match try test", cmd_mtt },
+  { "d", "Delete watchpoint", cmd_d },
+  { "w", "Add watchpoint", cmd_w }
   /* TODO: Add more commands */
 
 };
@@ -122,6 +126,9 @@ static int cmd_info(char *args) {
       printf("%3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
     }
   }
+  else if (strcmp(arg, "w") == 0) {
+    info_wp();
+  }
   return 0;
 }
 
@@ -129,6 +136,7 @@ static int cmd_x(char *args) {
   char *arg = strtok(NULL, " ");
   int i = 0, j = 0;
   int times;
+  bool success;
   word_t start_addr;
   uint16_t state = 0;
   for (i = 0; ;++i) {
@@ -142,15 +150,14 @@ static int cmd_x(char *args) {
       state = 1;
     }
     else if (state == 1) {
-      if (sscanf(arg, "%lx", &start_addr) == 1) {
-        start_addr = start_addr-start_addr%4;
-        for (j = 0; j < times; ++j) {
-          printf("0x%016lx\t=\t%08lx\n", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
-        }
-        return 0;
-      } 
+      printf("arg: %s\n", arg);
+      start_addr = expr(arg, &success);
+      start_addr = start_addr-start_addr%4;
+      for (j = 0; j < times; ++j) {
+        printf("0x%016lx\t=\t%08lx\n", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
+      }
+      return 0;
     }
-    arg = strtok(NULL, " ");
   }
   return 0;
 }
@@ -159,20 +166,21 @@ static int cmd_mt(char *args) {
   word_t expr(char *e, bool *success);
   bool success;
   word_t result;
-  result = (uint32_t)expr(args, &success);
+  result = (word_t)expr(args, &success);
   printf("expr result: %lu\n", result);
   return 0;
 }
 
+
 static int cmd_mtt(char *args) {
-  uint32_t result = 0, result1 = 0;
+  word_t result = 0, result1 = 0;
   bool success;
   char c_read;
   char buf[65536] = {};
   int index = 0;
   FILE *f = fopen("/home/xs/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
   int cnt = 0;
-  while (fscanf(f, "%u ", &result) != EOF) {
+  while (fscanf(f, "%lu ", &result) != EOF) {
     index = 0;
     while(1) {
       c_read = fgetc(f);
@@ -182,18 +190,39 @@ static int cmd_mtt(char *args) {
       }
       buf[index++] = c_read;
     }
-    printf("buf is %s\n", buf);
-    result1 = (uint32_t)expr(buf, &success);
+    result1 = (word_t)expr(buf, &success);
     if (success && result == result1) {
-      printf("Pass!\t");
+      // printf("Pass!\n");
     }
     else {
       ++cnt;
+      printf("buf is %s\n", buf);
       printf("Failed!\t");
+      printf("out: %lu, should be: %lu\n\n", result1, result);
     }
-    printf("out: %u, should be: %u\n\n", result1, result);
   }
-  printf("Faild count: %d\n", cnt);
+  printf("Failed count: %d\n", cnt);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  char *arg = strtok(NULL, " ");
+  int no;
+  WP *p;
+  assert(sscanf(arg, "%d", &no) == 1);
+  p = scan_wp_idx(no);
+  free_wp(p);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  char *arg = strtok(NULL, "");
+  printf("arg:%s\n", arg);
+  WP *p;
+  if (arg) {
+    p = new_wp();
+    bind_exprs_wp(p, arg);
+  }
   return 0;
 }
 

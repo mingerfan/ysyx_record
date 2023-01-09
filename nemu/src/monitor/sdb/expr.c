@@ -19,12 +19,25 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <memory/vaddr.h>
+// char expr_err_buf[50][100];
+// int expr_err_index = 0;
+// void exprp() {
+//   if (expr_err_index < 50) {
+//     ++expr_err_index;
+//   }
+// }
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
   NUM,
+  HEX_NUM,
+  REG,
+  DEREF,
+  TK_NEQ,
+  AND,
 };
 
 static struct rule {
@@ -39,12 +52,17 @@ static struct rule {
   {" +", TK_NOTYPE},          // spaces
   {"\\+", '+'},               // plus
   {"==", TK_EQ},              // equal
+  {"0x[0-9A-Fa-f]+", HEX_NUM},// hex start with 0x
   {"-{0,1}[0-9]+", NUM},      // numbers
   {"-", '-'},                 // sub
   {"\\*", '*'},               // multiply
   {"/", '/'},                 // left slash
   {"\\(", '('},               // left bracket
   {"\\)", ')'},               // right bracket
+  {"\\$\\S+", REG},           // reg start with $
+  // DEREF the same *
+  {"!=", TK_NEQ},             // not equal to
+  {"&&", AND}                 // and
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -77,6 +95,23 @@ typedef struct token {
 static Token tokens[TOKEN_MAX] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
+void token_str_cpy(char *start, int len)
+{
+  assert(len < 32);
+  for (int j = 0; j < len; ++j) {
+    tokens[nr_token].str[j] = *(start+j);
+  }
+  tokens[nr_token].str[len] = '\0';
+}
+
+bool token_deref_judge(int idx) {
+  bool res = tokens[idx].type != NUM ;
+  res &= tokens[idx].type != HEX_NUM;
+  res &= tokens[idx].type != REG;
+  res &= tokens[idx].type != ')';
+  return res;
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -91,8 +126,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -108,13 +143,23 @@ static bool make_token(char *e) {
 
           case(NUM):
           tokens[nr_token].type = NUM;
-          assert(substr_len <= TOKEN_MAX);
-          for (int j = 0; j < substr_len; ++j) {
-            tokens[nr_token].str[j] = *(substr_start+j);
-          }
+          token_str_cpy(substr_start, substr_len);
+          break;
+
+          case(HEX_NUM):
+          tokens[nr_token].type = HEX_NUM;
+          token_str_cpy(substr_start, substr_len);
+          break;
+
+          case(REG):
+          tokens[nr_token].type = REG;
+          token_str_cpy(substr_start+1, substr_len-1);
           break;
 
           default: tokens[nr_token].type = rules[i].token_type;
+        }
+        if (tokens[nr_token].type == '*' && (nr_token == 0 || token_deref_judge(nr_token-1))) {
+          tokens[nr_token].type = DEREF;
         }
         ++nr_token;
         break;
@@ -160,9 +205,9 @@ bool check_parentheses(int p, int q, bool *err)
 }
 
 int find_main_op(int p, int q) {
-  #define op_max_pros 3
+  #define op_max_pros 5
   #define op_max_num 5
-  int ops[op_max_pros][op_max_num] = {{'+', '-'}, {'*','/'}};
+  int ops[op_max_pros][op_max_num] = {{AND},{TK_NEQ, TK_EQ}, {'+', '-'}, {'*','/'}, {DEREF}};
   int cnt = 0;
   int cur_main_op_pos = 0;
   int cur_main_op_idx = op_max_pros * op_max_num - 1; // default: highest priority
@@ -201,11 +246,14 @@ struct eval_traceback {
   .err = false
 };
 
-int32_t eval(int p, int q) {
+word_t eval(int p, int q) {
   bool is_pat;
-  int32_t num = 0;
+  word_t num = 0;
   int op;
-  int32_t val1, val2;
+  word_t val1, val2;
+  traceback.p = p;
+  traceback.q = q;
+  bool success;
 
   if (traceback.err) {
     return 0;
@@ -215,8 +263,22 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    printf("index: %d, str: %s\n", p, tokens[p].str);
-    assert(sscanf(tokens[p].str, "%d", &num) == 1);
+    // sprintf(expr_err_buf[expr_err_index], "index: %d, str: %s\n", p, tokens[p].str);
+    // exprp();
+    if (tokens[p].type == NUM) {
+      assert(sscanf(tokens[p].str, "%lu", &num) == 1);
+    }
+    else if (tokens[p].type == HEX_NUM)
+    {
+      assert(sscanf(tokens[p].str, "%lx", &num) == 1);
+    }
+    else if (tokens[p].type == REG) {
+      num = isa_reg_str2val(tokens[p].str, &success);
+      if (!success) {
+        traceback.err = true;
+        return 0;
+      }
+    }
     return num;
   }
   else if (check_parentheses(p, q, &is_pat)){
@@ -224,27 +286,34 @@ int32_t eval(int p, int q) {
       traceback.err = true;
       return 0;
     }
-    traceback.p = p+1;
-    traceback.q = q-1;
     return eval(p+1, q-1);
   }
   else {
-    traceback.p = p;
-    traceback.q = q;
     op = find_main_op(p, q);
-    val1 = eval(p, op - 1);
+    if (tokens[op].type != DEREF) {
+      val1 = eval(p, op - 1);
+    }
+    else {
+      val1 = 0;
+    }
     val2 = eval(op + 1, q);
 
-    // printf("op: %c\n", tokens[op].type);
-    // printf("val1: %d\n", val1);
-    // printf("val2: %d\n", val2);
+    // sprintf(expr_err_buf[expr_err_index], "op: %c\n", tokens[op].type);
+    // exprp();
+    // sprintf(expr_err_buf[expr_err_index], "val1: %lu\n", val1);
+    // exprp();
+    // sprintf(expr_err_buf[expr_err_index], "val2: %lu\n", val2);
+    // exprp();
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;
       case('-'): return val1 - val2;
       case('*'): return val1 * val2;
-      case('/'): return val1 / val2;
-      
+      case('/'): return (sword_t)val1 / (sword_t)val2;
+      case(TK_EQ): return val1 == val2;
+      case(TK_NEQ): return val1 != val2;
+      case(AND): return val1 && val2;
+      case(DEREF): return vaddr_read(val2, 4);
       default: assert(0);
     }
   }
@@ -253,6 +322,7 @@ int32_t eval(int p, int q) {
 
 word_t expr(char *e, bool *success) {
   word_t result;
+  // expr_err_index = 0;
   *success = true;
   if (!make_token(e)) {
     *success = false;

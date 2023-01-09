@@ -174,7 +174,6 @@ static int cmd_mtt(char *args) {
   int cnt = 0;
   while (fscanf(f, "%u ", &result) != EOF) {
     index = 0;
-    result1 = (uint32_t)expr(buf, &success);
     while(1) {
       c_read = fgetc(f);
       if (c_read == '\n') {
@@ -183,6 +182,8 @@ static int cmd_mtt(char *args) {
       }
       buf[index++] = c_read;
     }
+    printf("buf is %s\n", buf);
+    result1 = (uint32_t)expr(buf, &success);
     if (success && result == result1) {
       printf("Pass!\t");
     }

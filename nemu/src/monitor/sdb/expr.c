@@ -91,8 +91,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -203,7 +203,7 @@ struct eval_traceback {
 
 int32_t eval(int p, int q) {
   bool is_pat;
-  int num;
+  int32_t num = 0;
   int op;
   int32_t val1, val2;
 
@@ -215,6 +215,7 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
+    printf("index: %d, str: %s\n", p, tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }

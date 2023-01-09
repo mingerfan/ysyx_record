@@ -65,8 +65,6 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args);
-static int cmd_x(char *args);
-static int cmd_mt(char *args);
 
 static struct {
   const char *name;
@@ -78,8 +76,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Run Instruction by step", cmd_si },
   { "info", "Get cpu info", cmd_info },
-  { "x", "Get memory data", cmd_x },
-  { "mt", "Match try", cmd_mt},
+  {}
   /* TODO: Add more commands */
 
 };
@@ -120,45 +117,6 @@ static int cmd_info(char *args) {
       printf("%3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
     }
   }
-  return 0;
-}
-
-static int cmd_x(char *args) {
-  char *arg = strtok(NULL, " ");
-  int i = 0, j = 0;
-  int times;
-  word_t start_addr;
-  uint16_t state = 0;
-  for (i = 0; ;++i) {
-    if (arg == NULL) {
-      break;
-    }
-    else if (state == 0) {
-      if (sscanf(arg, "%d", &times) != 1) {
-        return 0;
-      }
-      state = 1;
-    }
-    else if (state == 1) {
-      if (sscanf(arg, "%lx", &start_addr) == 1) {
-        start_addr = start_addr-start_addr%4;
-        for (j = 0; j < times; ++j) {
-          printf("0x%016lx\t=\t%08lx\n", start_addr+j*4, vaddr_read(start_addr+j*4, 4));
-        }
-        return 0;
-      } 
-    }
-    arg = strtok(NULL, " ");
-  }
-  return 0;
-}
-
-static int cmd_mt(char *args) {
-  word_t expr(char *e, bool *success);
-  bool success;
-  word_t result;
-  result = expr(args, &success);
-  printf("expr result: %ld\n", result);
   return 0;
 }
 

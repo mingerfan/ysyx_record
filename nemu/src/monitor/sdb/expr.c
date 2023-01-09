@@ -24,7 +24,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  NUM,
+
 };
 
 static struct rule {
@@ -36,15 +36,9 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},          // spaces
-  {"\\+", '+'},               // plus
-  {"==", TK_EQ},              // equal
-  {"-{0,1}[0-9]+", NUM},      // numbers
-  {"-", '-'},                 // sub
-  {"\\*", '*'},               // multiply
-  {"/", '/'},                 // left slash
-  {"\\(", '('},               // left bracket
-  {"\\)", ')'},               // right bracket
+  {" +", TK_NOTYPE},    // spaces
+  {"\\+", '+'},         // plus
+  {"==", TK_EQ},        // equal
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -101,21 +95,9 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          case(TK_NOTYPE): 
-          --nr_token;
-          break;
-
-          case(NUM):
-          tokens[nr_token].type = NUM;
-          assert(substr_len <= 32);
-          for (int j = 0; j < substr_len; ++j) {
-            tokens[nr_token].str[j] = *(substr_start+j);
-          }
-          break;
-
-          default: tokens[nr_token].type = rules[i].token_type;
+          default: TODO();
         }
-        ++nr_token;
+
         break;
       }
     }
@@ -129,139 +111,15 @@ static bool make_token(char *e) {
   return true;
 }
 
-bool check_parentheses(int p, int q, bool *err)
-{
-  int cnt = 0;
-  *err = false;
-  for (int i = p; i <= q; ++i) {
-    if (tokens[i].type == '(') {
-      ++cnt;
-    }
-    else if (tokens[i].type == ')') {
-      --cnt;
-    }
-    if (cnt < 0) {
-      *err = true;
-      return false;
-    }
-  }
-  if (cnt > 0) {
-    *err = true;
-    return false;
-  }
-  if (tokens[p].type == '(' && tokens[q].type == ')') {
-    return true;
-  }
-  return false;
-}
-
-int find_main_op(int p, int q) {
-  #define op_max_pros 3
-  #define op_max_num 5
-  int ops[op_max_pros][op_max_num] = {{'+', '-'}, {'*','/'}};
-  int cnt = 0;
-  int cur_main_op_pos = 0;
-  int cur_main_op_idx = op_max_pros * op_max_num - 1; // default: highest priority
-
-  for (int i = p; i <= q; ++i) {
-    if (tokens[i].type == '(') {
-      ++cnt;
-    }
-    else if (tokens[i].type == ')') {
-      --cnt;
-    }
-    if (cnt != 0) {
-      continue;
-    }
-    for (int j = 0; j < op_max_pros*op_max_num; ++j) {
-      if (*((*ops)+j) == tokens[i].type) {
-        if (j/op_max_pros <= cur_main_op_idx/op_max_pros) {
-          cur_main_op_pos = i;
-          cur_main_op_idx = j;
-        }
-      }
-    }
-  }
-  return cur_main_op_pos;
-  #undef op_max_pros
-  #undef op_max_num
-}
-
-struct eval_traceback {
-  int p;
-  int q;
-  bool err;
-} traceback = {
-  .p = 0,
-  .q = 0,
-  .err = false
-};
-
-int32_t eval(int p, int q) {
-  bool is_pat;
-  int num;
-  int op;
-  int32_t val1, val2;
-
-  if (traceback.err) {
-    return 0;
-  }
-  else if (p > q) {
-    traceback.err = true;
-    return 0;
-  }
-  else if (p == q) {
-    printf("%s\n", tokens[p].str);
-    assert(sscanf(tokens[p].str, "%d", &num) == 1);
-    return num;
-  }
-  else if (check_parentheses(p, q, &is_pat)){
-    if (is_pat) {
-      traceback.err = true;
-      return 0;
-    }
-    traceback.p = p+1;
-    traceback.q = q-1;
-    return eval(p+1, q-1);
-  }
-  else {
-    traceback.p = p;
-    traceback.q = q;
-    op = find_main_op(p, q);
-    val1 = eval(p, op - 1);
-    val2 = eval(op + 1, q);
-
-    switch (tokens[op].type) {
-      case('+'): return val1 + val2;
-      case('-'): return val1 - val2;
-      case('*'): return val1 * val2;
-      case('/'): return val1 / val2;
-      
-      default: assert(0);
-    }
-  }
-  return 0;
-}
 
 word_t expr(char *e, bool *success) {
-  word_t result;
-  *success = true;
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
 
-  traceback.p = 0;
-  traceback.q = nr_token-1;
-  traceback.err = false;
-  printf("nr_token: %d\n", nr_token);
-  result = eval(0, nr_token-1);
+  /* TODO: Insert codes to evaluate the expression. */
+  TODO();
 
-  if (traceback.err) {
-    printf("ERROR from %d to %d\n ", traceback.p, traceback.q);
-    *success = false;
-    return 0;
-  }
-
-  return result;
+  return 0;
 }

@@ -87,6 +87,15 @@ typedef struct token {
 static Token tokens[TOKEN_MAX] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
+void token_str_cpy(char *start, int len)
+{
+  assert(len < 32);
+  for (int j = 0; j < len; ++j) {
+    tokens[nr_token].str[j] = *(start+j);
+  }
+  tokens[nr_token].str[len] = '\0';
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -118,12 +127,7 @@ static bool make_token(char *e) {
 
           case(NUM):
           tokens[nr_token].type = NUM;
-          assert(substr_len < 32);
-          for (int j = 0; j < substr_len; ++j) {
-            tokens[nr_token].str[j] = *(substr_start+j);
-          }
-          tokens[nr_token].str[substr_len] = '\0';
-          break;
+          token_str_cpy(substr_start, substr_len);
 
           default: tokens[nr_token].type = rules[i].token_type;
         }

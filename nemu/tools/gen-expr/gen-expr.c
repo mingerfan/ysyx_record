@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
   int i;
   for (i = 0; i < loop; i ++) {
     ex_index = 0;
+    ex_deep = 0;
     gen_rand_expr();
     buf[ex_index] = '\0';
 

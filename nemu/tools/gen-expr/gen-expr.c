@@ -26,7 +26,7 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned int result = %s; "
+"  unsigned result = %s; "
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
@@ -34,7 +34,7 @@ static char *code_format =
 int ex_index = 0;
 int ex_deep = 0;
 
-#define MAX_NUM ((uint32_t)(-1)/2 - 1)/100000
+#define MAX_NUM ((uint32_t)(-1)/2 - 1)
 #define CHOOSE(x) (rand()%x)
 #define OVERFLOW_CHECK(x) assert(ex_index + x < 65535)
 
@@ -73,7 +73,7 @@ void gen_rand_op() {
 }
 
 static void gen_rand_expr() {
-  if (ex_deep > 10) {
+  if (ex_deep > 30) {
     gen_num();
     return;
   }

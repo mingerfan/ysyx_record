@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     fscanf(fp, "%d", &result);
     pclose(fp);
 
-    printf("%x %s\n", result, buf);
+    printf("%u %s\n", result, buf);
   }
   return 0;
 }

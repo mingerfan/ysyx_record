@@ -158,7 +158,7 @@ static int cmd_mt(char *args) {
   bool success;
   word_t result;
   result = (uint32_t)expr(args, &success);
-  printf("expr result: %lx\n", result);
+  printf("expr result: %lu\n", result);
   return 0;
 }
 

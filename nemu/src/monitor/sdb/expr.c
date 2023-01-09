@@ -207,6 +207,8 @@ int32_t eval(int p, int q) {
   int32_t num = 0;
   int op;
   int32_t val1, val2;
+  traceback.p = p;
+  traceback.q = q;
 
   if (traceback.err) {
     return 0;
@@ -225,13 +227,9 @@ int32_t eval(int p, int q) {
       traceback.err = true;
       return 0;
     }
-    traceback.p = p+1;
-    traceback.q = q-1;
     return eval(p+1, q-1);
   }
   else {
-    traceback.p = p;
-    traceback.q = q;
     op = find_main_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);

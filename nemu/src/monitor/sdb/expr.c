@@ -216,7 +216,7 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    printf("index: %d, str: %s\n", p, tokens[p].str);
+    // printf("index: %d, str: %s\n", p, tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }

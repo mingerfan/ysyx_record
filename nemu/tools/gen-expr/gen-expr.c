@@ -32,12 +32,14 @@ static char *code_format =
 "}";
 
 int ex_index = 0;
+int ex_deep = 0;
 
-#define MAX_NUM ((uint32_t)(-1)/2 - 1)
+#define MAX_NUM ((uint32_t)(-1)/2 - 1)/100000
 #define CHOOSE(x) (rand()%x)
 #define OVERFLOW_CHECK(x) assert(ex_index + x < 65535)
 
 void gen_num() {
+  ++ex_deep;
   char temp_buf[12];
   OVERFLOW_CHECK(11); // consider nagative sign
   int32_t num = rand() % MAX_NUM - MAX_NUM/2;
@@ -54,12 +56,14 @@ void gen_num() {
 }
 
 void gen(char *s) {
+  ++ex_deep;
   OVERFLOW_CHECK(strlen(s));
   strcpy(buf+ex_index, s);
   ex_index += strlen(s);
 }
 
 void gen_rand_op() {
+  ++ex_deep;
   char ops[][10] = {" + ", " - ", " * ", " / "};
   int size = sizeof(ops) / sizeof(*ops);
   int idx = CHOOSE(size);
@@ -69,6 +73,10 @@ void gen_rand_op() {
 }
 
 static void gen_rand_expr() {
+  if (ex_deep > 10) {
+    gen_num();
+    return;
+  }
   switch (CHOOSE(3))
   {
   case(0):

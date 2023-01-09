@@ -171,6 +171,7 @@ static int cmd_mtt(char *args) {
   FILE *f = fopen("/home/xs/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
   int cnt = 0;
   while (fscanf(f, "%u %s", &result, buf) != EOF) {
+    printf("%s\n", buf);
     result1 = (uint32_t)expr(buf, &success);
     if (success && result == result1) {
       printf("Pass!\t");

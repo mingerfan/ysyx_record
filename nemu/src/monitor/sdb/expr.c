@@ -215,7 +215,6 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    printf("num is: %s\n", tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }
@@ -234,6 +233,10 @@ int32_t eval(int p, int q) {
     op = find_main_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
+
+    printf("op: %c\n", tokens[op].type);
+    printf("val1: %d\n", val1);
+    printf("val2: %d\n", val2);
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;
@@ -258,7 +261,6 @@ word_t expr(char *e, bool *success) {
   traceback.p = 0;
   traceback.q = nr_token-1;
   traceback.err = false;
-  printf("nr_token: %d\n", nr_token);
   result = eval(0, nr_token-1);
 
   if (traceback.err) {

@@ -179,7 +179,7 @@ int find_main_op(int p, int q) {
     }
     for (int j = 0; j < op_max_pros*op_max_num; ++j) {
       if (*((*ops)+j) == tokens[i].type) {
-        if (j/op_max_pros <= cur_main_op_idx/op_max_pros) {
+        if (j/op_max_num <= cur_main_op_idx/op_max_num) {
           cur_main_op_pos = i;
           cur_main_op_idx = j;
         }

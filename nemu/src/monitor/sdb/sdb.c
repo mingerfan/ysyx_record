@@ -182,7 +182,7 @@ static int cmd_mtt(char *args) {
       }
       buf[index++] = c_read;
     }
-    printf("buf is %s\n", buf);
+    // printf("buf is %s\n", buf);
     result1 = (uint32_t)expr(buf, &success);
     if (success && result == result1) {
       printf("Pass!\t");

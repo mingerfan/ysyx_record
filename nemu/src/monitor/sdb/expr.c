@@ -132,7 +132,7 @@ static bool make_token(char *e) {
 bool check_parentheses(int p, int q, bool *err)
 {
   int cnt = 0;
-  *err = true;
+  *err = false;
   for (int i = p; i <= q; ++i) {
     if (tokens[i].type == '(') {
       ++cnt;
@@ -252,13 +252,13 @@ word_t expr(char *e, bool *success) {
   }
 
   traceback.p = 0;
-  traceback.q = 0;
+  traceback.q = nr_token-1;
   traceback.err = false;
   printf("nr_token: %d\n", nr_token);
   result = eval(0, nr_token-1);
 
   if (traceback.err) {
-    printf("ERROR from %d to %d: ", traceback.p, traceback.q);
+    printf("ERROR from %d to %d\n ", traceback.p, traceback.q);
     *success = false;
     return 0;
   }

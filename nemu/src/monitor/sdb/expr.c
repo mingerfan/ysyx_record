@@ -73,7 +73,8 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+#define TOKEN_MAX 200
+static Token tokens[TOKEN_MAX] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -107,7 +108,7 @@ static bool make_token(char *e) {
 
           case(NUM):
           tokens[nr_token].type = NUM;
-          assert(substr_len <= 32);
+          assert(substr_len <= TOKEN_MAX);
           for (int j = 0; j < substr_len; ++j) {
             tokens[nr_token].str[j] = *(substr_start+j);
           }

@@ -197,11 +197,11 @@ struct eval_traceback {
   .err = false
 };
 
-uint32_t eval(int p, int q) {
+int32_t eval(int p, int q) {
   bool is_pat;
   int num;
   int op;
-  uint32_t val1, val2;
+  int32_t val1, val2;
 
   if (traceback.err) {
     return 0;
@@ -211,7 +211,7 @@ uint32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    printf("%s\n", tokens[p].str);
+    printf("num is: %s\n", tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }

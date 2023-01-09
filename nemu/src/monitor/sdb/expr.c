@@ -234,9 +234,9 @@ int32_t eval(int p, int q) {
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
 
-    printf("op: %c\n", tokens[op].type);
-    printf("val1: %d\n", val1);
-    printf("val2: %d\n", val2);
+    // printf("op: %c\n", tokens[op].type);
+    // printf("val1: %d\n", val1);
+    // printf("val2: %d\n", val2);
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;

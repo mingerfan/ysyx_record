@@ -105,11 +105,10 @@ static bool make_token(char *e) {
 
           case(NUM):
           tokens[nr_token].type = NUM;
-          assert(substr_len < 32);
+          assert(substr_len <= 32);
           for (int j = 0; j < substr_len; ++j) {
             tokens[nr_token].str[j] = *(substr_start+substr_len);
           }
-          tokens[nr_token].str[substr_len] = '\0';
           break;
 
           default: tokens[nr_token].type = rules[i].token_type;
@@ -210,6 +209,7 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
+    printf("%s\n", tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }

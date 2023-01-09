@@ -252,7 +252,7 @@ word_t expr(char *e, bool *success) {
   traceback.p = 0;
   traceback.q = 0;
   traceback.err = false;
-
+  printf("nr_token: %d\n", nr_token);
   result = eval(0, nr_token);
 
   if (traceback.err) {

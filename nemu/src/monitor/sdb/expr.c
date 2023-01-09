@@ -25,6 +25,11 @@ enum {
 
   /* TODO: Add more token types */
   NUM,
+  HEX_NUM,
+  REG,
+  DEREF,
+  TK_NEQ,
+  AND,
 };
 
 static struct rule {
@@ -45,6 +50,11 @@ static struct rule {
   {"/", '/'},                 // left slash
   {"\\(", '('},               // left bracket
   {"\\)", ')'},               // right bracket
+  {"0x[0-9A-Fa-f]+", HEX_NUM},              // hex start with 0x
+  {"\\$\\S+", REG},           // reg start with $
+  // DEREF the same *
+  {"!=", TK_NEQ},             // not equal to
+  {"&&", AND}                 // and
 };
 
 #define NR_REGEX ARRLEN(rules)

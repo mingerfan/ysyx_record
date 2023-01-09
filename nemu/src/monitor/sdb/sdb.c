@@ -67,6 +67,7 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_mt(char *args);
+static int cmd_mtt(char *args);
 
 static struct {
   const char *name;
@@ -79,7 +80,8 @@ static struct {
   { "si", "Run Instruction by step", cmd_si },
   { "info", "Get cpu info", cmd_info },
   { "x", "Get memory data", cmd_x },
-  { "mt", "Match try", cmd_mt},
+  { "mt", "Match try", cmd_mt },
+  { "mtt", "Match try test", cmd_mtt },
   /* TODO: Add more commands */
 
 };
@@ -157,8 +159,41 @@ static int cmd_mt(char *args) {
   word_t expr(char *e, bool *success);
   bool success;
   word_t result;
-  result = expr(args, &success);
-  printf("expr result: %ld\n", result);
+  result = (uint32_t)expr(args, &success);
+  printf("expr result: %lu\n", result);
+  return 0;
+}
+
+static int cmd_mtt(char *args) {
+  uint32_t result = 0, result1 = 0;
+  bool success;
+  char c_read;
+  char buf[65536] = {};
+  int index = 0;
+  FILE *f = fopen("/home/xs/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
+  int cnt = 0;
+  while (fscanf(f, "%u ", &result) != EOF) {
+    index = 0;
+    while(1) {
+      c_read = fgetc(f);
+      if (c_read == '\n') {
+        buf[index] = '\0';
+        break;
+      }
+      buf[index++] = c_read;
+    }
+    printf("buf is %s\n", buf);
+    result1 = (uint32_t)expr(buf, &success);
+    if (success && result == result1) {
+      printf("Pass!\t");
+    }
+    else {
+      ++cnt;
+      printf("Failed!\t");
+    }
+    printf("out: %u, should be: %u\n\n", result1, result);
+  }
+  printf("Faild count: %d\n", cnt);
   return 0;
 }
 

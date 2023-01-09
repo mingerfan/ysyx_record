@@ -73,7 +73,8 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+#define TOKEN_MAX 200
+static Token tokens[TOKEN_MAX] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -101,13 +102,15 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          case(TK_NOTYPE): break;
+          case(TK_NOTYPE): 
+          --nr_token;
+          break;
 
           case(NUM):
           tokens[nr_token].type = NUM;
-          assert(substr_len <= 32);
+          assert(substr_len <= TOKEN_MAX);
           for (int j = 0; j < substr_len; ++j) {
-            tokens[nr_token].str[j] = *(substr_start+substr_len);
+            tokens[nr_token].str[j] = *(substr_start+j);
           }
           break;
 
@@ -130,7 +133,8 @@ static bool make_token(char *e) {
 bool check_parentheses(int p, int q, bool *err)
 {
   int cnt = 0;
-  *err = true;
+  *err = false;
+  bool not_end = false;
   for (int i = p; i <= q; ++i) {
     if (tokens[i].type == '(') {
       ++cnt;
@@ -141,13 +145,15 @@ bool check_parentheses(int p, int q, bool *err)
     if (cnt < 0) {
       *err = true;
       return false;
+    } else if (cnt == 0 && i != q) {
+      not_end = true;
     }
   }
   if (cnt > 0) {
     *err = true;
     return false;
   }
-  if (tokens[p].type == '(' && tokens[q].type == ')') {
+  if (tokens[p].type == '(' && tokens[q].type == ')' && !not_end) {
     return true;
   }
   return false;
@@ -173,7 +179,7 @@ int find_main_op(int p, int q) {
     }
     for (int j = 0; j < op_max_pros*op_max_num; ++j) {
       if (*((*ops)+j) == tokens[i].type) {
-        if (j/op_max_pros <= cur_main_op_idx/op_max_pros) {
+        if (j/op_max_num <= cur_main_op_idx/op_max_num) {
           cur_main_op_pos = i;
           cur_main_op_idx = j;
         }
@@ -197,7 +203,7 @@ struct eval_traceback {
 
 int32_t eval(int p, int q) {
   bool is_pat;
-  int num;
+  int32_t num = 0;
   int op;
   int32_t val1, val2;
 
@@ -209,6 +215,7 @@ int32_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
+    printf("index: %d, str: %s\n", p, tokens[p].str);
     assert(sscanf(tokens[p].str, "%d", &num) == 1);
     return num;
   }
@@ -217,9 +224,9 @@ int32_t eval(int p, int q) {
       traceback.err = true;
       return 0;
     }
-    traceback.p = p;
-    traceback.q = q;
-    eval(p+1, q-1);
+    traceback.p = p+1;
+    traceback.q = q-1;
+    return eval(p+1, q-1);
   }
   else {
     traceback.p = p;
@@ -227,6 +234,10 @@ int32_t eval(int p, int q) {
     op = find_main_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
+
+    // printf("op: %c\n", tokens[op].type);
+    // printf("val1: %d\n", val1);
+    // printf("val2: %d\n", val2);
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;
@@ -249,13 +260,12 @@ word_t expr(char *e, bool *success) {
   }
 
   traceback.p = 0;
-  traceback.q = 0;
+  traceback.q = nr_token-1;
   traceback.err = false;
-
-  result = eval(0, nr_token);
+  result = eval(0, nr_token-1);
 
   if (traceback.err) {
-    printf("ERROR from %d to %d: ", traceback.p, traceback.q);
+    printf("ERROR from %d to %d\n ", traceback.p, traceback.q);
     *success = false;
     return 0;
   }

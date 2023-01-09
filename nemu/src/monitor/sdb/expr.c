@@ -133,6 +133,7 @@ bool check_parentheses(int p, int q, bool *err)
 {
   int cnt = 0;
   *err = false;
+  bool not_end = false;
   for (int i = p; i <= q; ++i) {
     if (tokens[i].type == '(') {
       ++cnt;
@@ -143,13 +144,15 @@ bool check_parentheses(int p, int q, bool *err)
     if (cnt < 0) {
       *err = true;
       return false;
+    } else if (cnt == 0 && i != q) {
+      not_end = true;
     }
   }
   if (cnt > 0) {
     *err = true;
     return false;
   }
-  if (tokens[p].type == '(' && tokens[q].type == ')') {
+  if (tokens[p].type == '(' && tokens[q].type == ')' && !not_end) {
     return true;
   }
   return false;

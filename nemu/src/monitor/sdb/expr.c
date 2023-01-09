@@ -203,7 +203,7 @@ struct eval_traceback {
 
 int32_t eval(int p, int q) {
   bool is_pat;
-  int num;
+  int32_t num;
   int op;
   int32_t val1, val2;
 

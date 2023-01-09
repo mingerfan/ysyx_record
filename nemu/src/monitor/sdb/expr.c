@@ -222,7 +222,7 @@ int32_t eval(int p, int q) {
     }
     traceback.p = p+1;
     traceback.q = q-1;
-    eval(p+1, q-1);
+    return eval(p+1, q-1);
   }
   else {
     traceback.p = p;

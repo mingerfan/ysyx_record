@@ -220,8 +220,8 @@ int32_t eval(int p, int q) {
       traceback.err = true;
       return 0;
     }
-    traceback.p = p;
-    traceback.q = q;
+    traceback.p = p+1;
+    traceback.q = q-1;
     eval(p+1, q-1);
   }
   else {

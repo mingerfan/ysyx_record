@@ -191,7 +191,7 @@ static int cmd_mtt(char *args) {
       ++cnt;
       printf("Failed!\t");
     }
-    printf("out: %u, should be: %u\n", result1, result);
+    printf("out: %u, should be: %u\n\n", result1, result);
   }
   printf("Faild count: %d\n", cnt);
   return 0;

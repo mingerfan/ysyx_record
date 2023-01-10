@@ -30,6 +30,7 @@ void isa_reg_display() {
 word_t isa_reg_str2val(const char *s, bool *success) {
   *success = false;
   if (strcmp("pc", s) == 0) {
+    *success = true;
     return cpu.pc;
   }
   for (int i = 0; i < ARRLEN(regs); ++i) {

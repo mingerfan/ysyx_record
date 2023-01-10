@@ -185,14 +185,13 @@ static int cmd_mtt(char *args) {
     printf("buf is %s\n", buf);
     result1 = (word_t)expr(buf, &success);
     if (success && result == result1) {
-      printf("Pass!\t");
+      // printf("Pass!\t");
     }
     else {
       ++cnt;
-      printf("cnt is %d\n", cnt);
       printf("Failed!\t");
+      printf("out: %lu, should be: %lu\n", result1, result);
     }
-    printf("out: %lu, should be: %lu\n", result1, result);
   }
   printf("Failed count: %d\n", cnt);
   return 0;

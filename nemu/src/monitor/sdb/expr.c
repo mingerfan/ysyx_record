@@ -228,11 +228,11 @@ struct eval_traceback {
   .err = false
 };
 
-int64_t eval(int p, int q) {
+word_t eval(int p, int q) {
   bool is_pat;
-  int32_t num = 0;
+  word_t num = 0;
   int op;
-  int64_t val1, val2;
+  word_t val1, val2;
   traceback.p = p;
   traceback.q = q;
   bool success;
@@ -247,7 +247,7 @@ int64_t eval(int p, int q) {
   else if (p == q) {
     // printf("index: %d, str: %s\n", p, tokens[p].str);
     if (tokens[p].type == NUM) {
-      assert(sscanf(tokens[p].str, "%d", &num) == 1);
+      assert(sscanf(tokens[p].str, "%lu", &num) == 1);
     }
     else if (tokens[p].type == REG) {
       num = isa_reg_str2val(tokens[p].str, &success);

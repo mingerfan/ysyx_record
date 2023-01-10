@@ -137,7 +137,6 @@ static int cmd_x(char *args) {
       break;
     }
     else if (state == 0) {
-      arg = strtok(NULL, " ");
       if (sscanf(arg, "%d", &times) != 1) {
         return 0;
       }

@@ -22,7 +22,11 @@
 #include <memory/vaddr.h>
 char expr_err_buf[50][100];
 int expr_err_index = 0;
-#define exprp() (expr_err_index>=49 ? expr_err_index : expr_err_index++)
+void exprp() {
+  if (expr_err_index < 50) {
+    ++expr_err_index;
+  }
+}
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
@@ -248,7 +252,8 @@ word_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    sprintf(expr_err_buf[exprp()], "index: %d, str: %s\n", p, tokens[p].str);
+    sprintf(expr_err_buf[expr_err_index], "index: %d, str: %s\n", p, tokens[p].str);
+    exprp();
     if (tokens[p].type == NUM) {
       assert(sscanf(tokens[p].str, "%lu", &num) == 1);
     }
@@ -278,9 +283,12 @@ word_t eval(int p, int q) {
     }
     val2 = eval(op + 1, q);
 
-    sprintf(expr_err_buf[exprp()], "op: %c\n", tokens[op].type);
-    sprintf(expr_err_buf[exprp()], "val1: %lu\n", val1);
-    sprintf(expr_err_buf[exprp()], "val2: %lu\n", val2);
+    sprintf(expr_err_buf[expr_err_index], "op: %c\n", tokens[op].type);
+    exprp();
+    sprintf(expr_err_buf[expr_err_index], "val1: %lu\n", val1);
+    exprp();
+    sprintf(expr_err_buf[expr_err_index], "val2: %lu\n", val2);
+    exprp();
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;

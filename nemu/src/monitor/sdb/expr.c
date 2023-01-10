@@ -20,6 +20,9 @@
  */
 #include <regex.h>
 #include <memory/vaddr.h>
+char expr_err_buf[50][100];
+int expr_err_index = 0;
+#define exprp() (expr_err_index>=49 ? expr_err_index : expr_err_index++)
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
@@ -245,7 +248,7 @@ word_t eval(int p, int q) {
     return 0;
   }
   else if (p == q) {
-    // printf("index: %d, str: %s\n", p, tokens[p].str);
+    sprintf(expr_err_buf[exprp()], "index: %d, str: %s\n", p, tokens[p].str);
     if (tokens[p].type == NUM) {
       assert(sscanf(tokens[p].str, "%lu", &num) == 1);
     }
@@ -275,9 +278,9 @@ word_t eval(int p, int q) {
     }
     val2 = eval(op + 1, q);
 
-    // printf("op: %c\n", tokens[op].type);
-    // printf("val1: %d\n", val1);
-    // printf("val2: %d\n", val2);
+    sprintf(expr_err_buf[exprp()], "op: %c\n", tokens[op].type);
+    sprintf(expr_err_buf[exprp()], "val1: %lu\n", val1);
+    sprintf(expr_err_buf[exprp()], "val2: %lu\n", val2);
 
     switch (tokens[op].type) {
       case('+'): return val1 + val2;
@@ -296,6 +299,7 @@ word_t eval(int p, int q) {
 
 word_t expr(char *e, bool *success) {
   word_t result;
+  expr_err_index = 0;
   *success = true;
   if (!make_token(e)) {
     *success = false;

@@ -164,6 +164,8 @@ static int cmd_mt(char *args) {
   return 0;
 }
 
+extern char expr_err_buf[100][50];
+
 static int cmd_mtt(char *args) {
   word_t result = 0, result1 = 0;
   bool success;
@@ -189,6 +191,9 @@ static int cmd_mtt(char *args) {
     else {
       ++cnt;
       printf("buf is %s\n", buf);
+      for (int i = 0; i < 50; ++i) {
+        printf("%s", expr_err_buf[i]);
+      }
       printf("Failed!\t");
       printf("out: %lu, should be: %lu\n\n", result1, result);
     }

@@ -194,9 +194,9 @@ bool check_parentheses(int p, int q, bool *err)
 }
 
 int find_main_op(int p, int q) {
-  #define op_max_pros 4
+  #define op_max_pros 5
   #define op_max_num 5
-  int ops[op_max_pros][op_max_num] = {{TK_NEQ, TK_EQ}, {'+', '-'}, {'*','/'}, {DEREF}};
+  int ops[op_max_pros][op_max_num] = {{AND},{TK_NEQ, TK_EQ}, {'+', '-'}, {'*','/'}, {DEREF}};
   int cnt = 0;
   int cur_main_op_pos = 0;
   int cur_main_op_idx = op_max_pros * op_max_num - 1; // default: highest priority

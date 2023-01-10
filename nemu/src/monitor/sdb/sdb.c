@@ -187,7 +187,7 @@ static int cmd_mtt(char *args) {
     }
     result1 = (word_t)expr(buf, &success);
     if (success && result == result1) {
-      // printf("Pass!\t");
+      printf("Pass!\t");
     }
     else {
       ++cnt;

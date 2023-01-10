@@ -52,13 +52,13 @@ static struct rule {
   {" +", TK_NOTYPE},          // spaces
   {"\\+", '+'},               // plus
   {"==", TK_EQ},              // equal
+  {"0x[0-9A-Fa-f]+", HEX_NUM},// hex start with 0x
   {"-{0,1}[0-9]+", NUM},      // numbers
   {"-", '-'},                 // sub
   {"\\*", '*'},               // multiply
   {"/", '/'},                 // left slash
   {"\\(", '('},               // left bracket
   {"\\)", ')'},               // right bracket
-  {"0x[0-9]+", HEX_NUM},// hex start with 0x
   {"\\$\\S+", REG},           // reg start with $
   // DEREF the same *
   {"!=", TK_NEQ},             // not equal to

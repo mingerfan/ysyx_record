@@ -68,6 +68,8 @@ static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_mt(char *args);
 static int cmd_mtt(char *args);
+static int cmd_d(char *args);
+static int cmd_w(char *args);
 
 static struct {
   const char *name;
@@ -82,6 +84,8 @@ static struct {
   { "x", "Get memory data", cmd_x },
   { "mt", "Match try", cmd_mt },
   { "mtt", "Match try test", cmd_mtt },
+  { "d", "Delete watchpoint", cmd_d },
+  { "w", "Add watchpoint", cmd_w }
   /* TODO: Add more commands */
 
 };
@@ -198,6 +202,27 @@ static int cmd_mtt(char *args) {
     }
   }
   printf("Failed count: %d\n", cnt);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  char *arg = strtok(NULL, " ");
+  int no;
+  WP *p;
+  assert(sscanf(arg, "%d", &no) == 1);
+  p = scan_wp_idx(no);
+  free_wp(p);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  char *arg = strtok(NULL, " ");
+  printf("arg:%s\n", arg);
+  WP *p;
+  if (!arg) {
+    p = new_wp();
+    bind_exprs_wp(p, arg);
+  }
   return 0;
 }
 

@@ -27,7 +27,6 @@ typedef struct watchpoint {
 
   /* TODO: Add more members if necessary */
   char buf[WP_BUF_MAX];
-  word_t addr;
   bool isEnb;
 } WP;
 
@@ -38,5 +37,8 @@ void free_wp(WP *wp);
 WP* scan_wp();
 void info_single_wp(WP *p);
 void info_wp();
+WP* scan_wp_idx(int idx);
+WP* scan_wp_cb(bool(*f)(WP*));
+void bind_exprs_wp(WP *p, char *s);
 
 #endif

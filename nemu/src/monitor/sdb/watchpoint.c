@@ -20,7 +20,6 @@ static WP *head = NULL, *free_ = NULL;
 
 void wp_data_init(WP *p) {
   p->isEnb = true;
-  p->addr = 0;
   return;
 }
 
@@ -97,12 +96,40 @@ void free_wp(WP *wp) {
   free_ = wp;
 }
 
+void bind_exprs_wp(WP *p, char *s) {
+  strcpy(p->buf, s);
+}
+
+WP* scan_wp_cb(bool(*f)(WP*)) {
+  WP *tp = head;
+  while (tp)
+  {
+    if (f(tp)) {
+      return tp;
+    }
+    tp = tp->next;
+  }
+  return NULL;
+}
+
 WP* scan_wp() {
   WP *tp = head;
   bool success;
   while (tp)
   {
     if (tp->isEnb && !expr(tp->buf, &success) == false && success) {
+      return tp;
+    }
+    tp = tp->next;
+  }
+  return NULL;
+}
+
+WP* scan_wp_idx(int idx) {
+  WP *tp = head;
+  while (tp)
+  {
+    if (tp->NO == idx) {
       return tp;
     }
     tp = tp->next;

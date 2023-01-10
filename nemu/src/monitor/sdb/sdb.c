@@ -192,7 +192,7 @@ static int cmd_mtt(char *args) {
     else {
       ++cnt;
       printf("buf is %s\n", buf);
-      for (int i = 0; i < expr_err_index; ++i) {
+      for (int i = 0; i <= expr_err_index; ++i) {
         printf("%s", expr_err_buf[i]);
       }
       printf("Failed!\t");

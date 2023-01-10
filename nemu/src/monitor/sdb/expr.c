@@ -228,11 +228,11 @@ struct eval_traceback {
   .err = false
 };
 
-word_t eval(int p, int q) {
+int64_t eval(int p, int q) {
   bool is_pat;
-  word_t num = 0;
+  int64_t num = 0;
   int op;
-  word_t val1, val2;
+  int64_t val1, val2;
   traceback.p = p;
   traceback.q = q;
   bool success;

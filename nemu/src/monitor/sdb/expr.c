@@ -58,7 +58,7 @@ static struct rule {
   {"/", '/'},                 // left slash
   {"\\(", '('},               // left bracket
   {"\\)", ')'},               // right bracket
-  {"0x[0-9A-Fa-f]+", HEX_NUM},              // hex start with 0x
+  {"\\0x[0-9A-Fa-f]+", HEX_NUM},// hex start with 0x
   {"\\$\\S+", REG},           // reg start with $
   // DEREF the same *
   {"!=", TK_NEQ},             // not equal to

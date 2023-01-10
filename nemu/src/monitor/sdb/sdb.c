@@ -219,7 +219,7 @@ static int cmd_w(char *args) {
   char *arg = strtok(NULL, "");
   printf("arg:%s\n", arg);
   WP *p;
-  if (!arg) {
+  if (arg) {
     p = new_wp();
     bind_exprs_wp(p, arg);
   }

@@ -257,6 +257,10 @@ word_t eval(int p, int q) {
     if (tokens[p].type == NUM) {
       assert(sscanf(tokens[p].str, "%lu", &num) == 1);
     }
+    else if (tokens[p].type == HEX_NUM)
+    {
+      assert(sscanf(tokens[p].str, "%lx", &num) == 1);
+    }
     else if (tokens[p].type == REG) {
       num = isa_reg_str2val(tokens[p].str, &success);
       if (!success) {

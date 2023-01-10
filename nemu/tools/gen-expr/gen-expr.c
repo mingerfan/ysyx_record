@@ -26,8 +26,8 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned long result = %s; "
-"  printf(\"%%lu\", result); "
+"  unsigned long long result = %s; "
+"  printf(\"%%llu\", result); "
 "  return 0; "
 "}";
 
@@ -40,11 +40,11 @@ int ex_deep = 0;
 
 void gen_num() {
   ++ex_deep;
-  char temp_buf[22];
-  OVERFLOW_CHECK(22); // consider nagative sign
+  char temp_buf[20];
+  OVERFLOW_CHECK(20); // consider nagative sign
   int64_t num = rand() % MAX_NUM - MAX_NUM/2;
   sprintf(temp_buf, "%ld", num);
-  for (int i = 0; i < 22; ++i) {
+  for (int i = 0; i < 20; ++i) {
     if (temp_buf[i] == '\0') {
       break;
     } 
@@ -124,11 +124,11 @@ int main(int argc, char *argv[]) {
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    int result;
-    fscanf(fp, "%d", &result);
+    long long int result;
+    fscanf(fp, "%lld", &result);
     pclose(fp);
 
-    printf("%u %s\n", result, buf);
+    printf("%llu %s\n", result, buf);
   }
   return 0;
 }

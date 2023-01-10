@@ -230,7 +230,7 @@ struct eval_traceback {
 
 int64_t eval(int p, int q) {
   bool is_pat;
-  int64_t num = 0;
+  int32_t num = 0;
   int op;
   int64_t val1, val2;
   traceback.p = p;
@@ -247,7 +247,7 @@ int64_t eval(int p, int q) {
   else if (p == q) {
     // printf("index: %d, str: %s\n", p, tokens[p].str);
     if (tokens[p].type == NUM) {
-      assert(sscanf(tokens[p].str, "%ld", &num) == 1);
+      assert(sscanf(tokens[p].str, "%d", &num) == 1);
     }
     else if (tokens[p].type == REG) {
       num = isa_reg_str2val(tokens[p].str, &success);

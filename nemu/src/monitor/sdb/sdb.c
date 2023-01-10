@@ -129,6 +129,7 @@ static int cmd_x(char *args) {
   char *arg = strtok(NULL, " ");
   int i = 0, j = 0;
   int times;
+  bool success;
   word_t start_addr;
   uint16_t state = 0;
   for (i = 0; ;++i) {
@@ -142,7 +143,7 @@ static int cmd_x(char *args) {
       state = 1;
     }
     else if (state == 1) {
-      start_addr = expr(arg, NULL);
+      start_addr = expr(arg, &success);
       start_addr = start_addr-start_addr%4;
       for (j = 0; j < times; ++j) {
         printf("0x%016lx\t=\t%08lx\n", start_addr+j*4, vaddr_read(start_addr+j*4, 4));

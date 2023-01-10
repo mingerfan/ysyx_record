@@ -150,6 +150,10 @@ static bool make_token(char *e) {
 
           default: tokens[nr_token].type = rules[i].token_type;
         }
+        if (tokens[nr_token].type == '*' && (nr_token == 0 || (tokens[nr_token - 1].type != NUM 
+        && tokens[nr_token - 1].type != HEX_NUM && tokens[nr_token - 1].type != REG))) {
+          tokens[nr_token].type = DEREF;
+        }
         ++nr_token;
         break;
       }

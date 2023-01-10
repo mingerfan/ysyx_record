@@ -185,13 +185,13 @@ static int cmd_mtt(char *args) {
       }
       buf[index++] = c_read;
     }
-    printf("buf is %s\n", buf);
     result1 = (word_t)expr(buf, &success);
     if (success && result == result1) {
-      printf("Pass!\n");
+      // printf("Pass!\n");
     }
     else {
       ++cnt;
+      printf("buf is %s\n", buf);
       for (int i = 0; i < expr_err_index; ++i) {
         printf("%s", expr_err_buf[i]);
       }

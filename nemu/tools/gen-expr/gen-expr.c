@@ -26,8 +26,8 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned result = %s; "
-"  printf(\"%%u\", result); "
+"  unsigned long result = %s; "
+"  printf(\"%%lu\", result); "
 "  return 0; "
 "}";
 
@@ -40,11 +40,11 @@ int ex_deep = 0;
 
 void gen_num() {
   ++ex_deep;
-  char temp_buf[12];
-  OVERFLOW_CHECK(11); // consider nagative sign
-  int32_t num = rand() % MAX_NUM - MAX_NUM/2;
-  sprintf(temp_buf, "%d", num);
-  for (int i = 0; i < 11; ++i) {
+  char temp_buf[22];
+  OVERFLOW_CHECK(22); // consider nagative sign
+  int64_t num = rand() % MAX_NUM - MAX_NUM/2;
+  sprintf(temp_buf, "%ld", num);
+  for (int i = 0; i < 22; ++i) {
     if (temp_buf[i] == '\0') {
       break;
     } 

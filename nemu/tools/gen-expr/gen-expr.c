@@ -124,8 +124,8 @@ int main(int argc, char *argv[]) {
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    long result;
-    fscanf(fp, "%ld", &result);
+    unsigned long result;
+    fscanf(fp, "%lu", &result);
     pclose(fp);
     printf("%lu %s\n", result, buf);
   }

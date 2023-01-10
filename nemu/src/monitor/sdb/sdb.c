@@ -143,7 +143,7 @@ static int cmd_x(char *args) {
       state = 1;
     }
     else if (state == 1) {
-      printf("arg:%s\n", arg);
+      printf("args:%s\n", args);
       start_addr = expr(arg, &success);
       start_addr = start_addr-start_addr%4;
       for (j = 0; j < times; ++j) {

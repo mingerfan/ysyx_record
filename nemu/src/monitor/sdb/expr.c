@@ -104,6 +104,14 @@ void token_str_cpy(char *start, int len)
   tokens[nr_token].str[len] = '\0';
 }
 
+bool token_deref_judge(int idx) {
+  bool res = tokens[idx].type != NUM ;
+  res &= tokens[idx].type != HEX_NUM;
+  res &= tokens[idx].type != REG;
+  res &= tokens[idx].type != ')';
+  return res;
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -150,8 +158,7 @@ static bool make_token(char *e) {
 
           default: tokens[nr_token].type = rules[i].token_type;
         }
-        if (tokens[nr_token].type == '*' && (nr_token == 0 || (tokens[nr_token - 1].type != NUM 
-        && tokens[nr_token - 1].type != HEX_NUM && tokens[nr_token - 1].type != REG))) {
+        if (tokens[nr_token].type == '*' && (nr_token == 0 || token_deref_judge(nr_token-1))) {
           tokens[nr_token].type = DEREF;
         }
         ++nr_token;

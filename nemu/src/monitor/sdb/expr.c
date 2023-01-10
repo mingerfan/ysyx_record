@@ -129,14 +129,17 @@ static bool make_token(char *e) {
           case(NUM):
           tokens[nr_token].type = NUM;
           token_str_cpy(substr_start, substr_len);
+          break;
 
           case(HEX_NUM):
           tokens[nr_token].type = HEX_NUM;
           token_str_cpy(substr_start, substr_len);
+          break;
 
           case(REG):
           tokens[nr_token].type = REG;
           token_str_cpy(substr_start+1, substr_len-1);
+          break;
 
           default: tokens[nr_token].type = rules[i].token_type;
         }

@@ -216,9 +216,6 @@ static int cmd_d(char *args) {
 }
 
 static int cmd_w(char *args) {
-  char sd[5];
-  sd[5] = 1;
-  printf("%s", sd);
   char *arg = strtok(NULL, "");
   printf("arg:%s\n", arg);
   WP *p;

@@ -122,6 +122,9 @@ static int cmd_info(char *args) {
       printf("%3s\t=\t0x%08lx\n", reg_name(i, 0), gpr(i));
     }
   }
+  else if (strcmp(arg, "w") == 0) {
+    info_wp();
+  }
   return 0;
 }
 

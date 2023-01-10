@@ -15,20 +15,12 @@
 
 #include "sdb.h"
 
-#define NR_WP 32
-
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
-
-  /* TODO: Add more members if necessary */
-
-} WP;
-
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
 
 void wp_data_init(WP *p) {
+  p->isEnb = true;
+  p->addr = 0;
   return;
 }
 
@@ -44,6 +36,29 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
+static void info_head_wp() {
+  printf("%-8s%-18s%-5s%-15s\n", "NUM", "TYPE", "ENB", "EXPRESSION");
+}
+
+static void info_data_wp(WP *p) {
+  printf("%-8d%-18s%-5s%-s\n", p->NO, "hw watchpoint", p->isEnb? "y":"n", p->buf);
+}
+
+void info_single_wp(WP *p) {
+  info_head_wp();
+  info_data_wp(p);
+}
+
+void info_wp() {
+  info_head_wp();
+  WP *tp = head;
+  while (tp)
+  {
+    info_data_wp(tp);
+    tp = tp->next;
+  }
+} 
+
 /* TODO: Implement the functionality of watchpoint */
 WP* new_wp() {
   assert(free_);
@@ -51,6 +66,7 @@ WP* new_wp() {
   free_ = free_->next;
   tp_free->next = head;
   head = tp_free;
+  wp_data_init(tp_free);
   return tp_free;
 }
 
@@ -79,4 +95,17 @@ void free_wp(WP *wp) {
   }
   wp->next = free_;
   free_ = wp;
+}
+
+WP* scan_wp() {
+  WP *tp = head;
+  bool success;
+  while (tp)
+  {
+    if (tp->isEnb && !expr(tp->buf, &success) == false && success) {
+      return tp;
+    }
+    tp = tp->next;
+  }
+  return NULL;
 }

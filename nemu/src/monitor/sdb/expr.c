@@ -306,7 +306,7 @@ word_t eval(int p, int q) {
       case(TK_EQ): return val1 == val2;
       case(TK_NEQ): return val1 != val2;
       case(AND): return val1 && val2;
-      case(DEREF): return vaddr_read(val2, 4);
+      case(DEREF): return val2==0 ? 0 :vaddr_read(val2, 4);
       default: assert(0);
     }
   }

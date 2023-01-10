@@ -189,6 +189,7 @@ static int cmd_mtt(char *args) {
     }
     else {
       ++cnt;
+      printf("cnt is %d\n", cnt);
       printf("Failed!\t");
     }
     printf("out: %lu, should be: %lu\n", result1, result);

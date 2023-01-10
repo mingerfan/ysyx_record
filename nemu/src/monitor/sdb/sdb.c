@@ -137,13 +137,15 @@ static int cmd_x(char *args) {
       break;
     }
     else if (state == 0) {
+      arg = strtok(NULL, " ");
       if (sscanf(arg, "%d", &times) != 1) {
         return 0;
       }
       state = 1;
     }
     else if (state == 1) {
-      printf("args:%s\n", args);
+      arg = strtok(NULL, "");
+      printf("arg: %s\n", arg);
       start_addr = expr(arg, &success);
       start_addr = start_addr-start_addr%4;
       for (j = 0; j < times; ++j) {
@@ -151,7 +153,6 @@ static int cmd_x(char *args) {
       }
       return 0;
     }
-    arg = strtok(NULL, " ");
   }
   return 0;
 }

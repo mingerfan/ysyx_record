@@ -159,7 +159,7 @@ static int cmd_mt(char *args) {
   word_t expr(char *e, bool *success);
   bool success;
   word_t result;
-  result = (uint32_t)expr(args, &success);
+  result = (word_t)expr(args, &success);
   printf("expr result: %lu\n", result);
   return 0;
 }

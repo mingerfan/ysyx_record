@@ -19,6 +19,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <memory/vaddr.h>
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
@@ -129,6 +130,14 @@ static bool make_token(char *e) {
           tokens[nr_token].type = NUM;
           token_str_cpy(substr_start, substr_len);
 
+          case(HEX_NUM):
+          tokens[nr_token].type = HEX_NUM;
+          token_str_cpy(substr_start, substr_len);
+
+          case(REG):
+          tokens[nr_token].type = REG;
+          token_str_cpy(substr_start+1, substr_len-1);
+
           default: tokens[nr_token].type = rules[i].token_type;
         }
         ++nr_token;
@@ -175,9 +184,9 @@ bool check_parentheses(int p, int q, bool *err)
 }
 
 int find_main_op(int p, int q) {
-  #define op_max_pros 3
+  #define op_max_pros 4
   #define op_max_num 5
-  int ops[op_max_pros][op_max_num] = {{'+', '-'}, {'*','/'}};
+  int ops[op_max_pros][op_max_num] = {{TK_NEQ, TK_EQ}, {'+', '-'}, {'*','/'}, {DEREF}};
   int cnt = 0;
   int cur_main_op_pos = 0;
   int cur_main_op_idx = op_max_pros * op_max_num - 1; // default: highest priority
@@ -216,13 +225,14 @@ struct eval_traceback {
   .err = false
 };
 
-int32_t eval(int p, int q) {
+word_t eval(int p, int q) {
   bool is_pat;
-  int32_t num = 0;
+  word_t num = 0;
   int op;
-  int32_t val1, val2;
+  word_t val1, val2;
   traceback.p = p;
   traceback.q = q;
+  bool success;
 
   if (traceback.err) {
     return 0;
@@ -233,7 +243,16 @@ int32_t eval(int p, int q) {
   }
   else if (p == q) {
     // printf("index: %d, str: %s\n", p, tokens[p].str);
-    assert(sscanf(tokens[p].str, "%d", &num) == 1);
+    if (tokens[p].type == NUM) {
+      assert(sscanf(tokens[p].str, "%ld", &num) == 1);
+    }
+    else if (tokens[p].type == REG) {
+      num = isa_reg_str2val(tokens[p].str, &success);
+      if (!success) {
+        traceback.err = true;
+        return 0;
+      }
+    }
     return num;
   }
   else if (check_parentheses(p, q, &is_pat)){
@@ -245,7 +264,12 @@ int32_t eval(int p, int q) {
   }
   else {
     op = find_main_op(p, q);
-    val1 = eval(p, op - 1);
+    if (tokens[op].type != DEREF) {
+      val1 = eval(p, op - 1);
+    }
+    else {
+      val1 = 0;
+    }
     val2 = eval(op + 1, q);
 
     // printf("op: %c\n", tokens[op].type);
@@ -257,7 +281,10 @@ int32_t eval(int p, int q) {
       case('-'): return val1 - val2;
       case('*'): return val1 * val2;
       case('/'): return val1 / val2;
-      
+      case(TK_EQ): return val1 == val2;
+      case(TK_NEQ): return val1 != val2;
+      case(AND): return val1 && val2;
+      case(DEREF): return vaddr_read(val2, 8);
       default: assert(0);
     }
   }

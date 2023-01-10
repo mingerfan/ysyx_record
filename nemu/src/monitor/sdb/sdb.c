@@ -164,7 +164,7 @@ static int cmd_mt(char *args) {
   return 0;
 }
 
-extern char expr_err_buf[100][50];
+extern char expr_err_buf[50][100];
 extern int expr_err_index;
 
 static int cmd_mtt(char *args) {
@@ -192,7 +192,7 @@ static int cmd_mtt(char *args) {
     else {
       ++cnt;
       printf("buf is %s\n", buf);
-      for (int i = 0; i <= 49; ++i) {
+      for (int i = 0; i < expr_err_index; ++i) {
         printf("%s", expr_err_buf[i]);
       }
       printf("Failed!\t");

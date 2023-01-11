@@ -52,7 +52,10 @@ savedefconfig: $(CONF)
 	$(Q)$< $(silent) --defconfig=configs/$@ $(Kconfig)
 	$(Q)$< $(silent) --syncconfig $(Kconfig)
 
-.PHONY: menuconfig savedefconfig defconfig
+.PHONY: menuconfig savedefconfig defconfig 
+
+count:
+	@bash ./linesCnt.sh ./
 
 # Help text used by make help
 help:
@@ -62,7 +65,7 @@ help:
 distclean: clean
 	-@rm -rf $(rm-distclean)
 
-.PHONY: help distclean
+.PHONY: help distclean count
 
 define call_fixdep
 	@$(FIXDEP) $(1) $(2) unused > $(1).tmp

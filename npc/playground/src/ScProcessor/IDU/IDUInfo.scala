@@ -85,7 +85,7 @@ object IDUInsInfo {
         "SUM" -> Array("addi", "lui", "auipc"),
         "UCMP"-> Array("sltiu"),
         "WSUM"-> Array("addiw", "addw"),
-        "SUB" -> Array("sub", "bne")
+        "SUB" -> Array("sub", "beq", "bne")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
 

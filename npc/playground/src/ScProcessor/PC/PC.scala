@@ -31,6 +31,7 @@ class PC extends Module {
         hit("Inc")  -> (pc_next),
         hit("Jal")  -> (immpc),
         hit("Jalr") -> ((in.imm + in.rs1) & ~(1.U(XLEN.W))),
+        hit("beq")  -> (Mux(in.exu === 0.U, immpc, pc_next)),
         hit("bne")  -> (Mux(in.exu =/= 0.U, immpc, pc_next))
     ))
 

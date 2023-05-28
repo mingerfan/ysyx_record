@@ -82,34 +82,39 @@ object IDUInsInfo {
         // you must obey the rule: [String] -> Array([String],...)
         // if there is nothing in the Array, emmmm, it is invalid
         // "SUM" -> Array("addi", "add")
-        "SUM" -> Array("addi", "lui", "auipc")
+        "SUM" -> Array("addi", "lui", "auipc"),
+        "UCMP"-> Array("sltiu"),
+        "WSUM"-> Array("addiw", "addw"),
+        "SUB" -> Array("sub")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
 
     val exuOpsMap = immutable.Map(
-        "imR1" -> Array("addi"),
+        "imR1" -> Array("addi", "sltiu", "addiw"),
         "imX0" -> Array("lui"),
-        "imPc" -> Array("auipc")
-        // "r1R2" -> Array("add", "xor")
+        "imPc" -> Array("auipc"),
+        "r1R2" -> Array("sub", "addw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
-        "exu" -> Array("addi", "lui", "auipc"),
+        "exu" -> Array("addi", "sltiu", "addiw", "lui", "auipc",
+        "sub", "addw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("sd")
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 
     val pcOpsMap = immutable.Map(
-        "Inc" -> Array("addi", "lui", "auipc", "sd"),
+        "Inc" -> Array("addi", "sltiu", "addiw", "lui", "auipc", 
+        "sub", "addw", "sd"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr")
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
-        "wrEn" -> Array("addi", "lui", "auipc", "jal", "jalr")
+        "nwrEn" -> Array("bne")
     )
     val ctrls = MapKeyToArray(ctrlsMap)
 

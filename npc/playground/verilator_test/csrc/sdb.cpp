@@ -199,8 +199,9 @@ static int cmd_m(char *args)
 {
   bool success;
   uint64_t result = (uint64_t)expr(args, &success);
-  uint64_t mem = paddr_read(result & ~0x7ull, 8)
-  printf("addr:0x%016lx, mem:%0x016lx\n", result, mem);
+  uint64_t mem = paddr_read(result & ~0x7ull, 8);
+  printf("addr:0x%016lx, mem:0x%016lx\n", result, mem);
+  return 0;
 }
 
 static int cmd_d(char *args)

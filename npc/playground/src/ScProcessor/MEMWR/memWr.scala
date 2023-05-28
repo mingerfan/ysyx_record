@@ -17,6 +17,7 @@ class MEM_WR extends BlackBox {
         val waddr = Input(UInt(XLEN.W))
         val wdata = Input(UInt(XLEN.W))
         val wmask = Input(UInt((XLEN/8).W))
+        val en   = Input(Bool())
     })
 }
 
@@ -44,4 +45,5 @@ class MEMWR extends Module {
     mem_wr_in.io.wmask := Mux1H(Seq(
         hit("sd") -> "b1111_1111".U
     ))
+    mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)
 }

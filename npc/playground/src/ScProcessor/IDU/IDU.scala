@@ -107,9 +107,9 @@ class IDU extends Module {
     dataOut.imm := Mux1H(Seq(
         hit("immI") -> immDecI(inst),
         hit("immU") -> immDecU(inst),
-        hit("immJ") -> immDecJ(inst)
+        hit("immJ") -> immDecJ(inst),
         // hit("immB") -> immDecB(inst),
-        // hit("immS") -> immDecS(inst)
+        hit("immS") -> immDecS(inst)
     ))
     dataOut.rd := inst(11, 7)
     dataOut.rs1 := inst(19, 15)

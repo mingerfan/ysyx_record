@@ -22,7 +22,9 @@ class ALU extends Module {
 
     io.out := Mux1H(Seq(
         hit("SUM") -> (io.in1 + io.in2),
-        hit("UCMP")-> (io.in1)
+        hit("UCMP")-> (io.in1 < io.in2),
+        hit("WSUM")-> (Fill(topInfo.XLEN - 11, (io.in1 + io.in2)(31)) ## 
+        (io.in1 + io.in2)(30, 0)),
     ))
 }
 

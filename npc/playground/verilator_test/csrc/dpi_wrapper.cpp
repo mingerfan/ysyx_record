@@ -32,9 +32,7 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
         // 总是往地址为`waddr & ~0x7ull`的8字节按写掩码`wmask`写入`wdata`
         // `wmask`中每比特表示`wdata`中1个字节的掩码,
         // 如`wmask = 0x3`代表只写入最低2个字节, 内存中的其它字节保持不变
-        G_DEBUG_I("start write at 0x%016lx", waddr & ~0x7ull);
         uint64_t val = paddr_read(waddr & ~0x7ull, 8);
-        G_DEBUG_I("start write");
         uint64_t res = 0;
         for (int i = 0; i < 8; i++) {
             if (BITS((uint64_t)wmask, i, i) == 1) {
@@ -44,6 +42,5 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
             }
         }
         paddr_write(waddr & ~0x7ull, 8, res);
-        G_DEBUG_I("write data:0x%016lx", res);
     }
 }

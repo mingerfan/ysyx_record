@@ -29,4 +29,8 @@ ARGS := --diff=$(NEMU_HOME)/build/riscv64-nemu-interpreter-so
 run: image
 	$(MAKE) -C $(NPC_HOME) sim ARGS=$(ARGS) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
 
+
+gdb: image
+	$(MAKE) -C $(NPC_HOME) gdb ARGS=$(ARGS) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
+
 .PHONY: run

@@ -57,7 +57,7 @@ class top extends Module {
     rf.io.rdAddr2   := idu.dataOut.rs2
     rf.io.wrAddr    := idu.dataOut.rd
     rf.io.wrData    := 1.U  // actually we do not use it
-    rf.io.wrEn      := hit("wrEn")
+    rf.io.wrEn      := ~hit("nwrEn")
     rf.rfOp         := idu.dpCtrl.rfOp
     rf.in.exu       := exu.io.out
     rf.in.pc_next   := pc.pc_next

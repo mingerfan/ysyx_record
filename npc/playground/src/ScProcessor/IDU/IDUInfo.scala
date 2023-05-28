@@ -14,115 +14,127 @@ import immGet._
 object IDUInsInfo {
     val instructions = Map(
         "addi" -> new InsStruct("0010011", "000", "-1"),
-        "slti" -> new InsStruct("0010011", "010", "-1"),
+        // "slti" -> new InsStruct("0010011", "010", "-1"),
         "sltiu" -> new InsStruct("0010011", "011", "-1"),
-        "andi" -> new InsStruct("0010011", "111", "-1"),
-        "ori" -> new InsStruct("0010011", "110", "-1"),
-        "xori" -> new InsStruct("0010011", "100", "-1"),
+        // "andi" -> new InsStruct("0010011", "111", "-1"),
+        // "ori" -> new InsStruct("0010011", "110", "-1"),
+        // "xori" -> new InsStruct("0010011", "100", "-1"),
         "addiw" -> new InsStruct("0011011", "000", "-1"),
-        "slli" -> new InsStruct("0010011", "001", "-1", "000000"),
-        "srli" -> new InsStruct("0010011", "101", "-1", "000000"),
-        "srai" -> new InsStruct("0010011", "101", "-1", "010000"),
-        "slliw" -> new InsStruct("0011011", "001", "0000000"),
-        "srliw" -> new InsStruct("0011011", "101", "0000000"),
-        "sraiw" -> new InsStruct("0011011", "101", "0100000"),
+        // "slli" -> new InsStruct("0010011", "001", "-1", "000000"),
+        // "srli" -> new InsStruct("0010011", "101", "-1", "000000"),
+        // "srai" -> new InsStruct("0010011", "101", "-1", "010000"),
+        // "slliw" -> new InsStruct("0011011", "001", "0000000"),
+        // "srliw" -> new InsStruct("0011011", "101", "0000000"),
+        // "sraiw" -> new InsStruct("0011011", "101", "0100000"),
         "lui" -> new InsStruct("0110111", "-1", "-1"),
         "auipc" -> new InsStruct("0010111", "-1", "-1"),
-        "add" -> new InsStruct("0110011", "000", "0000000"),
+        // "add" -> new InsStruct("0110011", "000", "0000000"),
         "sub" -> new InsStruct("0110011", "000", "0100000"),
-        "slt" -> new InsStruct("0110011", "010", "0000000"),
-        "sltu" -> new InsStruct("0110011", "011", "0000000"),
-        "and" -> new InsStruct("0110011", "111", "0000000"),
-        "or" -> new InsStruct("0110011", "110", "0000000"),
-        "xor" -> new InsStruct("0110011", "100", "0000000"),
+        // "slt" -> new InsStruct("0110011", "010", "0000000"),
+        // "sltu" -> new InsStruct("0110011", "011", "0000000"),
+        // "and" -> new InsStruct("0110011", "111", "0000000"),
+        // "or" -> new InsStruct("0110011", "110", "0000000"),
+        // "xor" -> new InsStruct("0110011", "100", "0000000"),
         "addw" -> new InsStruct("0111011", "000", "0000000"),
-        "subw" -> new InsStruct("0111011", "000", "0100000"),
-        "sll" -> new InsStruct("0110011", "001", "0000000"),
-        "srl" -> new InsStruct("0110011", "101", "0000000"),
-        "sra" -> new InsStruct("0110011", "101", "0100000"),
-        "sllw" -> new InsStruct("0111011", "001", "0000000"),
-        "srlw" -> new InsStruct("0111011", "101", "0000000"),
-        "sraw" -> new InsStruct("0111011", "101", "0100000"),
+        // "subw" -> new InsStruct("0111011", "000", "0100000"),
+        // "sll" -> new InsStruct("0110011", "001", "0000000"),
+        // "srl" -> new InsStruct("0110011", "101", "0000000"),
+        // "sra" -> new InsStruct("0110011", "101", "0100000"),
+        // "sllw" -> new InsStruct("0111011", "001", "0000000"),
+        // "srlw" -> new InsStruct("0111011", "101", "0000000"),
+        // "sraw" -> new InsStruct("0111011", "101", "0100000"),
         "jal" -> new InsStruct("1101111", "-1", "-1"),
         "jalr" -> new InsStruct("1100111", "000", "-1"),
         "beq" -> new InsStruct("1100011", "000", "-1"),
         "bne" -> new InsStruct("1100011", "001", "-1"),
-        "blt" -> new InsStruct("1100011", "100", "-1"),
-        "bltu" -> new InsStruct("1100011", "110", "-1"),
-        "bge" -> new InsStruct("1100011", "101", "-1"),
-        "bgeu" -> new InsStruct("1100011", "111", "-1"),
+        // "blt" -> new InsStruct("1100011", "100", "-1"),
+        // "bltu" -> new InsStruct("1100011", "110", "-1"),
+        // "bge" -> new InsStruct("1100011", "101", "-1"),
+        // "bgeu" -> new InsStruct("1100011", "111", "-1"),
         "ld" -> new InsStruct("0000011", "011", "-1"),
         "lw" -> new InsStruct("0000011", "010", "-1"),
-        "lwu" -> new InsStruct("0000011", "110", "-1"),
-        "lh" -> new InsStruct("0000011", "001", "-1"),
-        "lhu" -> new InsStruct("0000011", "101", "-1"),
-        "lb" -> new InsStruct("0000011", "000", "-1"),
-        "lbu" -> new InsStruct("0000011", "100", "-1"),
+        // "lwu" -> new InsStruct("0000011", "110", "-1"),
+        // "lh" -> new InsStruct("0000011", "001", "-1"),
+        // "lhu" -> new InsStruct("0000011", "101", "-1"),
+        // "lb" -> new InsStruct("0000011", "000", "-1"),
+        // "lbu" -> new InsStruct("0000011", "100", "-1"),
         "sd" -> new InsStruct("0100011", "011", "-1"),
-        "sw" -> new InsStruct("0100011", "010", "-1"),
-        "sh" -> new InsStruct("0100011", "001", "-1"),
-        "sb" -> new InsStruct("0100011", "000", "-1"),
+        // "sw" -> new InsStruct("0100011", "010", "-1"),
+        // "sh" -> new InsStruct("0100011", "001", "-1"),
+        // "sb" -> new InsStruct("0100011", "000", "-1"),
         "ebreak" -> new InsStruct("1110011", "000", "0000000"),
-        "mul" -> new InsStruct("0110011", "000", "0000001"),
-        "mulh" -> new InsStruct("0110011", "001", "0000001"),
-        "mulhu" -> new InsStruct("0110011", "011", "0000001"),
-        "mulhsu" -> new InsStruct("0110011", "010", "0000001"),
-        "div" -> new InsStruct("0110011", "100", "0000001"),
-        "divu" -> new InsStruct("0110011", "101", "0000001"),
-        "rem" -> new InsStruct("0110011", "110", "0000001"),
-        "remu" -> new InsStruct("0110011", "111", "0000001"),
-        "mulw" -> new InsStruct("0111011", "000", "0000001"),
-        "divw" -> new InsStruct("0111011", "100", "0000001"),
-        "divuw" -> new InsStruct("0111011", "101", "0000001"),
-        "remw" -> new InsStruct("0111011", "110", "0000001"),
-        "remuw" -> new InsStruct("0111011", "111", "0000001")
+        // "mul" -> new InsStruct("0110011", "000", "0000001"),
+        // "mulh" -> new InsStruct("0110011", "001", "0000001"),
+        // "mulhu" -> new InsStruct("0110011", "011", "0000001"),
+        // "mulhsu" -> new InsStruct("0110011", "010", "0000001"),
+        // "div" -> new InsStruct("0110011", "100", "0000001"),
+        // "divu" -> new InsStruct("0110011", "101", "0000001"),
+        // "rem" -> new InsStruct("0110011", "110", "0000001"),
+        // "remu" -> new InsStruct("0110011", "111", "0000001"),
+        // "mulw" -> new InsStruct("0111011", "000", "0000001"),
+        // "divw" -> new InsStruct("0111011", "100", "0000001"),
+        // "divuw" -> new InsStruct("0111011", "101", "0000001"),
+        // "remw" -> new InsStruct("0111011", "110", "0000001"),
+        // "remuw" -> new InsStruct("0111011", "111", "0000001")
     )
 
     val aluOpsMap = immutable.Map(
         // you must obey the rule: [String] -> Array([String],...)
         // if there is nothing in the Array, emmmm, it is invalid
         // "SUM" -> Array("addi", "add")
-        "SUM" -> Array("addi", "lui", "auipc")
+        "SUM" -> Array("addi", "lui", "auipc"),
+        "UCMP"-> Array("sltiu"),
+        "WSUM"-> Array("addiw", "addw"),
+        "SUB" -> Array("sub", "beq", "bne")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
 
     val exuOpsMap = immutable.Map(
-        "imR1" -> Array("addi"),
+        "r1Im" -> Array("addi", "sltiu", "addiw"),
         "imX0" -> Array("lui"),
-        "imPc" -> Array("auipc")
-        // "r1R2" -> Array("add", "xor")
+        "imPc" -> Array("auipc"),
+        "r1R2" -> Array("sub", "addw", "beq", "bne")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
-        "exu" -> Array("addi", "lui", "auipc"),
+        "exu" -> Array("addi", "sltiu", "addiw", "lui", "auipc",
+        "sub", "addw"),
         "pcn" -> Array("jal", "jalr"),
-        "mem" -> Array("sd")
+        "mem" -> Array("ld", "lw", "sd")
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 
     val pcOpsMap = immutable.Map(
-        "Inc" -> Array("addi", "lui", "auipc", "sd"),
+        "Inc" -> Array("addi", "sltiu", "addiw", "lui", "auipc", 
+        "sub", "addw", "ld", "lw", "sd"),
         "Jal" -> Array("jal"),
-        "Jalr"-> Array("jalr")
+        "Jalr"-> Array("jalr"),
+        "beq" -> Array("beq"),
+        "bne" -> Array("bne")
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
-        "wrEn" -> Array("addi", "lui", "auipc", "jal", "jalr")
+        "nwrEn" -> Array("beq", "bne")
     )
     val ctrls = MapKeyToArray(ctrlsMap)
 
     val immSwitchMap = immutable.Map(
-        "immI"  -> Array("addi", "jalr"),
+        "immI"  -> Array("addi", "sltiu", "addiw", "jalr", "ld", 
+        "lw"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
-        "immS"  -> Array("sd")
+        "immR"  -> Array("sub", "addw"),
+        "immS"  -> Array("sd"),
+        "immB"  -> Array("beq", "bne")
     )
     val immSwitch = MapKeyToArray(immSwitchMap)
 
     val memOpsMap = immutable.Map(
-        "sd"    -> Array("sd")
+        "sd"    -> Array("sd"),
+        "ld"    -> Array("ld"),
+        "lw"    -> Array("lw")
     )
     val memOps = MapKeyToArray(memOpsMap)
 }

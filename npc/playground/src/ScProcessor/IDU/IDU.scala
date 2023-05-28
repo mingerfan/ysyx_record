@@ -110,7 +110,7 @@ class IDU extends Module {
         hit("immI") -> immDecI(inst),
         hit("immU") -> immDecU(inst),
         hit("immJ") -> immDecJ(inst),
-        // hit("immB") -> immDecB(inst),
+        hit("immB") -> immDecB(inst),
         hit("immS") -> immDecS(inst)
     ))
     dataOut.rd := inst(11, 7)

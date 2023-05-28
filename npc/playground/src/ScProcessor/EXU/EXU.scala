@@ -28,15 +28,17 @@ class EXU extends Module {
     val hit = U_HIT_CURRYING(io.exuOp, exuOps)_
 
     alu.io.in1 := Mux1H(Seq(
-        hit("imR1") -> io.imm,
+        hit("r1Im") -> io.rs1,
         hit("imX0") -> io.imm,
-        hit("imPc") -> io.imm
+        hit("imPc") -> io.imm,
+        hit("r1R2") -> io.rs1
     ))
 
     alu.io.in2 := Mux1H(Seq(
-        hit("imR1") -> io.rs1,
+        hit("r1Im") -> io.imm,
         hit("imX0") -> 0.U,
-        hit("imPc") -> io.pc
+        hit("imPc") -> io.pc,
+        hit("r1R2") -> io.rs2
     ))
 }
 

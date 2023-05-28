@@ -40,7 +40,7 @@ class MEMWR extends Module {
     io.rd := Mux1H(Seq(
         hit("ld") -> (read_data),
         hit("lw") -> (Fill(topInfo.XLEN - 11, read_data(31)) ## 
-        read_data(30))
+        read_data(30, 0))
     ))
 
     mem_wr_in.io.raddr := taddr

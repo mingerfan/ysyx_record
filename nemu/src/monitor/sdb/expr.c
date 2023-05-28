@@ -59,7 +59,7 @@ static struct rule {
   {"/", '/'},                 // left slash
   {"\\(", '('},               // left bracket
   {"\\)", ')'},               // right bracket
-  {"\\$\\S+", REG},           // reg start with $
+  {"\\$[a-zA-Z0-9]+", REG},           // reg start with $
   // DEREF the same *
   {"!=", TK_NEQ},             // not equal to
   {"&&", AND}                 // and

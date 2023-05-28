@@ -13,6 +13,11 @@
 !build.sc
 !README.md
 build/
+*/build/
+.config
+playground/include/config/
+playground/include/generated/
+playground/src/temp/
 
 # mill
 out/

@@ -78,7 +78,7 @@
 
 // functional-programming-like macro (X-macro)
 // apply the function `f` to each element in the container `c`
-// NOTE1: `c` should be defined as a list like:
+// NOTE1: `c` should be de.fined as a list like:
 //   f(a0) f(a1) f(a2) ...
 // NOTE2: each element in the container can be a tuple
 #define MAP(c, f) c(f)

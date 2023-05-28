@@ -20,3 +20,13 @@ image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+
+
+IMG_BIN = $(IMAGE).bin
+IMG_ELF = $(IMAGE).elf
+ARGS := --diff=$(NEMU_HOME)/build/riscv64-nemu-interpreter-so
+
+run: image
+	$(MAKE) -C $(NPC_HOME) sim ARGS=$(ARGS) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
+
+.PHONY: run

@@ -22,6 +22,9 @@ object playground extends ScalaModule with ScalafmtModule { m =>
   override def scalacPluginIvyDeps = Agg(
     ivy"edu.berkeley.cs:::chisel3-plugin:3.5.4",
   )
+  object tools extends ScalaModule {
+    def scalaVersion = "2.13.8"
+  }
   object test extends Tests with ScalaTest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
       ivy"org.scalatest::scalatest:3.1.4",

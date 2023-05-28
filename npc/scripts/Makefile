@@ -28,6 +28,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) 
 LDFLAGS +=  -lSDL2 -lSDL2_image
 
+CFLAGS += -g
+
 SIM_FLAGS += $(IMG_BIN)
 
 default: all
@@ -37,7 +39,7 @@ all: $(VBIN)
 $(VSRC_TOP): split
 
 VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
-VERILATOR_FLAGS += --debug --gdb
+
 $(VBIN): $(VBIN_DP) $(NPC_HOME)/.config
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \

@@ -28,8 +28,6 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) 
 LDFLAGS +=  -lSDL2 -lSDL2_image
 
-CFLAGS += -g
-
 SIM_FLAGS += $(IMG_BIN)
 
 default: all

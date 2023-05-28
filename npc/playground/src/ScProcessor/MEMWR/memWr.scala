@@ -45,5 +45,5 @@ class MEMWR extends Module {
     mem_wr_in.io.wmask := Mux1H(Seq(
         hit("sd") -> "b1111_1111".U
     ))
-    mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)
+    mem_wr_in.io.en := 1.U
 }

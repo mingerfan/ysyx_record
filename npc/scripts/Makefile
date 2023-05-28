@@ -56,11 +56,9 @@ test:
 $(VGEN): $(CISSRCS)
 	mkdir -p $(BUILD_DIR)
 	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
-
-verilog_nt: $(VGEN)
+	$(call git_commit, "generate verilog")
 
 verilog: $(VGEN)
-	$(call git_commit, "generate verilog")
 
 $(EX_FILE): $(VGEN)
 	python3 $(SCRIPTS_DIR)/split.py
@@ -86,9 +84,6 @@ clean:
 	-rm -rf $(BUILD_DIR)
 
 .PHONY: default all test verilog split help compile bsp reformat checkformat clean
-
-sim_nt: $(VBIN)
-	$(VBIN) $(ARGS) $(SIM_FLAGS)
 
 sim: $(VBIN)
 	$(VBIN) $(ARGS) $(SIM_FLAGS)

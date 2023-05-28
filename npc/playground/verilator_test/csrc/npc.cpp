@@ -67,6 +67,7 @@ static void npc_eval() {
   tfp->dump(contextp->time());
 #endif
   // G_DEBUG_I("is_ebreak:%d", is_ebreak());
+  // paddr_read(0, 4);
 }
 
 static void de_init()

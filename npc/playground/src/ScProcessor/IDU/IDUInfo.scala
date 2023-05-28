@@ -109,7 +109,8 @@ object IDUInsInfo {
         "Inc" -> Array("addi", "sltiu", "addiw", "lui", "auipc", 
         "sub", "addw", "ld", "lw", "sd"),
         "Jal" -> Array("jal"),
-        "Jalr"-> Array("jalr")
+        "Jalr"-> Array("jalr"),
+        "bne" -> Array("bne")
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
@@ -130,7 +131,9 @@ object IDUInsInfo {
     val immSwitch = MapKeyToArray(immSwitchMap)
 
     val memOpsMap = immutable.Map(
-        "sd"    -> Array("sd")
+        "sd"    -> Array("sd"),
+        "ld"    -> Array("ld"),
+        "lw"    -> Array("lw")
     )
     val memOps = MapKeyToArray(memOpsMap)
 }

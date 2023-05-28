@@ -26,10 +26,12 @@ class PC extends Module {
     val hit = U_HIT_CURRYING(pcOp, pcOps)_
 
     pc_next := pc_reg + (INS_LEN/8).U
+    val immpc = pc_reg + in.imm
     pc_reg := Mux1H(Seq(
-        hit("Inc") -> (pc_reg + (INS_LEN/8).U),
-        hit("Jal") -> (pc_reg + in.imm),
-        hit("Jalr") -> ((in.imm + in.rs1) & ~(1.U(XLEN.W)))
+        hit("Inc")  -> (pc_next),
+        hit("Jal")  -> (immpc),
+        hit("Jalr") -> ((in.imm + in.rs1) & ~(1.U(XLEN.W))),
+        hit("bne")  -> (Mux(in.exu =/= 0.U, immpc, pc_next))
     ))
 
     pc_out := pc_reg

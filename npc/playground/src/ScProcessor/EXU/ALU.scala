@@ -20,11 +20,15 @@ class ALU extends Module {
     val aluOps = IDU.IDUInsInfo.aluOps
     val hit = U_HIT_CURRYING(io.aluOp, aluOps)_
 
+    val in1pin2 = io.in1 + io.in2
+    val in1sin2 = io.in1 - io.in2
+
     io.out := Mux1H(Seq(
-        hit("SUM") -> (io.in1 + io.in2),
-        hit("UCMP")-> (io.in1 < io.in2),
-        hit("WSUM")-> (Fill(topInfo.XLEN - 11, (io.in1 + io.in2)(31)) ## 
-        (io.in1 + io.in2)(30, 0)),
+        hit("SUM") -> (in1pin2),
+        hit("UCMP")-> (in1sin2.asSInt < 0.S),
+        hit("WSUM")-> (Fill(topInfo.XLEN - 11, in1pin2(31)) ## 
+        in1pin2(30, 0)),
+        hit("SUB") -> (in1sin2)
     ))
 }
 

@@ -42,5 +42,7 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
             }
         }
         paddr_write(waddr & ~0x7ull, 8, res);
+        G_DEBUG_I("wdata: 0x%016lx wmask:0x%02x val: 0x%016lx res: 0x%016lx",
+        wdata, (uint32_t)wmask, val, res);
     }
 }

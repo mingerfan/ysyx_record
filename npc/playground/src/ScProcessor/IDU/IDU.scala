@@ -62,11 +62,13 @@ class IDU extends Module {
             require(strs_opt != None)
             val strs = strs_opt.get
             require(strs.length != 0)
-            var start = false.B
+            val wire_vec = Wire(Vec(strs.length, Bool()))
+            var idx = 0
             for (j <- strs) {
-                start = start | b_map(j)
+                wire_vec(idx) := b_map(j)
+                idx += 1
             }
-            vec_logic(i) := start
+            vec_logic(i) := wire_vec.reduceTree(_ | _)
         }
         vec_logic.asUInt
     }

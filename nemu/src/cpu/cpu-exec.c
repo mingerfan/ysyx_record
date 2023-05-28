@@ -18,6 +18,7 @@
 #include <cpu/difftest.h>
 #include <locale.h>
 #include "../monitor/sdb/sdb.h"
+#include <mytrace.h>
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -42,7 +43,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 #ifdef CONFIG_WATCHPOINT
   WP* p;
-  printf("PC: %lu\n", cpu.pc);
+  // printf("PC: %lu\n", cpu.pc);
   p = scan_wp();
   if (p) {
     nemu_state.state = NEMU_STOP;
@@ -76,6 +77,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
+#endif
+
+#ifdef CONFIG_IRINGBUF
+  trace_inst_record(s->logbuf);
 #endif
 }
 
@@ -117,7 +122,6 @@ void cpu_exec(uint64_t n) {
   uint64_t timer_start = get_time();
 
   execute(n);
-
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
 
@@ -125,6 +129,7 @@ void cpu_exec(uint64_t n) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
 
     case NEMU_END: case NEMU_ABORT:
+      isa_reg_display();
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
@@ -133,4 +138,9 @@ void cpu_exec(uint64_t n) {
       // fall through
     case NEMU_QUIT: statistic();
   }
+#ifdef CONFIG_IRINGBUF
+  if (nemu_state.state == NEMU_END && nemu_state.halt_ret != 0) {
+    trace_inst_print();
+  }
+#endif
 }

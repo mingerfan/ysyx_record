@@ -18,7 +18,14 @@
 #include "../local-include/reg.h"
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  return false;
+  for (int i = 0; i < 32; i++) {
+    if (gpr(i) != ref_r->gpr[i]) {
+      printf("unmatched reg:%s DUT: %ld REF: %ld At 0x%lx\n", \
+        reg_name(i, 0), gpr(i), ref_r->gpr[i], pc);
+      return false;
+    }
+  }
+  return true;
 }
 
 void isa_difftest_attach() {

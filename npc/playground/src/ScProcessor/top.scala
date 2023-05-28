@@ -1,0 +1,89 @@
+package ScProcessor
+import chisel3._
+import chisel3.util._
+import topInfo._
+import scala.math._
+import chisel3.dontTouch
+import tools._
+
+object topInfo {
+    val INSTRUCTION = "riscv64"
+    val XLEN = 64
+    val R_NUM = 32
+    val INS_LEN = 32
+    val PC_INIT = BigInt("80000000", 16)
+    val NPC_SIM = true
+}
+
+class top extends Module {
+    val dbg_regs_w = if (NPC_SIM) RF.rfInfo.REGS_NUM*RF.rfInfo.REGS_WIDTH else 0
+    val io = IO(new Bundle {
+        val inst = Input(UInt(INS_LEN.W))   // Get Input Instruction
+        val pc = Output(UInt(XLEN.W))   // PC output to read ins in memory
+    })
+    val dbg_regs = IO(Output(UInt(dbg_regs_w.W)))
+    
+    val idu = Module(new IDU.IDU)
+    val exu = Module(new EXU.EXU)
+    val rf = Module(new RF.RFModule)    
+    val pc = Module(new PC.PC)
+    val mem_wr = Module(new MEMWR.MEMWR)
+
+    dbg_regs := 0.U
+    if (NPC_SIM) {
+        dbg_regs := rf.dbg_regs
+    }
+
+    val hit = U_HIT_CURRYING(idu.dpCtrl.ctrls_out, IDU.IDUInsInfo.ctrls)_
+
+    dontTouch(idu.dataOut)
+    dontTouch(idu.dpCtrl)
+    dontTouch(exu.io)
+    dontTouch(rf.io)
+
+    pc.pcOp     := idu.dpCtrl.pcOp
+    pc.in.imm   := idu.dataOut.imm
+    pc.in.rs1   := rf.io.rdData1
+    pc.in.rs2   := rf.io.rdData2
+    pc.in.exu   := exu.io.out
+
+    // IFU is simple, so we don't write it in a single module
+    // it seems that it is not neccesary to cache the inst to the register
+    io.pc := pc.pc_out
+
+    idu.inst := io.inst
+    
+    rf.io.rdAddr1   := Mux(idu.ebreak, 10.U, idu.dataOut.rs1)
+    rf.io.rdAddr2   := idu.dataOut.rs2
+    rf.io.wrAddr    := idu.dataOut.rd
+    rf.io.wrData    := 1.U  // actually we do not use it
+    rf.io.wrEn      := hit("wrEn")
+    rf.rfOp         := idu.dpCtrl.rfOp
+    rf.in.exu       := exu.io.out
+    rf.in.pc_next   := pc.pc_next
+    rf.in.mem       := mem_wr.io.rd
+
+    exu.io.exuOp    := idu.dpCtrl.exuOp
+    exu.io.aluOp    := idu.dpCtrl.aluOp
+    exu.io.imm      := idu.dataOut.imm
+    exu.io.rs1      := rf.io.rdData1
+    exu.io.rs2      := rf.io.rdData2
+    exu.io.pc       := pc.pc_out
+
+    mem_wr.io.rs1   := rf.io.rdData1
+    mem_wr.io.rs2   := rf.io.rdData2
+    mem_wr.io.imm   := idu.dataOut.imm
+    mem_wr.io.memOps:= idu.dpCtrl.memOp
+
+    val ebreak_detect_ = Module(new ebreak_detect)
+    val inv_inst_ = Module(new inv_inst)
+
+    ebreak_detect_.io.ebreak    := idu.ebreak
+    ebreak_detect_.io.clk       := clock.asBool
+    ebreak_detect_.io.a0        := rf.io.rdData1
+    ebreak_detect_.io.pc        := pc.pc_out
+
+    inv_inst_.io.inv    := idu.inv_inst
+    inv_inst_.io.clk    := clock.asBool
+    inv_inst_.io.pc     := pc.pc_out
+}

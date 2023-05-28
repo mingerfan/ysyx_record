@@ -30,4 +30,7 @@ static inline const char* reg_name(int idx, int width) {
   return regs[check_reg_idx(idx)];
 }
 
+void isa_reg_display();
+word_t isa_reg_str2val(const char *s, bool *success);
+
 #endif

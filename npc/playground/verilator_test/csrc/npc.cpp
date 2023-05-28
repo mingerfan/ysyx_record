@@ -15,6 +15,8 @@ TOP_NAME dut;
 static VerilatedVcdC *tfp = nullptr;
 static VerilatedContext *contextp;
 
+bool npc_init_done = false;
+
 svScope scope = nullptr;
 
 static void single_cycle() {
@@ -41,6 +43,7 @@ static void init(int argc, char *argv[]) {
 #endif
   monitor_init(argc, argv);
   npc_state.state = NPC_RUNNING;
+  npc_init_done = true;
   G_DEBUG_WR("Initialization Completed!\n");
 }
 
@@ -86,7 +89,10 @@ void cpu_exec(uint64_t n)
     itrace_recorde();
     if (use_ftrace) trace_ftrace_print((uint32_t)paddr_read(dut.io_pc, 4), dut.io_pc);
     npc_eval();
-    // difftest_step(0, dut.io_pc);
+    extern bool use_difftest;
+    if (use_difftest) {
+      difftest_step(0, dut.io_pc);
+    }
     if (npc_state.state != NPC_RUNNING) {
       trace_inst_print(0);
       break;

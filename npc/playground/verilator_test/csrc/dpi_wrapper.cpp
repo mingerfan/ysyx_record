@@ -7,7 +7,7 @@
 void invalid_inst_(unsigned long long c_pc)
 {
     Assert(sizeof(unsigned long long)==sizeof(uint64_t), "type unmatch!");
-    if (c_pc >= CONFIG_NPC_PC) {
+    if (c_pc >= CONFIG_NPC_PC && npc_state.state == NPC_RUNNING) {
         invalid_inst(c_pc);
     }
 }

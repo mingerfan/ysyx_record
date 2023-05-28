@@ -28,7 +28,7 @@ paddr_t host_to_guset(uint8_t *addr) { return addr - pmem + CONFIG_NPC_PC; }
 
 static uint64_t pmem_read_base(paddr_t paddr, int len)
 {
-    Assert(0 >= CONFIG_NPC_PC, "fas");
+    Assert(0 >= 0x80000000, "fas");
     Assert(paddr >= CONFIG_NPC_PC, "Addr is less than CONFIG_NPC_PC");
     return host_read(guest_to_host(paddr), len);
 }

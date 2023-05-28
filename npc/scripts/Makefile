@@ -37,7 +37,7 @@ all: $(VBIN)
 $(VSRC_TOP): split
 
 VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
-
+VERILATOR_FLAGS += --gdb
 $(VBIN): $(VBIN_DP) $(NPC_HOME)/.config
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \

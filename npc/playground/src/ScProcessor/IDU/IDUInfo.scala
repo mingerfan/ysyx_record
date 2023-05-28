@@ -116,8 +116,7 @@ object IDUInsInfo {
     val immSwitchMap = immutable.Map(
         "immI"  -> Array("addi", "jalr"),
         "immU"  -> Array("lui", "auipc"),
-        "immJ"  -> Array("jal"),
-        "immS"  -> Array("sd")
+        "immJ"  -> Array("jal")
     )
     val immSwitch = MapKeyToArray(immSwitchMap)
 

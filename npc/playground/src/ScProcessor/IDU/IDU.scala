@@ -65,7 +65,7 @@ class IDU extends Module {
             val wire_vec = Wire(Vec(strs.length, Bool()))
             var idx = 0
             for (j <- strs) {
-                wire_vec(idx) := ~b_map(j)
+                wire_vec(idx) := b_map(j)
                 idx += 1
             }
             vec_logic(i) := wire_vec.reduceTree(_ | _)

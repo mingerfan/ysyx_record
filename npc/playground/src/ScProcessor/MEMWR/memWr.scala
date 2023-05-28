@@ -33,7 +33,7 @@ class MEMWR extends Module {
 
     val mem_wr_in = Module(new MEM_WR)
 
-    val taddr = WireDefault(io.rs1 + io.imm)
+    val taddr = WireDefault(io.rs2 + io.imm)
 
     val read_data = mem_wr_in.io.rdata
 

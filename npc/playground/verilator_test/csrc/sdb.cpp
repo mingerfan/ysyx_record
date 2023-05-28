@@ -76,6 +76,7 @@ static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_mt(char *args);
 static int cmd_mtt(char *args);
+static int cmd_m(char *args);
 static int cmd_d(char *args);
 static int cmd_w(char *args);
 
@@ -92,6 +93,7 @@ static struct
     {"info", "Get cpu info", cmd_info},
     {"x", "Get memory data", cmd_x},
     {"mt", "Match try", cmd_mt},
+    {"m", "memory get", cmd_m},
     {"d", "Delete watchpoint", cmd_d},
     {"w", "Add watchpoint", cmd_w}
     /* TODO: Add more commands */
@@ -191,6 +193,14 @@ static int cmd_mt(char *args)
   result = (uint64_t)expr(args, &success);
   printf("expr result: 0x%lx\n", result);
   return 0;
+}
+
+static int cmd_m(char *args)
+{
+  bool success;
+  uint64_t result = (uint64_t)expr(args, &success);
+  uint64_t mem = paddr_read(result & ~0x7ull, 8)
+  printf("addr:0x%016lx, mem:%0x016lx\n", result, mem);
 }
 
 static int cmd_d(char *args)

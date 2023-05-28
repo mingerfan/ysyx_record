@@ -21,7 +21,8 @@ class ALU extends Module {
     val hit = U_HIT_CURRYING(io.aluOp, aluOps)_
 
     io.out := Mux1H(Seq(
-        hit("SUM") -> (io.in1 + io.in2)
+        hit("SUM") -> (io.in1 + io.in2),
+        hit("UCMP")-> (io.in1)
     ))
 }
 

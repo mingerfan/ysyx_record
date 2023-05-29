@@ -16,7 +16,6 @@ static VerilatedVcdC *tfp = nullptr;
 static VerilatedContext *contextp;
 
 bool npc_init_done = false;
-int delay_slot = 0;
 
 svScope scope = nullptr;
 
@@ -57,13 +56,6 @@ static void npc_eval() {
   dut.io_inst = (uint32_t)paddr_read(dut.io_pc, 4);
   G_DEBUG_I("addr: %lx inst:%x", dut.io_pc, (uint32_t)paddr_read(dut.io_pc, 4));
   dut.eval();
-  if (npc_state.state != NPC_RUNNING) {
-    if (delay_slot == 0) {
-      delay_slot++;
-    } else {
-      return;
-    }
-  }
 #ifdef CONFIG_NPC_WAVE
   tfp->dump(contextp->time());
   contextp->timeInc(1);

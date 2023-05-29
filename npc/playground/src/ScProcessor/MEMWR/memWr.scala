@@ -75,7 +75,8 @@ class MEMWR extends Module {
     io.rd := Mux1H(Seq(
         hit("ld") -> (read_data),
         hit("lw") -> (Fill(topInfo.XLEN - 11, word_data(31)) ## 
-        word_data(30, 0))
+        word_data(30, 0)),
+        hit("lbu")-> byte_data
     ))
 
     mem_wr_in.io.raddr := taddr_t
@@ -90,7 +91,8 @@ class MEMWR extends Module {
         hit("sh") -> hword_mask,
         hit("sb") -> byte_mask,
         hit("ld") -> 0.U,
-        hit("lw") -> 0.U
+        hit("lw") -> 0.U,
+        hit("lbu")-> 0.U
     ))
     mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)
 }

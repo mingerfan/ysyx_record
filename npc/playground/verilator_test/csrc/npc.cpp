@@ -56,7 +56,6 @@ static void npc_eval() {
   dut.io_inst = (uint32_t)paddr_read(dut.io_pc, 4);
   G_DEBUG_I("addr: %lx inst:%x", dut.io_pc, (uint32_t)paddr_read(dut.io_pc, 4));
   dut.eval();
-  if (npc_state.state != NPC_RUNNING) return;
 #ifdef CONFIG_NPC_WAVE
   tfp->dump(contextp->time());
   contextp->timeInc(1);

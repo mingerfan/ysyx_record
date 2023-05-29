@@ -6,7 +6,7 @@ import scala.math._
 object tools {
     // extend a UInt to 64bits
     def U_SEXT64(x: UInt, len: Int) = {
-        (x & (0.U<<len.U))|(Fill(64-len, x(len-1))<<len.U)
+        (x(len-1, 0))|(Fill(64-len, x(len-1))<<len.U)
     }
 
     // to get the particular bit of x, hinted by the index of str in array y

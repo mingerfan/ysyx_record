@@ -21,8 +21,8 @@ void set_state_end_(unsigned long long c_pc, int halt_ret)
 void pmem_read(long long raddr, long long *rdata) {
     if (npc_state.state == NPC_RUNNING) {
         // 总是读取地址为`raddr & ~0x7ull`的8字节返回给`rdata`
-        G_DEBUG_I("raddr: 0x%016x", raddr);
         *rdata = paddr_read(raddr & ~0x7ull, 8);
+        G_DEBUG_I("raddr: 0x%016x rdata: 0x%016x", raddr, radta);
     } else {
         *rdata = 0;
     }

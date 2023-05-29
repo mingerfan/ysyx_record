@@ -16,7 +16,7 @@ object IDUInsInfo {
         "addi" -> new InsStruct("0010011", "000", "-1"),
         // "slti" -> new InsStruct("0010011", "010", "-1"),
         "sltiu" -> new InsStruct("0010011", "011", "-1"),
-        // "andi" -> new InsStruct("0010011", "111", "-1"),
+        "andi" -> new InsStruct("0010011", "111", "-1"),
         // "ori" -> new InsStruct("0010011", "110", "-1"),
         "xori" -> new InsStruct("0010011", "100", "-1"),
         "addiw" -> new InsStruct("0011011", "000", "-1"),
@@ -87,7 +87,7 @@ object IDUInsInfo {
         "WSUM"-> Array("addiw", "addw"),
         "SUB" -> Array("sub", "beq", "bne"),
         "XOR" -> Array("xori", "xor"),
-        "AND" -> Array("and"),
+        "AND" -> Array("and", "andi"),
         "OR"  -> Array("or"),
         "ULSW"-> Array("sllw"),
         "SRAI"-> Array("srai")
@@ -95,7 +95,7 @@ object IDUInsInfo {
     val aluOps = MapKeyToArray(aluOpsMap)
 
     val exuOpsMap = immutable.Map(
-        "r1Im" -> Array("addi", "sltiu", "xori", "srai", "addiw"),
+        "r1Im" -> Array("addi", "sltiu", "andi", "xori", "srai", "addiw"),
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "sltu", "and", "or", "xor",
@@ -104,7 +104,7 @@ object IDUInsInfo {
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
-        "exu" -> Array("addi", "sltiu", "xori", 
+        "exu" -> Array("addi", "sltiu", "andi", "xori", 
         "addiw", "srai", "lui", "auipc",
         "add", "sub", "sltu", "and", "or", "xor",
         "addw", "sllw"),
@@ -115,7 +115,7 @@ object IDUInsInfo {
 
     // todo: delete Inc
     val pcOpsMap = immutable.Map(
-        "Inc" -> Array("addi", "sltiu", "xori", "addiw", "srai",
+        "Inc" -> Array("addi", "sltiu", "andi", "xori", "addiw", "srai",
         "lui", "auipc", 
         "add", "sub", "sltu", "and", "or", "xor",
         "addw", "sllw", "ld", "lw", "lbu",
@@ -133,7 +133,7 @@ object IDUInsInfo {
     val ctrls = MapKeyToArray(ctrlsMap)
 
     val immSwitchMap = immutable.Map(
-        "immI"  -> Array("addi", "sltiu", "xori", 
+        "immI"  -> Array("addi", "sltiu", "andi", "xori", 
         "addiw", "srai", "jalr", "ld", 
         "lw", "lbu"),
         "immU"  -> Array("lui", "auipc"),

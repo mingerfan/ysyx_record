@@ -24,6 +24,7 @@ class ALU extends Module {
     val in1sin2 = io.in1 - io.in2
     val in1xorin2 = io.in1 ^ io.in2
     val in1andin2 = io.in1 & io.in2
+    val in1orin2 = io.in1 | io.in2
 
     io.out := Mux1H(Seq(
         hit("SUM") -> (in1pin2),
@@ -33,8 +34,9 @@ class ALU extends Module {
         hit("SUB") -> (in1sin2),
         hit("XOR") -> (in1xorin2),
         hit("AND") -> (in1andin2),
+        hit("OR")  -> (in1orin2),
         hit("ULSW")-> (U_SEXT64((io.in1<<(io.in2(4, 0)))(31, 0), 32)),
-        hit("SRAI")-> (io.in1.asSInt >> io.in2.asSInt(5, 0)).asUInt
+        hit("SRAI")-> (io.in1.asSInt >> io.in2.asSInt(5, 0)).asUInt,
     ))
 }
 

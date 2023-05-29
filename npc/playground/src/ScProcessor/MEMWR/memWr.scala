@@ -34,7 +34,7 @@ class MEMWR extends Module {
     val mem_wr_in = Module(new MEM_WR)
 
     val taddr = WireDefault(io.rs1 + io.imm)
-    val taddr_t = Mux((taddr& (~"h7".U(64.W)))===taddr, taddr, (taddr& (~"h7".U(64.W)))-8.U)
+    val taddr_t = taddr& (~"h7".U(64.W))
 
     val read_data = mem_wr_in.io.rdata
 

@@ -101,7 +101,7 @@ object IDUInsInfo {
         "exu" -> Array("addi", "sltiu", "addiw", "lui", "auipc",
         "add", "sub", "addw"),
         "pcn" -> Array("jal", "jalr"),
-        "mem" -> Array("ld", "lw", "sd")
+        "mem" -> Array("ld", "lw")
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 

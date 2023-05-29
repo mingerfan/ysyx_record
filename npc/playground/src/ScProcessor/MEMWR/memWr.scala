@@ -91,7 +91,8 @@ class MEMWR extends Module {
         hit("sh") -> hword_mask,
         hit("sb") -> byte_mask,
         hit("ld") -> 0.U,
-        hit("lw") -> 0.U
+        hit("lw") -> 0.U,
+        hit("lbu")-> 0.U
     ))
     mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)
 }

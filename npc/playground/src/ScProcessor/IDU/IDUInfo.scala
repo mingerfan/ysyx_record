@@ -28,7 +28,7 @@ object IDUInsInfo {
         // "sraiw" -> new InsStruct("0011011", "101", "0100000"),
         "lui" -> new InsStruct("0110111", "-1", "-1"),
         "auipc" -> new InsStruct("0010111", "-1", "-1"),
-        // "add" -> new InsStruct("0110011", "000", "0000000"),
+        "add" -> new InsStruct("0110011", "000", "0000000"),
         "sub" -> new InsStruct("0110011", "000", "0100000"),
         // "slt" -> new InsStruct("0110011", "010", "0000000"),
         // "sltu" -> new InsStruct("0110011", "011", "0000000"),
@@ -82,7 +82,7 @@ object IDUInsInfo {
         // you must obey the rule: [String] -> Array([String],...)
         // if there is nothing in the Array, emmmm, it is invalid
         // "SUM" -> Array("addi", "add")
-        "SUM" -> Array("addi", "lui", "auipc"),
+        "SUM" -> Array("addi", "lui", "auipc", "add"),
         "UCMP"-> Array("sltiu"),
         "WSUM"-> Array("addiw", "addw"),
         "SUB" -> Array("sub", "beq", "bne")
@@ -93,13 +93,13 @@ object IDUInsInfo {
         "r1Im" -> Array("addi", "sltiu", "addiw"),
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
-        "r1R2" -> Array("sub", "addw", "beq", "bne")
+        "r1R2" -> Array("add", "sub", "addw", "beq", "bne")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
         "exu" -> Array("addi", "sltiu", "addiw", "lui", "auipc",
-        "sub", "addw"),
+        "add", "sub", "addw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "sd")
     )
@@ -107,7 +107,7 @@ object IDUInsInfo {
 
     val pcOpsMap = immutable.Map(
         "Inc" -> Array("addi", "sltiu", "addiw", "lui", "auipc", 
-        "sub", "addw", "ld", "lw", "sd"),
+        "add", "sub", "addw", "ld", "lw", "sd"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),

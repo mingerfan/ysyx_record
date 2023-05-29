@@ -57,7 +57,7 @@ object IDUInsInfo {
         // "lh" -> new InsStruct("0000011", "001", "-1"),
         // "lhu" -> new InsStruct("0000011", "101", "-1"),
         // "lb" -> new InsStruct("0000011", "000", "-1"),
-        // "lbu" -> new InsStruct("0000011", "100", "-1"),
+        "lbu" -> new InsStruct("0000011", "100", "-1"),
         "sd" -> new InsStruct("0100011", "011", "-1"),
         // "sw" -> new InsStruct("0100011", "010", "-1"),
         "sh" -> new InsStruct("0100011", "001", "-1"),
@@ -118,7 +118,8 @@ object IDUInsInfo {
         "Inc" -> Array("addi", "sltiu", "xori", "addiw", "srai",
         "lui", "auipc", 
         "add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw", "ld", "lw", "sd", "sh", "sb"),
+        "addw", "sllw", "ld", "lw", "lbu",
+        "sd", "sh", "sb"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),
@@ -127,7 +128,7 @@ object IDUInsInfo {
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
-        "nwrEn" -> Array("beq", "bne")
+        "nwrEn" -> Array("beq", "bne", "sd", "sh", "sb")
     )
     val ctrls = MapKeyToArray(ctrlsMap)
 
@@ -145,6 +146,7 @@ object IDUInsInfo {
     val memOpsMap = immutable.Map(
         "ld"    -> Array("ld"),
         "lw"    -> Array("lw"),
+        "lbu"   -> Array("lbu"),
         "sd"    -> Array("sd"),
         "sh"    -> Array("sh"),
         "sb"    -> Array("sb")

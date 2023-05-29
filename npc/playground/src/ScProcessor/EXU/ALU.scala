@@ -25,9 +25,6 @@ class ALU extends Module {
 
     io.out := Mux1H(Seq(
         hit("SUM") -> (in1pin2),
-        hit("UCMP")-> (in1sin2.asSInt < 0.S),
-        hit("WSUM")-> (Fill(topInfo.XLEN - 11, in1pin2(31)) ## 
-        in1pin2(30, 0)),
         hit("SUB") -> (in1sin2)
     ))
 }

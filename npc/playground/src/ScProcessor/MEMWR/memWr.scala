@@ -12,6 +12,7 @@ object MEMWRInfo {
 
 class MEM_WR extends BlackBox {
     val io = IO(new Bundle {
+        val clk   = Input(Bool())
         val raddr = Input(UInt(XLEN.W))
         val rdata = Output(UInt(XLEN.W))
         val waddr = Input(UInt(XLEN.W))
@@ -68,6 +69,7 @@ class MEMWR extends Module {
         word_data(30, 0))
     ))
 
+    mem_wr_in.io.clk   := clock.asBool
     mem_wr_in.io.raddr := taddr_t
     mem_wr_in.io.waddr := taddr_t
     mem_wr_in.io.wdata := Mux1H(Seq(

@@ -39,6 +39,7 @@ class MEMWR extends Module {
     val read_data = mem_wr_in.io.rdata
 
     val align = taddr-taddr_t
+    val dword_mask = "b1111_1111".U
     val word_mask = "b1111".U << align(4, 0)
     val hword_mask = "b11".U << align(4, 0)
     val byte_mask = "b1".U << align(4, 0)
@@ -80,10 +81,14 @@ class MEMWR extends Module {
     mem_wr_in.io.raddr := taddr_t
     mem_wr_in.io.waddr := taddr_t
     mem_wr_in.io.wdata := Mux1H(Seq(
-        hit("sd") -> io.rs2
+        hit("sd") -> io.rs2,
+        hit("sh") -> io.rs2(15, 0),
+        hit("sb") -> io.rs2(7, 0)
     ))
     mem_wr_in.io.wmask := Mux1H(Seq(
-        hit("sd") -> "b1111_1111".U,
+        hit("sd") -> dword_mask,
+        hit("sh") -> hword_mask,
+        hit("sb") -> byte_mask,
         hit("ld") -> 0.U,
         hit("lw") -> 0.U
     ))

@@ -60,8 +60,8 @@ object IDUInsInfo {
         // "lbu" -> new InsStruct("0000011", "100", "-1"),
         "sd" -> new InsStruct("0100011", "011", "-1"),
         // "sw" -> new InsStruct("0100011", "010", "-1"),
-        // "sh" -> new InsStruct("0100011", "001", "-1"),
-        // "sb" -> new InsStruct("0100011", "000", "-1"),
+        "sh" -> new InsStruct("0100011", "001", "-1"),
+        "sb" -> new InsStruct("0100011", "000", "-1"),
         "ebreak" -> new InsStruct("1110011", "000", "0000000"),
         // "mul" -> new InsStruct("0110011", "000", "0000001"),
         // "mulh" -> new InsStruct("0110011", "001", "0000001"),
@@ -105,9 +105,10 @@ object IDUInsInfo {
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 
+    // todo: delete Inc
     val pcOpsMap = immutable.Map(
         "Inc" -> Array("addi", "sltiu", "addiw", "lui", "auipc", 
-        "add", "sub", "addw", "ld", "lw", "sd"),
+        "add", "sub", "addw", "ld", "lw", "sd", "sh", "sb"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),
@@ -132,9 +133,11 @@ object IDUInsInfo {
     val immSwitch = MapKeyToArray(immSwitchMap)
 
     val memOpsMap = immutable.Map(
-        "sd"    -> Array("sd"),
         "ld"    -> Array("ld"),
-        "lw"    -> Array("lw")
+        "lw"    -> Array("lw"),
+        "sd"    -> Array("sd"),
+        "sh"    -> Array("sh"),
+        "sb"    -> Array("sb")
     )
     val memOps = MapKeyToArray(memOpsMap)
 }

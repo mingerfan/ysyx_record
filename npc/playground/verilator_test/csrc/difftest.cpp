@@ -43,11 +43,13 @@ void init_difftest(char *ref_so_file, long img_size, int port, CPU_state *cpu)
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc)
 {
     for (int i = 0; i < 32; i++) {
-        if (gpr(i) != ref_r->gpr[i]) {
-            G_DEBUG_WR("unmatched reg[%d]:%s DUT: 0x%016lx REF: 0x%016lx At 0x%lx\n", \
-                i,   reg_name(i), gpr(i), ref_r->gpr[i], pc);
-            return false;
-        }
+      G_DEBUG_WR("name:%s dut:0x%016lx ref:0x%016lx\n", 
+      reg_name(i), gpr(i), ref_r->gpr[i]);
+      if (gpr(i) != ref_r->gpr[i]) {
+          G_DEBUG_WR("unmatched reg[%d]:%s DUT: 0x%016lx REF: 0x%016lx At 0x%lx\n", \
+              i,   reg_name(i), gpr(i), ref_r->gpr[i], pc);
+          return false;
+      }
     }
     return true;
 }

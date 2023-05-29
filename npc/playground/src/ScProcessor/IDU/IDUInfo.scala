@@ -109,7 +109,7 @@ object IDUInsInfo {
         "add", "sub", "sltu", "and", "or", "xor",
         "addw", "sllw"),
         "pcn" -> Array("jal", "jalr"),
-        "mem" -> Array("ld", "lw")
+        "mem" -> Array("ld", "lw", "lbu")
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 

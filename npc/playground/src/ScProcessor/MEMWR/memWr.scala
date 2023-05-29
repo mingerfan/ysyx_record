@@ -84,9 +84,9 @@ class MEMWR extends Module {
     mem_wr_in.io.raddr := taddr_t
     mem_wr_in.io.waddr := taddr_t
     mem_wr_in.io.wdata := Mux1H(Seq(
-        hit("sd") -> io.rs2,
-        hit("sh") -> io.rs2(15, 0),
-        hit("sb") -> io.rs2(7, 0)
+        hit("sd") -> (io.rs2),
+        hit("sh") -> (io.rs2(15, 0) << align(4, 0)),
+        hit("sb") -> (io.rs2(7, 0) << align(4, 0))
     ))
     mem_wr_in.io.wmask := Mux1H(Seq(
         hit("sd") -> dword_mask,

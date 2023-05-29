@@ -76,7 +76,7 @@ class MEMWR extends Module {
         hit("ld") -> (read_data),
         hit("lw") -> (Fill(topInfo.XLEN - 11, word_data(31)) ## 
         word_data(30, 0)),
-        hit("lbu")-> byte_data.pad(64)
+        hit("lbu")-> byte_data
     ))
 
     mem_wr_in.io.raddr := taddr_t

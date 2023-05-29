@@ -34,17 +34,42 @@ class MEMWR extends Module {
     val mem_wr_in = Module(new MEM_WR)
 
     val taddr = WireDefault(io.rs1 + io.imm)
+    val taddr_t = Mux((taddr& (~"h7".U))===taddr, taddr, (taddr& (~"h7".U))-8.U)
 
     val read_data = mem_wr_in.io.rdata
 
-    io.rd := Mux1H(Seq(
-        hit("ld") -> (read_data),
-        hit("lw") -> (Fill(topInfo.XLEN - 11, read_data(31)) ## 
-        read_data(30, 0))
+    val align = taddr-taddr_t
+    val word_mask = "b1111".U << align(4, 0)
+    val byte_mask = "b11".U << align(4, 0)
+    
+    val word_vec = Wire(Vec(2, Bool()))
+    word_vec := VecInit((0 until 2).map(i => align === (i*4).U))
+    val byte_vec = Wire(Vec(8, Bool()))
+    byte_vec := VecInit((0 until 8).map(i => align === i.U))
+
+    val word_data = Mux1H(Seq(
+        word_vec(0) -> read_data(31, 0),
+        word_vec(1) -> read_data(63, 32)
+    ))
+    val byte_data = Mux1H(Seq(
+        byte_vec(0) -> read_data(7, 0),
+        byte_vec(1) -> read_data(15, 8),
+        byte_vec(2) -> read_data(23, 16),
+        byte_vec(3) -> read_data(31, 24),
+        byte_vec(4) -> read_data(39, 32),
+        byte_vec(5) -> read_data(47, 40),
+        byte_vec(6) -> read_data(55, 48),
+        byte_vec(7) -> read_data(63, 56)
     ))
 
-    mem_wr_in.io.raddr := taddr
-    mem_wr_in.io.waddr := taddr
+    io.rd := Mux1H(Seq(
+        hit("ld") -> (read_data),
+        hit("lw") -> (Fill(topInfo.XLEN - 11, word_data(31)) ## 
+        word_data(30, 0))
+    ))
+
+    mem_wr_in.io.raddr := taddr_t
+    mem_wr_in.io.waddr := taddr_t
     mem_wr_in.io.wdata := Mux1H(Seq(
         hit("sd") -> io.rs2
     ))

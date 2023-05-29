@@ -35,7 +35,7 @@ class MEMWR extends Module {
 
     val taddr = WireDefault(io.rs1 + io.imm)
     val taddr_t = taddr& (~"h7".U(64.W))
-    printf(p"taddr= $taddr")
+    printf("taddr= 0x%x\n", taddr)
     val read_data = mem_wr_in.io.rdata
 
     val align = taddr-taddr_t

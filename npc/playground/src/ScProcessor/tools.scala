@@ -11,6 +11,7 @@ object tools {
 
     // to get the particular bit of x, hinted by the index of str in array y
     def U_HIT_CURRYING(x: UInt, y: Array[String])(str: String) = {
+        // println(s"$str:" + y.indexOf(str))
         x(y.indexOf(str))
     }
 

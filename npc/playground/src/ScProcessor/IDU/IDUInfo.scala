@@ -133,9 +133,9 @@ object IDUInsInfo {
     val ctrls = MapKeyToArray(ctrlsMap)
 
     val immSwitchMap = immutable.Map(
-        "immI"  -> Array("addi", "sltiu", "xori", "srai",
-        "addiw", "jalr", "ld", 
-        "lw"),
+        "immI"  -> Array("addi", "sltiu", "xori", 
+        "addiw", "srai", "jalr", "ld", 
+        "lw", "lbu"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sh", "sb"),

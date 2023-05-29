@@ -54,7 +54,7 @@ void trace_memory_read(paddr_t addr, int len, word_t data)
 {
 #ifdef CONFIG_MTRACE
     if (addr >= CONFIG_MTRACE_START && addr < CONFIG_MTRACE_END) {
-        log_write("MTrace--Read--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
+        printf("MTrace--Read--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
     }
 #endif
 }
@@ -63,7 +63,7 @@ void trace_memory_write(paddr_t addr, int len, word_t data)
 {
 #ifdef CONFIG_MTRACE
     if (addr >= CONFIG_MTRACE_START && addr < CONFIG_MTRACE_END) {
-        log_write("MTrace--Write--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
+        printf("MTrace--Write--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
     }
 #endif
 }

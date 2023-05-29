@@ -133,8 +133,6 @@ object IDUInsInfo {
         "lw"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
-        "immR"  -> Array("add", "sub", "sltu", "and", 
-        "or", "xor", "addw", "sllw"),
         "immS"  -> Array("sd", "sh", "sb"),
         "immB"  -> Array("beq", "bne")
     )

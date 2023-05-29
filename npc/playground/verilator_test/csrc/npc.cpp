@@ -88,10 +88,10 @@ void cpu_exec(uint64_t n)
     itrace_recorde();
     if (use_ftrace) trace_ftrace_print((uint32_t)paddr_read(dut.io_pc, 4), dut.io_pc);
     npc_eval();
-    extern bool use_difftest;
-    if (use_difftest) {
-      difftest_step(0, dut.io_pc);
-    }
+    // extern bool use_difftest;
+    // if (use_difftest) {
+    //   difftest_step(0, dut.io_pc);
+    // }
     if (npc_state.state != NPC_RUNNING) {
       trace_inst_print(0);
       break;

@@ -25,6 +25,9 @@ VERILATOR_FLAGS += $(if $(CONFIG_NPC_WAVE), --trace)
 
 VERILATOR_FLAGS += -Wno-UNUSED
 
+# disable warings in alu.v
+VERILATOR_FLAGS += lint_off -rule WIDTH -file "*/ALU.v"
+
 CFLAGS += -DTOP_NAME="\"V$(TOPNAME)\""
 # CFLAGS += -DUSE_NVBOARD=$(USE_NVBOARD)
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE

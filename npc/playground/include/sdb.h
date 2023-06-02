@@ -49,6 +49,8 @@ WP* scan_wp_idx(int idx);
 WP* scan_wp_cb(bool(*f)(WP*));
 void bind_exprs_wp(WP *p, char *s);
 
+void sdb_set_batch_mode();
+
 #ifdef __cplusplus
 }
 #endif

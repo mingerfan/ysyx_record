@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
   init(argc, argv);
   sdb_mainloop();
   de_init();
-  return 0;
+  return state_check_return();
 }
 
 #endif

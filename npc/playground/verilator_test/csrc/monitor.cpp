@@ -20,14 +20,16 @@ bool use_difftest = false;
 static int parse_args(int argc, char *argv[])
 {
     const struct option table[] = {
+        {"batch" , required_argument, NULL, 'b'},
         {"lpath" , required_argument, NULL, 'l'},
         {"ftrace", required_argument, NULL, 'f'},
         {"diff"  , required_argument, NULL, 'd'},
         {0       , 0                , NULL,  0 },
     };
     int o;
-    while ((o = getopt_long(argc, argv, "-l:f:d:", table, NULL)) != -1) {
+    while ((o = getopt_long(argc, argv, "-bl:f:d:", table, NULL)) != -1) {
         switch (o) {
+            case 'b': sdb_set_batch_mode(); break;
             case 'l': log_path = optarg; break;
             case 'f': elf_path = optarg; use_ftrace = true; break;
             case 'd': nemu_so_path = optarg; use_difftest= true; break;

@@ -18,5 +18,6 @@ void set_npc_state(int state, uint64_t pc, int halt_ret);
 void set_state_end(uint64_t pc, int halt_ret);
 void invalid_inst(uint64_t pc);
 void state_check();
+int state_check_return();
 
 #endif

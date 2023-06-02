@@ -42,7 +42,7 @@ object IDUInsInfo {
         // "sra" -> new InsStruct("0110011", "101", "0100000"),
         "sllw" -> new InsStruct("0111011", "001", "0000000"),
         // "srlw" -> new InsStruct("0111011", "101", "0000000"),
-        // "sraw" -> new InsStruct("0111011", "101", "0100000"),
+        "sraw" -> new InsStruct("0111011", "101", "0100000"),
         "jal" -> new InsStruct("1101111", "-1", "-1"),
         "jalr" -> new InsStruct("1100111", "000", "-1"),
         "beq" -> new InsStruct("1100011", "000", "-1"),
@@ -93,7 +93,7 @@ object IDUInsInfo {
         "OR"  -> Array("or"),
         "ULSW"-> Array("slliw", "sllw"),
         "URSW"-> Array("srliw"),
-        "SRSW"-> Array("sraiw"),
+        "SRSW"-> Array("sraiw", "sraw"),
         "SRS" -> Array("srai"),
         "ULS" -> Array("slli"),
         "URS" -> Array("srli"),
@@ -109,7 +109,7 @@ object IDUInsInfo {
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "slt", "sltu", "and", "or", "xor",
-        "addw", "subw", "sllw", "beq", "bne", "blt",
+        "addw", "subw", "sllw", "sraw", "beq", "bne", "blt",
         "mulw", "divw", "remw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
@@ -118,7 +118,7 @@ object IDUInsInfo {
         "exu" -> Array("addi", "sltiu", "andi", "xori", 
         "addiw", "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui",  
         "auipc", "add", "sub", "slt", "sltu", "and", "or", "xor",
-        "addw", "subw", "sllw",
+        "addw", "subw", "sllw", "sraw",
         "mulw", "divw", "remw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lbu")
@@ -130,7 +130,7 @@ object IDUInsInfo {
         "Inc" -> Array("addi", "sltiu", "andi", "xori", "addiw", 
         "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui", "auipc", 
         "add", "sub", "slt", "sltu", "and", "or", "xor",
-        "addw", "subw", "sllw", "ld", "lw", "lbu",
+        "addw", "subw", "sllw", "sraw", "ld", "lw", "lbu",
         "sw", "sd", "sh", "sb",
         "mulw", "divw", "remw"),
         "Jal" -> Array("jal"),

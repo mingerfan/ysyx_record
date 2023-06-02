@@ -94,7 +94,7 @@ object IDUInsInfo {
         "SLLI"-> Array("slli"),
         "SRLI"-> Array("srli"),
         "MULW"-> Array("mulw"),
-        "DIVW"-> Array("DIVW")
+        "DIVW"-> Array("divw")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
 

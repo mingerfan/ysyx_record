@@ -150,7 +150,7 @@ object IDUInsInfo {
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sw", "sh", "sb"),
-        "immB"  -> Array("beq", "bne", "bge")
+        "immB"  -> Array("beq", "bne", "bltu", "bge")
     )
     val immSwitch = MapKeyToArray(immSwitchMap)
 

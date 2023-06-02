@@ -92,9 +92,9 @@ object IDUInsInfo {
         "OR"  -> Array("or"),
         "ULSW"-> Array("sllw"),
         "URSW"-> Array("srliw"),
-        "SRAI"-> Array("srai"),
-        "SLLI"-> Array("slli"),
-        "SRLI"-> Array("srli"),
+        "SRS"-> Array("srai"),
+        "ULS"-> Array("slli"),
+        "URS"-> Array("srli"),
         "MULW"-> Array("mulw"),
         "DIVW"-> Array("divw"),
         "REMW"-> Array("remw")

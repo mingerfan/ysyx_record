@@ -40,9 +40,9 @@ class ALU extends Module {
         hit("OR")  -> (in1orin2),
         hit("ULSW")-> (U_SEXT64(io.in1(31, 0)<<(io.in2(4, 0)), 32)),
         hit("URSW")-> (U_SEXT64(io.in1(31, 0)>>(io.in2(4, 0)), 32)),
-        hit("SRAI")-> (io.in1.asSInt >> io.in2.asSInt(5, 0)).asUInt,
-        hit("SLLI")-> (io.in1 << io.in2(5, 0)),
-        hit("SRLI")-> (io.in1 >> io.in2(5, 0)),
+        hit("SRS") -> (io.in1.asSInt >> io.in2.asSInt(5, 0)).asUInt,
+        hit("ULS") -> (io.in1 << io.in2(5, 0)),
+        hit("URS") -> (io.in1 >> io.in2(5, 0)),
         hit("MULW")-> (U_SEXT64(in1mlin2_32(31, 0), 32)),
         hit("DIVW")-> (U_SEXT64(in1DIVWin2(31, 0), 32)),
         hit("REMW")-> (U_SEXT64(in1REMWin2(31, 0), 32))

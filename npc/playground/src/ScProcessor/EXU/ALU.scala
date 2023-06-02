@@ -32,6 +32,7 @@ class ALU extends Module {
     io.out := Mux1H(Seq(
         hit("SUM") -> (in1pin2),
         hit("UCMP")-> (io.in1 < io.in2),
+        hit("SCMP")-> (io.in1.asSInt < io.in2.asSInt),
         hit("WSUM")-> U_SEXT64(in1pin2(31, 0), 32),
         hit("WSUB")-> U_SEXT64(in1sin2(31, 0), 32),
         hit("SUB") -> (in1sin2),

@@ -40,3 +40,11 @@ void state_check()
         }
     }
 }
+
+int state_check_return()
+{
+    if (npc_state.state == NPC_ABORT || npc_state.halt_ret != 0) {
+        return -1;
+    }
+    return 0;
+}

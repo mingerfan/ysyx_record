@@ -88,7 +88,7 @@ clean:
 .PHONY: default all test verilog split help compile bsp reformat checkformat clean
 
 sim: $(VBIN)
-	$(VBIN) $(ARGS) -b $(SIM_FLAGS)
+	$(VBIN) $(ARGS) $(SIM_FLAGS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 gdb: $(VBIN)

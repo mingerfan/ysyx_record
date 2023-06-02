@@ -30,7 +30,7 @@ object IDUInsInfo {
         "auipc" -> new InsStruct("0010111", "-1", "-1"),
         "add" -> new InsStruct("0110011", "000", "0000000"),
         "sub" -> new InsStruct("0110011", "000", "0100000"),
-        // "slt" -> new InsStruct("0110011", "010", "0000000"),
+        "slt" -> new InsStruct("0110011", "010", "0000000"),
         "sltu" -> new InsStruct("0110011", "011", "0000000"),
         "and" -> new InsStruct("0110011", "111", "0000000"),
         "or" -> new InsStruct("0110011", "110", "0000000"),
@@ -84,6 +84,7 @@ object IDUInsInfo {
         // "SUM" -> Array("addi", "add")
         "SUM" -> Array("addi", "lui", "auipc", "add"),
         "UCMP"-> Array("sltiu", "sltu"),
+        "SCMP"-> Array("slt"),
         "WSUM"-> Array("addiw", "addw"),
         "WSUB"-> Array("subw"),
         "SUB" -> Array("sub", "beq", "bne"),
@@ -106,7 +107,7 @@ object IDUInsInfo {
         "srli", "srai", "srliw"),
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
-        "r1R2" -> Array("add", "sub", "sltu", "and", "or", "xor",
+        "r1R2" -> Array("add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "beq", "bne", "blt",
         "mulw", "divw", "remw")
     )
@@ -115,7 +116,7 @@ object IDUInsInfo {
     val rfOpsMap = immutable.Map(
         "exu" -> Array("addi", "sltiu", "andi", "xori", 
         "addiw", "slli", "srli", "srai", "srliw", "lui", "auipc",
-        "add", "sub", "sltu", "and", "or", "xor",
+        "add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw",
         "mulw", "divw", "remw"),
         "pcn" -> Array("jal", "jalr"),
@@ -127,7 +128,7 @@ object IDUInsInfo {
     val pcOpsMap = immutable.Map(
         "Inc" -> Array("addi", "sltiu", "andi", "xori", "addiw", 
         "slli", "srli", "srai", "srliw", "lui", "auipc", 
-        "add", "sub", "sltu", "and", "or", "xor",
+        "add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "ld", "lw", "lbu",
         "sw", "sd", "sh", "sb",
         "mulw", "divw", "remw"),

@@ -23,7 +23,7 @@
 #include <state.h>
 #include <macro.h>
 
-static int is_batch_mode = true;
+static int is_batch_mode = false;
 extern NPCState npc_state;
 
 extern void cpu_exec(uint64_t n);

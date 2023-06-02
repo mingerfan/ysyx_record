@@ -63,7 +63,7 @@ object IDUInsInfo {
         "sh" -> new InsStruct("0100011", "001", "-1"),
         "sb" -> new InsStruct("0100011", "000", "-1"),
         "ebreak" -> new InsStruct("1110011", "000", "0000000"),
-        // "mul" -> new InsStruct("0110011", "000", "0000001"),
+        "mul" -> new InsStruct("0110011", "000", "0000001"),
         // "mulh" -> new InsStruct("0110011", "001", "0000001"),
         // "mulhu" -> new InsStruct("0110011", "011", "0000001"),
         // "mulhsu" -> new InsStruct("0110011", "010", "0000001"),
@@ -98,6 +98,7 @@ object IDUInsInfo {
         "ULS" -> Array("slli"),
         "URS" -> Array("srli"),
         "MULW"-> Array("mulw"),
+        "MUL" -> Array("mul"),
         "DIVW"-> Array("divw"),
         "REMW"-> Array("remw")
     )
@@ -110,7 +111,7 @@ object IDUInsInfo {
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "srlw", "sraw", "beq", "bne", "blt",
-        "mulw", "divw", "remw")
+        "mul", "mulw", "divw", "remw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
@@ -119,7 +120,7 @@ object IDUInsInfo {
         "addiw", "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui",  
         "auipc", "add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "srlw", "sraw",
-        "mulw", "divw", "remw"),
+        "mul", "mulw", "divw", "remw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lh", "lhu", "lbu")
     )
@@ -133,7 +134,7 @@ object IDUInsInfo {
         "addw", "subw", "sllw", "srlw", "sraw", 
         "ld", "lw", "lh", "lhu", "lbu",
         "sw", "sd", "sh", "sb",
-        "mulw", "divw", "remw"),
+        "mul", "mulw", "divw", "remw"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),

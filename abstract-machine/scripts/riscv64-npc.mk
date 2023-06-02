@@ -30,8 +30,8 @@ ARGS_B :=
 run: image
 	$(MAKE) -C $(NPC_HOME) sim ARGS=$(ARGS) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
 
-brun: image
-	$(MAKE) -C $(NPC_HOME) sim -- ARGS=$(ARGS_B) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
+# brun: image
+# 	$(MAKE) -C $(NPC_HOME) sim -- ARGS=$(ARGS_B) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)
 
 gdb: image
 	$(MAKE) -C $(NPC_HOME) gdb ARGS=$(ARGS) IMG_BIN=$(IMG_BIN) IMG_ELF=$(IMG_ELF)

@@ -48,7 +48,7 @@ object IDUInsInfo {
         "beq" -> new InsStruct("1100011", "000", "-1"),
         "bne" -> new InsStruct("1100011", "001", "-1"),
         // "blt" -> new InsStruct("1100011", "100", "-1"),
-        // "bltu" -> new InsStruct("1100011", "110", "-1"),
+        "bltu" -> new InsStruct("1100011", "110", "-1"),
         "bge" -> new InsStruct("1100011", "101", "-1"),
         // "bgeu" -> new InsStruct("1100011", "111", "-1"),
         "ld" -> new InsStruct("0000011", "011", "-1"),
@@ -132,12 +132,14 @@ object IDUInsInfo {
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),
         "bne" -> Array("bne"),
-        "bge" -> Array("bge")
+        "bltu"-> Array("bltu"),
+        "bge" -> Array("bge"),
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
-        "nwrEn" -> Array("beq", "bne", "bge", "sw", "sd", "sh", "sb")
+        "nwrEn" -> Array("beq", "bne", "bge", "bltu",
+        "sw", "sd", "sh", "sb")
     )
     val ctrls = MapKeyToArray(ctrlsMap)
 

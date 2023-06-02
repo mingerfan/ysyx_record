@@ -76,6 +76,8 @@ class MEMWR extends Module {
     io.rd := Mux1H(Seq(
         hit("ld") -> (read_data),
         hit("lw") -> U_SEXT64(word_data(31, 0), 32),
+        hit("lh") -> U_SEXT64(hword_data, 16),
+        hit("lhu")-> hword_data,
         hit("lbu")-> byte_data
     ))
 
@@ -95,6 +97,8 @@ class MEMWR extends Module {
         hit("sb") -> byte_mask,
         hit("ld") -> 0.U,
         hit("lw") -> 0.U,
+        hit("lh") -> 0.U,
+        hit("lhu")-> 0.U,
         hit("lbu")-> 0.U
     ))
     mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)

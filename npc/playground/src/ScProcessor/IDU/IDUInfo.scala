@@ -24,7 +24,7 @@ object IDUInsInfo {
         "srli" -> new InsStruct("0010011", "101", "-1", "000000"),
         "srai" -> new InsStruct("0010011", "101", "-1", "010000"),
         // "slliw" -> new InsStruct("0011011", "001", "0000000"),
-        // "srliw" -> new InsStruct("0011011", "101", "0000000"),
+        "srliw" -> new InsStruct("0011011", "101", "0000000"),
         // "sraiw" -> new InsStruct("0011011", "101", "0100000"),
         "lui" -> new InsStruct("0110111", "-1", "-1"),
         "auipc" -> new InsStruct("0010111", "-1", "-1"),
@@ -36,7 +36,7 @@ object IDUInsInfo {
         "or" -> new InsStruct("0110011", "110", "0000000"),
         "xor" -> new InsStruct("0110011", "100", "0000000"),
         "addw" -> new InsStruct("0111011", "000", "0000000"),
-        // "subw" -> new InsStruct("0111011", "000", "0100000"),
+        "subw" -> new InsStruct("0111011", "000", "0100000"),
         // "sll" -> new InsStruct("0110011", "001", "0000000"),
         // "srl" -> new InsStruct("0110011", "101", "0000000"),
         // "sra" -> new InsStruct("0110011", "101", "0100000"),
@@ -85,11 +85,13 @@ object IDUInsInfo {
         "SUM" -> Array("addi", "lui", "auipc", "add"),
         "UCMP"-> Array("sltiu", "sltu"),
         "WSUM"-> Array("addiw", "addw"),
+        "WSUB"-> Array("subw"),
         "SUB" -> Array("sub", "beq", "bne"),
         "XOR" -> Array("xori", "xor"),
         "AND" -> Array("and", "andi"),
         "OR"  -> Array("or"),
         "ULSW"-> Array("sllw"),
+        "URSW"-> Array("srliw"),
         "SRAI"-> Array("srai"),
         "SLLI"-> Array("slli"),
         "SRLI"-> Array("srli"),
@@ -100,20 +102,21 @@ object IDUInsInfo {
     val aluOps = MapKeyToArray(aluOpsMap)
 
     val exuOpsMap = immutable.Map(
-        "r1Im" -> Array("addi", "sltiu", "andi", "xori", "slli", 
-        "srli", "srai", "addiw"),
+        "r1Im" -> Array("addi", "sltiu", "andi", "xori", "addiw", "slli", 
+        "srli", "srai", "srliw"),
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw", "beq", "bne", "mulw", "divw", "remw")
+        "addw", "subw", "sllw", "beq", "bne", 
+        "mulw", "divw", "remw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
         "exu" -> Array("addi", "sltiu", "andi", "xori", 
-        "addiw", "slli", "srli", "srai", "lui", "auipc",
+        "addiw", "slli", "srli", "srai", "srliw", "lui", "auipc",
         "add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw",
+        "addw", "subw", "sllw",
         "mulw", "divw", "remw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lbu")
@@ -123,9 +126,9 @@ object IDUInsInfo {
     // todo: delete Inc
     val pcOpsMap = immutable.Map(
         "Inc" -> Array("addi", "sltiu", "andi", "xori", "addiw", 
-        "slli", "srli", "srai", "lui", "auipc", 
+        "slli", "srli", "srai", "srliw", "lui", "auipc", 
         "add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw", "ld", "lw", "lbu",
+        "addw", "subw", "sllw", "ld", "lw", "lbu",
         "sw", "sd", "sh", "sb",
         "mulw", "divw", "remw"),
         "Jal" -> Array("jal"),
@@ -145,7 +148,7 @@ object IDUInsInfo {
 
     val immSwitchMap = immutable.Map(
         "immI"  -> Array("addi", "sltiu", "andi", "xori", 
-        "addiw", "slli", "srli", "srai", "jalr", "ld", 
+        "addiw", "slli", "srli", "srai", "srliw", "jalr", "ld", 
         "lw", "lbu"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),

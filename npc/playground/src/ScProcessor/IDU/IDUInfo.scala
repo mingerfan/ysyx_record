@@ -47,7 +47,7 @@ object IDUInsInfo {
         "jalr" -> new InsStruct("1100111", "000", "-1"),
         "beq" -> new InsStruct("1100011", "000", "-1"),
         "bne" -> new InsStruct("1100011", "001", "-1"),
-        // "blt" -> new InsStruct("1100011", "100", "-1"),
+        "blt" -> new InsStruct("1100011", "100", "-1"),
         "bltu" -> new InsStruct("1100011", "110", "-1"),
         "bge" -> new InsStruct("1100011", "101", "-1"),
         // "bgeu" -> new InsStruct("1100011", "111", "-1"),
@@ -107,7 +107,7 @@ object IDUInsInfo {
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "sltu", "and", "or", "xor",
-        "addw", "subw", "sllw", "beq", "bne", 
+        "addw", "subw", "sllw", "beq", "bne", "blt",
         "mulw", "divw", "remw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
@@ -137,11 +137,12 @@ object IDUInsInfo {
         "bne" -> Array("bne"),
         "bltu"-> Array("bltu"),
         "bge" -> Array("bge"),
+        "blt" -> Array("blt"),
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
-        "nwrEn" -> Array("beq", "bne", "bge", "bltu",
+        "nwrEn" -> Array("beq", "bne", "bge", "blt", "bltu",
         "sw", "sd", "sh", "sb")
     )
     val ctrls = MapKeyToArray(ctrlsMap)
@@ -153,7 +154,7 @@ object IDUInsInfo {
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sw", "sh", "sb"),
-        "immB"  -> Array("beq", "bne", "bltu", "bge")
+        "immB"  -> Array("beq", "bne", "blt", "bltu", "bge")
     )
     val immSwitch = MapKeyToArray(immSwitchMap)
 

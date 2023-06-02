@@ -29,7 +29,7 @@ CFLAGS += $(INCFLAGS)
 LDFLAGS +=  -lSDL2 -lSDL2_image
 
 CFLAGS += -Og -ggdb3
-
+SIM_FLAGS += -b
 SIM_FLAGS += $(IMG_BIN)
 
 default: all

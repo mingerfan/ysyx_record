@@ -26,7 +26,7 @@ class ALU extends Module {
     val in1andin2 = io.in1 & io.in2
     val in1orin2 = io.in1 | io.in2
     val in1mlin2_32 = io.in1(31, 0)*io.in2(31, 0)
-    val in1DIVWin2 = (io.in1(31, 0).asSInt/io.in2(31, 0).asSInt).asUInt
+    val in1DIVWin2 = ((io.in1(31, 0).asSInt/io.in2(31, 0).asSInt).asUInt)(31, 0)
 
     io.out := Mux1H(Seq(
         hit("SUM") -> (in1pin2),

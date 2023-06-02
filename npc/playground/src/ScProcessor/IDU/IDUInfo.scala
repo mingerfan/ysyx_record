@@ -71,8 +71,8 @@ object IDUInsInfo {
         // "divu" -> new InsStruct("0110011", "101", "0000001"),
         // "rem" -> new InsStruct("0110011", "110", "0000001"),
         // "remu" -> new InsStruct("0110011", "111", "0000001"),
-        // "mulw" -> new InsStruct("0111011", "000", "0000001"),
-        // "divw" -> new InsStruct("0111011", "100", "0000001"),
+        "mulw" -> new InsStruct("0111011", "000", "0000001"),
+        "divw" -> new InsStruct("0111011", "100", "0000001"),
         // "divuw" -> new InsStruct("0111011", "101", "0000001"),
         // "remw" -> new InsStruct("0111011", "110", "0000001"),
         // "remuw" -> new InsStruct("0111011", "111", "0000001")
@@ -92,7 +92,9 @@ object IDUInsInfo {
         "ULSW"-> Array("sllw"),
         "SRAI"-> Array("srai"),
         "SLLI"-> Array("slli"),
-        "SRLI"-> Array("srli")
+        "SRLI"-> Array("srli"),
+        "MULW"-> Array("mulw"),
+        "DIVW"-> Array("divw")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
 
@@ -102,7 +104,7 @@ object IDUInsInfo {
         "imX0" -> Array("lui"),
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw", "beq", "bne")
+        "addw", "sllw", "beq", "bne", "mulw", "divw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
@@ -110,7 +112,8 @@ object IDUInsInfo {
         "exu" -> Array("addi", "sltiu", "andi", "xori", 
         "addiw", "slli", "srli", "srai", "lui", "auipc",
         "add", "sub", "sltu", "and", "or", "xor",
-        "addw", "sllw"),
+        "addw", "sllw",
+        "mulw", "divw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lbu")
     )
@@ -122,7 +125,8 @@ object IDUInsInfo {
         "slli", "srli", "srai", "lui", "auipc", 
         "add", "sub", "sltu", "and", "or", "xor",
         "addw", "sllw", "ld", "lw", "lbu",
-        "sw", "sd", "sh", "sb"),
+        "sw", "sd", "sh", "sb",
+        "mulw", "divw"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),

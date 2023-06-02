@@ -75,8 +75,7 @@ class MEMWR extends Module {
 
     io.rd := Mux1H(Seq(
         hit("ld") -> (read_data),
-        hit("lw") -> (Fill(topInfo.XLEN - 11, word_data(31)) ## 
-        word_data(30, 0)),
+        hit("lw") -> U_SEXT64(word_data(31, 0), 32),
         hit("lbu")-> byte_data
     ))
 

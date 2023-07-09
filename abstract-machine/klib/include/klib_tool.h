@@ -4,7 +4,8 @@
 typedef enum {
     PRINT_FAILED,
     PRINT_INT,
-    PRINT_STR
+    PRINT_STR,
+    PRINT_CHR,
 } prtSpec;
 
 // contain type and descriptors

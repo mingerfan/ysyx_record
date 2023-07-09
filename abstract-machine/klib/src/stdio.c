@@ -56,6 +56,13 @@ int printf(const char *fmt, ...) {
         s = va_arg(ap, char*);
         while (*s != '\0') { putch(*s); cnt++; s++; }
         break;
+
+        case PRINT_CHR:
+        char c;
+        c = va_arg(ap, int);
+        putch(c);
+        cnt++;
+        break;
       }
     }
   }
@@ -102,6 +109,12 @@ int sprintf(char *out, const char *fmt, ...) {
         case PRINT_STR:
         s = va_arg(ap, char*);
         out = StrCpyTool(out, s);
+        break;
+
+        case PRINT_CHR:
+        char c;
+        c = va_arg(ap, int);
+        *out++ = c;
         break;
       }
     }

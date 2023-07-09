@@ -37,6 +37,8 @@ const char* PrintDesDec(prtDes *p, const char *des) {
         p->Spec = PRINT_INT; break;
         case 's':
         p->Spec = PRINT_STR; break;
+        case 'c':
+        p->Spec = PRINT_CHR; break;
         default:
         p->Spec = PRINT_FAILED;
     }

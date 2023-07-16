@@ -68,6 +68,20 @@ void trace_memory_write(paddr_t addr, int len, word_t data)
 #endif
 }
 
+void trace_device_read(paddr_t addr, int len, IOMap *map, word_t data)
+{
+#ifdef CONFIG_DTRACE
+    printf("DTrace--Read: %-8s--at 0x%016x--len: %d--data: 0x%016lx\n", map->name, addr, len, data);
+#endif
+}
+
+void trace_device_write(paddr_t addr, int len, IOMap *map, word_t data)
+{
+#ifdef CONFIG_DTRACE
+    printf("DTrace--Write: %-8s--at 0x%016x--len: %d--data: 0x%016lx\n", map->name, addr, len, data);
+#endif
+}
+
 void trace_ftrace_init(char *file)
 {
     char *log_file;

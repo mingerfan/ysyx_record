@@ -166,6 +166,11 @@ config MTRACE_END
   hex "The address mtrace end"
   default 0x88000000
 
+config DTRACE
+  depends on TRACE
+  bool "Enable Device tracer"
+  default n
+
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
   bool "Enable differential testing"

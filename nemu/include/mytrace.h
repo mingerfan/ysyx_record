@@ -3,6 +3,7 @@
 
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
+#include <device/map.h>
 
 #define IRINGBUF_SIZE 15
 #define IRINGBUF_INFO_SIZE 128
@@ -18,5 +19,8 @@ void trace_memory_write(paddr_t addr, int len, word_t data);
 void trace_ftrace_init(char *file);
 void trace_ftrace_deinit();
 void trace_ftrace_print(uint32_t inst, uint64_t pc);
+
+void trace_device_read(paddr_t addr, int len, IOMap *map, word_t data);
+void trace_device_write(paddr_t addr, int len, IOMap *map, word_t data);
 
 #endif

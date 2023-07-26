@@ -11,9 +11,11 @@ char iringbuf[IRINGBUF_SIZE][IRINGBUF_INFO_SIZE] = {};
 static int iringbuf_idx = 0;
 static int first_idx = 0;
 
+#ifdef CONFIG_FTRACE
 static int ftrace_deepth = 0;
 static int ftrace_printcnt = 0;
 static FILE *ftrace_fp = NULL;
+#endif
 
 #define immI() do { imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
@@ -84,6 +86,7 @@ void trace_device_write(paddr_t addr, int len, IOMap *map, word_t data)
 
 void trace_ftrace_init(char *file)
 {
+#ifdef CONFIG_FTRACE
     char *log_file;
     ftrace_printcnt = 0;
     char *last_slash = strrchr(file, '/');
@@ -95,15 +98,20 @@ void trace_ftrace_init(char *file)
     ReaderInit(file);
     ftrace_fp = fopen(log_file, "w");
     ftrace_deepth = 0;
+#endif
 }
 
 void trace_ftrace_deinit()
 {
+#ifdef CONFIG_FTRACE
     ReaderDeInit();
     fclose(ftrace_fp);
     ftrace_fp = NULL;
+#endif
 }
 
+
+#ifdef CONFIG_FTRACE
 static bool ftrace_is_jal(uint32_t inst)
 {
     return BITS(inst, 6, 0) == 0b1101111;
@@ -172,9 +180,11 @@ static void print_align(int gap)
         fprintf(ftrace_fp, "  ");
     }
 }
+#endif
 
 void trace_ftrace_print(uint32_t inst, uint64_t pc)
 {
+#ifdef CONFIG_FTRACE
     int idx = 0;
     // if (ftrace_printcnt > 300) {
     //     ftrace_printcnt = 0;
@@ -196,4 +206,5 @@ void trace_ftrace_print(uint32_t inst, uint64_t pc)
         ftrace_deepth++;
         fflush(ftrace_fp);
     }
+#endif
 }

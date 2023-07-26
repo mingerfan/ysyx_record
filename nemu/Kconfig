@@ -156,6 +156,11 @@ config MTRACE
   bool "Enable Memory tracer"
   default n
 
+config FTRACE
+  depends on ITRACE
+  bool "Enable Memory tracer"
+  default n
+
 config MTRACE_START
   depends on MTRACE
   hex "The address mtrace start"

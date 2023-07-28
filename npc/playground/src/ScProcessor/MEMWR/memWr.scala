@@ -19,6 +19,7 @@ class MEM_WR extends BlackBox {
         val wdata = Input(UInt(XLEN.W))
         val wmask = Input(UInt((XLEN/8).W))
         val en   = Input(Bool())
+        val wr   = Input(Bool())
     })
 }
 
@@ -29,6 +30,7 @@ class MEMWR extends Module {
         val rd  = Output(UInt(XLEN.W))
         val imm = Input(UInt(XLEN.W))
         val memOps = Input(UInt(OPS_NUM.W))
+        val mem_wr_flag  = Input(Bool())
     })
     val hit = U_HIT_CURRYING(io.memOps, IDU.IDUInsInfo.memOps)_
 
@@ -102,4 +104,5 @@ class MEMWR extends Module {
         hit("lbu")-> 0.U
     ))
     mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)
+    mem_wr_in.io.wr := io.mem_wr_flag
 }

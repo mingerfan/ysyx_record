@@ -74,6 +74,7 @@ class top extends Module {
     mem_wr.io.rs2   := rf.io.rdData2
     mem_wr.io.imm   := idu.dataOut.imm
     mem_wr.io.memOps:= idu.dpCtrl.memOp
+    mem_wr.io.mem_wr_flag := idu.mem_wr
 
     val ebreak_detect_ = Module(new ebreak_detect)
     val inv_inst_ = Module(new inv_inst)

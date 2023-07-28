@@ -50,8 +50,11 @@ class IDU extends Module {
         val rfOp = Output(UInt(RF.RFMInfo.OPS_NUM.W))
         val memOp = Output(UInt(MEMWR.MEMWRInfo.OPS_NUM.W))
     })
+    val mem_wr = IO(Output(Bool()))
     val ebreak = IO(Output(Bool()))
     val inv_inst = IO(Output(Bool()))
+
+    mem_wr := inst(6, 0) === "b0100011".U
 
     def WireLogic(l_arr: Array[String], 
     l_map: Map[String, Array[String]], b_map: mutable.Map[String, Bool]) = {

@@ -22,7 +22,7 @@ void invalid_inst(uint64_t pc)
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
     npc_state.halt_ret = -1;
-    G_DEBUG_E("INVALID INST!");
+    G_DEBUG_E("INVALID INST! AT $PC: 0x%016lx", pc);
 }
 
 void state_check()

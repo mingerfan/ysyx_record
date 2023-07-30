@@ -56,7 +56,7 @@ object IDUInsInfo {
         "lwu" -> new InsStruct("0000011", "110", "-1"),
         "lh" -> new InsStruct("0000011", "001", "-1"),
         "lhu" -> new InsStruct("0000011", "101", "-1"),
-        // "lb" -> new InsStruct("0000011", "000", "-1"),
+        "lb" -> new InsStruct("0000011", "000", "-1"),
         "lbu" -> new InsStruct("0000011", "100", "-1"),
         "sd" -> new InsStruct("0100011", "011", "-1"),
         "sw" -> new InsStruct("0100011", "010", "-1"),
@@ -122,7 +122,7 @@ object IDUInsInfo {
         "addw", "subw", "sllw", "srlw", "sraw",
         "mul", "mulw", "divw", "remw"),
         "pcn" -> Array("jal", "jalr"),
-        "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu")
+        "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu", "lb")
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 
@@ -132,7 +132,7 @@ object IDUInsInfo {
         "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui", "auipc", 
         "add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "srlw", "sraw", 
-        "ld", "lw", "lwu", "lh", "lhu", "lbu",
+        "ld", "lw", "lwu", "lh", "lhu", "lb", "lbu",
         "sw", "sd", "sh", "sb",
         "mul", "mulw", "divw", "remw"),
         "Jal" -> Array("jal"),
@@ -155,7 +155,7 @@ object IDUInsInfo {
     val immSwitchMap = immutable.Map(
         "immI"  -> Array("addi", "sltiu", "andi", "ori", "xori", 
         "addiw", "slli", "srli", "srai", "slliw", "sraiw", "srliw", "jalr", 
-        "ld", "lw", "lwu", "lbu"),
+        "ld", "lw", "lwu", "lb", "lbu"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sw", "sh", "sb"),
@@ -169,6 +169,7 @@ object IDUInsInfo {
         "lwu"   -> Array("lwu"),
         "lh"    -> Array("lh"),
         "lhu"   -> Array("lhu"),
+        "lb"    -> Array("lb"),
         "lbu"   -> Array("lbu"),
         "sd"    -> Array("sd"),
         "sw"    -> Array("sw"),

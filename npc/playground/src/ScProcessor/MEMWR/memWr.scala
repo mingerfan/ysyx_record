@@ -81,6 +81,7 @@ class MEMWR extends Module {
         hit("lwu")-> word_data,
         hit("lh") -> U_SEXT64(hword_data, 16),
         hit("lhu")-> hword_data,
+        hit("lb") -> U_SEXT64(byte_data, 8),
         hit("lbu")-> byte_data
     ))
 
@@ -103,6 +104,7 @@ class MEMWR extends Module {
         hit("lwu")-> 0.U,
         hit("lh") -> 0.U,
         hit("lhu")-> 0.U,
+        hit("lb") -> 0.U,
         hit("lbu")-> 0.U
     ))
     mem_wr_in.io.en := io.memOps.asTypeOf(Vec(OPS_NUM, Bool())).reduceTree(_ | _)

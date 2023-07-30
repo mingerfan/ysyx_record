@@ -19,6 +19,13 @@ playground/include/config/
 playground/include/generated/
 playground/src/temp/
 
+# vscode
+.bloop/
+.metals/
+.vscode/
+.ammonite/
+metals.sbt
+
 # mill
 out/
 .bsp/

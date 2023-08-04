@@ -73,7 +73,7 @@ object IDUInsInfo {
         "remu" -> new InsStruct("0110011", "111", "0000001"),
         "mulw" -> new InsStruct("0111011", "000", "0000001"),
         "divw" -> new InsStruct("0111011", "100", "0000001"),
-        // "divuw" -> new InsStruct("0111011", "101", "0000001"),
+        "divuw" -> new InsStruct("0111011", "101", "0000001"),
         "remw" -> new InsStruct("0111011", "110", "0000001"),
         // "remuw" -> new InsStruct("0111011", "111", "0000001")
     )
@@ -103,6 +103,7 @@ object IDUInsInfo {
         "DIVU"-> Array("divu"),
         "REMU"-> Array("remu"),
         "DIVW"-> Array("divw"),
+        "DIVUW"-> Array("divuw"),
         "REMW"-> Array("remw")
     )
     val aluOps = MapKeyToArray(aluOpsMap)
@@ -114,7 +115,7 @@ object IDUInsInfo {
         "imPc" -> Array("auipc"),
         "r1R2" -> Array("add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "srlw", "sraw", "beq", "bne", "blt",
-        "mul", "div", "divu", "remu", "mulw", "divw", "remw")
+        "mul", "div", "divu", "remu", "mulw", "divw", "divuw", "remw")
     )
     val exuOps = MapKeyToArray(exuOpsMap)
 
@@ -123,7 +124,7 @@ object IDUInsInfo {
         "addiw", "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui",  
         "auipc", "add", "sub", "slt", "sltu", "and", "or", "xor",
         "addw", "subw", "sllw", "srlw", "sraw",
-        "mul", "div", "divu", "remu", "mulw", "divw", "remw"),
+        "mul", "div", "divu", "remu", "mulw", "divw", "divuw", "remw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu", "lb")
     )
@@ -137,7 +138,8 @@ object IDUInsInfo {
         "addw", "subw", "sllw", "srlw", "sraw", 
         "ld", "lw", "lwu", "lh", "lhu", "lb", "lbu",
         "sw", "sd", "sh", "sb",
-        "mul", "div", "divu", "remu", "mulw", "divw", "remw"),
+        "mul", "div", "divu", "remu", 
+        "mulw", "divw", "divuw","remw"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),

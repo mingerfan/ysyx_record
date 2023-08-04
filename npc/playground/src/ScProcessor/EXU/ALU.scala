@@ -33,6 +33,7 @@ class ALU extends Module {
     val in1DIVUWin2 = io.in1(31, 0)/io.in2(31, 0)
     val in1REMUin2 = io.in1%io.in2
     val in1REMWin2 = io.in1(31, 0).asSInt%io.in2(31, 0).asSInt
+    val in1REMUWin2 = io.in1(31, 0)%io.in2(31, 0)
 
     io.out := Mux1H(Seq(
         hit("SUM") -> (in1pin2),
@@ -57,7 +58,8 @@ class ALU extends Module {
         hit("REMU")-> (in1REMUin2),
         hit("DIVW")-> (U_SEXT64(in1DIVWin2(31, 0), 32)),
         hit("DIVUW")->(U_SEXT64(in1DIVUWin2(31, 0), 32)),
-        hit("REMW")-> (U_SEXT64(in1REMWin2(31, 0), 32))
+        hit("REMW")-> (U_SEXT64(in1REMWin2(31, 0), 32)),
+        hit("REMUW")->(U_SEXT64(in1REMUWin2(31, 0), 32)),
     ))
 }
 

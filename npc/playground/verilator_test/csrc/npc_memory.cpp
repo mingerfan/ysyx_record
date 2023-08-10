@@ -2,6 +2,8 @@
 #include "string.h"
 #include <stdio.h>
 #include "debug.h"
+#include <regs.h>
+#include <state.h>
 
 long npcmem_img_size = 0;
 
@@ -28,14 +30,26 @@ paddr_t host_to_guset(uint8_t *addr) { return addr - pmem + CONFIG_NPC_PC; }
 
 static uint64_t pmem_read_base(paddr_t paddr, int len)
 {
-    assert(paddr >= CONFIG_NPC_PC);
+    // assert(paddr >= CONFIG_NPC_PC);
+    if (paddr >= CONFIG_NPC_MSIZE + CONFIG_NPC_PC || paddr < CONFIG_NPC_PC) { 
+        G_DEBUG_E("Memory read address error at 0x%016lx, $pc: 0x%016lx\n", 
+        paddr, get_pc());
+        set_npc_state(NPC_ABORT, get_pc(), -1);
+        return -1;
+    }
     // Assert(paddr >= CONFIG_NPC_PC, "Addr is less than CONFIG_NPC_PC");
     return host_read(guest_to_host(paddr), len);
 }
 
 static void pmem_write_base(paddr_t paddr, int len, uint64_t data)
 {
-    assert(paddr >= CONFIG_NPC_PC);
+    // assert(paddr >= CONFIG_NPC_PC);
+    if (paddr >= CONFIG_NPC_MSIZE + CONFIG_NPC_PC || paddr < CONFIG_NPC_PC) { 
+        G_DEBUG_E("Memory write address error at 0x%016lx, $pc: 0x%016lx\n", 
+        paddr, get_pc());
+        set_npc_state(NPC_ABORT, get_pc(), -1);
+        return;
+    }
     // Assert(paddr >= CONFIG_NPC_PC, "Addr is less than CONFIG_NPC_PC");
     host_write(guest_to_host(paddr), len, data);
 }

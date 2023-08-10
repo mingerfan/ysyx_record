@@ -81,10 +81,10 @@ void itrace_recorde()
     
     disassemble(p, buf + sizeof(buf) - p, dut.io_pc, (uint8_t *)&inst_, 4);
     trace_inst_record(buf);
-    if (count >= CONFIG_TRACE_START && count < CONFIG_TRACE_END) {
-        fprintf(f, "%s\n", buf);
-        count++;
-    }
+    // if (count >= CONFIG_TRACE_START && count < CONFIG_TRACE_END) {
+    //     fprintf(f, "%s\n", buf);
+    //     count++;
+    // }
 }
 
 void itrace_deinit()

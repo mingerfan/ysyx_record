@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <generated/autoconf.h>
 
-#define IRINGBUF_SIZE 15
+#define IRINGBUF_SIZE 128
 #define IRINGBUF_INFO_SIZE 128
 
 extern char iringbuf[IRINGBUF_SIZE][IRINGBUF_INFO_SIZE];

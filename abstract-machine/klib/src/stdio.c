@@ -5,8 +5,8 @@
 #include <klib_tool.h>
 #include <xprintf.h>
 
-void myput(int ch) {
-  putch((uint8_t)ch);
+void _putchar(char c) {
+  putch((uint8_t)c);
 }
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
@@ -18,11 +18,12 @@ void myput(int ch) {
 // }
 
 int printf(const char *fmt, ...) {
+  int cnt;
   va_list arp;
   va_start(arp, fmt);
-  xvprintf(fmt, arp);
+  cnt = vprintf_(fmt, arp);
   va_end(arp);
-  return 0;
+  return cnt;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
@@ -30,11 +31,12 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 }
 
 int sprintf(char *out, const char *fmt, ...) {
+  int cnt;
   va_list arp;
   va_start(arp, fmt);
-  xvsprintf(out, fmt, arp);
+  cnt = vsnprintf_(out, -1, fmt, arp);
   va_end(arp);
-  return 0;
+  return cnt;
 } 
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

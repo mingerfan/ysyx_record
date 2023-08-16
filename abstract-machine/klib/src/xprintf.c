@@ -1,673 +1,917 @@
-/*------------------------------------------------------------------------/
-/  Universal String Handler for Console Input and Output
-/-------------------------------------------------------------------------/
-/
-/ Copyright (C) 2021, ChaN, all right reserved.
-/
-/ xprintf module is an open source software. Redistribution and use of
-/ xprintf module in source and binary forms, with or without modification,
-/ are permitted provided that the following condition is met:
-/
-/ 1. Redistributions of source code must retain the above copyright notice,
-/    this condition and the following disclaimer.
-/
-/ This software is provided by the copyright holder and contributors "AS IS"
-/ and any warranties related to this software are DISCLAIMED.
-/ The copyright owner or contributors be NOT LIABLE for any damages caused
-/ by use of this software.
-/
-/-------------------------------------------------------------------------*/
+///////////////////////////////////////////////////////////////////////////////
+// \author (c) Marco Paland (info@paland.com)
+//             2014-2019, PALANDesign Hannover, Germany
+//
+// \license The MIT License (MIT)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// \brief Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on
+//        embedded systems with a very limited resources. These routines are thread
+//        safe and reentrant!
+//        Use this instead of the bloated standard/newlib printf cause these use
+//        malloc for printf (and may not be thread safe).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #include "xprintf.h"
 
-#define SZB_OUTPUT	32
+#define PRINTF_DISABLE_SUPPORT_FLOAT
+#define PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+
+// define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
+// printf_config.h header file
+// default: undefined
+#ifdef PRINTF_INCLUDE_CONFIG_H
+#include "printf_config.h"
+#endif
 
 
-#if XF_USE_OUTPUT
-#include <string.h>
-#include <stdarg.h>
-extern void myput(int ch);
-void (*xfunc_output)(int) =myput;	/* Pointer to the default output device */
-static char *strptr;		/* Pointer to the output memory (used by xsprintf) */
+// 'ntoa' conversion buffer size, this must be big enough to hold one converted
+// numeric number including padded zeros (dynamically created on stack)
+// default: 32 byte
+#ifndef PRINTF_NTOA_BUFFER_SIZE
+#define PRINTF_NTOA_BUFFER_SIZE    32U
+#endif
 
-#if XF_USE_FP
-/*----------------------------------------------*/
-/* Floating point output                        */
-/*----------------------------------------------*/
-#include <math.h>
+// 'ftoa' conversion buffer size, this must be big enough to hold one converted
+// float number including padded zeros (dynamically created on stack)
+// default: 32 byte
+#ifndef PRINTF_FTOA_BUFFER_SIZE
+#define PRINTF_FTOA_BUFFER_SIZE    32U
+#endif
+
+// support for the floating point type (%f)
+// default: activated
+#ifndef PRINTF_DISABLE_SUPPORT_FLOAT
+#define PRINTF_SUPPORT_FLOAT
+#endif
+
+// support for exponential floating point notation (%e/%g)
+// default: activated
+#ifndef PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+#define PRINTF_SUPPORT_EXPONENTIAL
+#endif
+
+// define the default floating point precision
+// default: 6 digits
+#ifndef PRINTF_DEFAULT_FLOAT_PRECISION
+#define PRINTF_DEFAULT_FLOAT_PRECISION  6U
+#endif
+
+// define the largest float suitable to print with %f
+// default: 1e9
+#ifndef PRINTF_MAX_FLOAT
+#define PRINTF_MAX_FLOAT  1e9
+#endif
+
+// support for the long long types (%llu or %p)
+// default: activated
+#ifndef PRINTF_DISABLE_SUPPORT_LONG_LONG
+#define PRINTF_SUPPORT_LONG_LONG
+#endif
+
+// support for the ptrdiff_t type (%t)
+// ptrdiff_t is normally defined in <stddef.h> as long or long long type
+// default: activated
+#ifndef PRINTF_DISABLE_SUPPORT_PTRDIFF_T
+#define PRINTF_SUPPORT_PTRDIFF_T
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+// internal flag definitions
+#define FLAGS_ZEROPAD   (1U <<  0U)
+#define FLAGS_LEFT      (1U <<  1U)
+#define FLAGS_PLUS      (1U <<  2U)
+#define FLAGS_SPACE     (1U <<  3U)
+#define FLAGS_HASH      (1U <<  4U)
+#define FLAGS_UPPERCASE (1U <<  5U)
+#define FLAGS_CHAR      (1U <<  6U)
+#define FLAGS_SHORT     (1U <<  7U)
+#define FLAGS_LONG      (1U <<  8U)
+#define FLAGS_LONG_LONG (1U <<  9U)
+#define FLAGS_PRECISION (1U << 10U)
+#define FLAGS_ADAPT_EXP (1U << 11U)
 
 
-static int ilog10 (double n)	/* Calculate log10(n) in integer output */
+// import float.h for DBL_MAX
+#if defined(PRINTF_SUPPORT_FLOAT)
+#include <float.h>
+#endif
+
+
+// output function type
+typedef void (*out_fct_type)(char character, void* buffer, size_t idx, size_t maxlen);
+
+
+// wrapper (used as buffer) for output function type
+typedef struct {
+  void  (*fct)(char character, void* arg);
+  void* arg;
+} out_fct_wrap_type;
+
+
+// internal buffer output
+static inline void _out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
 {
-	int rv = 0;
-
-	while (n >= 10) {	/* Decimate digit in right shift */
-		if (n >= 100000) {
-			n /= 100000; rv += 5;
-		} else {
-			n /= 10; rv++;
-		}
-	}
-	while (n < 1) {		/* Decimate digit in left shift */
-		if (n < 0.00001) {
-			n *= 100000; rv -= 5;
-		} else {
-			n *= 10; rv--;
-		}
-	}
-	return rv;
+  if (idx < maxlen) {
+    ((char*)buffer)[idx] = character;
+  }
 }
 
 
-static double i10x (int n)	/* Calculate 10^n */
+// internal null output
+static inline void _out_null(char character, void* buffer, size_t idx, size_t maxlen)
 {
-	double rv = 1;
-
-	while (n > 0) {		/* Left shift */
-		if (n >= 5) {
-			rv *= 100000; n -= 5;
-		} else {
-			rv *= 10; n--;
-		}
-	}
-	while (n < 0) {		/* Right shift */
-		if (n <= -5) {
-			rv /= 100000; n += 5;
-		} else {
-			rv /= 10; n++;
-		}
-	}
-	return rv;
+  (void)character; (void)buffer; (void)idx; (void)maxlen;
 }
 
 
-static void ftoa (
-	char* buf,	/* Buffer to output the generated string */
-	double val,	/* Real number to output */
-	int prec,	/* Number of fractinal digits */
-	char fmt	/* Notation */
-)
+// internal _putchar wrapper
+static inline void _out_char(char character, void* buffer, size_t idx, size_t maxlen)
 {
-	int d;
-	int e = 0, m = 0;
-	char sign = 0;
-	double w;
-	const char *er = 0;
-
-
-	if (isnan(val)) {			/* Not a number? */
-		er = "NaN";
-	} else {
-		if (prec < 0) prec = 6;	/* Default precision (6 fractional digits) */
-		if (val < 0) {			/* Nagative value? */
-			val = -val; sign = '-';
-		} else {
-			sign = '+';
-		}
-		if (isinf(val)) {		/* Infinite? */
-			er = "INF";
-		} else {
-			if (fmt == 'f') {	/* Decimal notation? */
-				val += i10x(-prec) / 2;	/* Round (nearest) */
-				m = ilog10(val);
-				if (m < 0) m = 0;
-				if (m + prec + 3 >= SZB_OUTPUT) er = "OV";	/* Buffer overflow? */
-			} else {			/* E notation */
-				if (val != 0) {		/* Not a true zero? */
-					val += i10x(ilog10(val) - prec) / 2;	/* Round (nearest) */
-					e = ilog10(val);
-					if (e > 99 || prec + 6 >= SZB_OUTPUT) {	/* Buffer overflow or E > +99? */
-						er = "OV";
-					} else {
-						if (e < -99) e = -99;
-						val /= i10x(e);	/* Normalize */
-					}
-				}
-			}
-		}
-		if (!er) {	/* Not error condition */
-			if (sign == '-') *buf++ = sign;	/* Add a - if negative value */
-			do {				/* Put decimal number */
-				w = i10x(m);				/* Snip the highest digit d */
-				d = val / w; val -= d * w;
-				if (m == -1) *buf++ = XF_DPC;	/* Insert a decimal separarot if get into fractional part */
-				*buf++ = '0' + d;			/* Put the digit */
-			} while (--m >= -prec);			/* Output all digits specified by prec */
-			if (fmt != 'f') {	/* Put exponent if needed */
-				*buf++ = fmt;
-				if (e < 0) {
-					e = -e; *buf++ = '-';
-				} else {
-					*buf++ = '+';
-				}
-				*buf++ = '0' + e / 10;
-				*buf++ = '0' + e % 10;
-			}
-		}
-	}
-	if (er) {	/* Error condition? */
-		if (sign) *buf++ = sign;		/* Add sign if needed */
-		do *buf++ = *er++; while (*er);	/* Put error symbol */
-	}
-	*buf = 0;	/* Term */
-}
-#endif	/* XF_USE_FLOAT */
-
-
-/*----------------------------------------------*/
-/* Put a character                              */
-/*----------------------------------------------*/
-
-void xputc (
-	int chr				/* Character to be output */
-)
-{
-	xfputc(xfunc_output, chr);	/* Output it to the default output device */
+  (void)buffer; (void)idx; (void)maxlen;
+  if (character) {
+    _putchar(character);
+  }
 }
 
 
-void xfputc (			/* Put a character to the specified device */
-	void(*func)(int),	/* Pointer to the output function (null:strptr) */
-	int chr				/* Character to be output */
-)
+// internal output function wrapper
+static inline void _out_fct(char character, void* buffer, size_t idx, size_t maxlen)
 {
-	if (XF_CRLF && chr == '\n') xfputc(func, '\r');	/* CR -> CRLF */
-
-	if (func) {
-		func(chr);		/* Write a character to the output device */
-	} else if (strptr) {
-		 *strptr++ = chr;	/* Write a character to the memory */
-	}
+  (void)idx; (void)maxlen;
+  if (character) {
+    // buffer is the output fct pointer
+    ((out_fct_wrap_type*)buffer)->fct(character, ((out_fct_wrap_type*)buffer)->arg);
+  }
 }
 
 
-
-/*----------------------------------------------*/
-/* Put a null-terminated string                 */
-/*----------------------------------------------*/
-
-void xputs (			/* Put a string to the default device */
-	const char* str		/* Pointer to the string */
-)
+// internal secure strlen
+// \return The length of the string (excluding the terminating 0) limited by 'maxsize'
+static inline unsigned int _strnlen_s(const char* str, size_t maxsize)
 {
-	xfputs(xfunc_output, str);
+  const char* s;
+  for (s = str; *s && maxsize--; ++s);
+  return (unsigned int)(s - str);
 }
 
 
-void xfputs (			/* Put a string to the specified device */
-	void(*func)(int),	/* Pointer to the output function */
-	const char*	str		/* Pointer to the string */
-)
+// internal test if char is a digit (0-9)
+// \return true if char is a digit
+static inline bool _is_digit(char ch)
 {
-	while (*str) {			/* Put the string */
-		xfputc(func, *str++);
-	}
+  return (ch >= '0') && (ch <= '9');
 }
 
 
-
-/*----------------------------------------------*/
-/* Formatted string output                      */
-/*----------------------------------------------*/
-/*  xprintf("%d", 1234);			"1234"
-    xprintf("%6d,%3d%%", -200, 5);	"  -200,  5%"
-    xprintf("%-6u", 100);			"100   "
-    xprintf("%ld", 12345678);		"12345678"
-    xprintf("%llu", 0x100000000);	"4294967296"	<XF_USE_LLI>
-    xprintf("%lld", -1LL);			"-1"			<XF_USE_LLI>
-    xprintf("%04x", 0xA3);			"00a3"
-    xprintf("%08lX", 0x123ABC);		"00123ABC"
-    xprintf("%016b", 0x550F);		"0101010100001111"
-    xprintf("%*d", 6, 100);			"   100"
-    xprintf("%s", "String");		"String"
-    xprintf("%5s", "abc");			"  abc"
-    xprintf("%-5s", "abc");			"abc  "
-    xprintf("%-5s", "abcdefg");		"abcdefg"
-    xprintf("%-5.5s", "abcdefg");	"abcde"
-    xprintf("%-.5s", "abcdefg");	"abcde"
-    xprintf("%-5.5s", "abc");		"abc  "
-    xprintf("%c", 'a');				"a"
-    xprintf("%12f", 10.0);			"   10.000000"	<XF_USE_FP>
-    xprintf("%.4E", 123.45678);		"1.2346E+02"	<XF_USE_FP>
-*/
-
-static void xvfprintf (
-	void(*func)(int),	/* Pointer to the output function */
-	const char*	fmt,	/* Pointer to the format string */
-	va_list arp			/* Pointer to arguments */
-)
+// internal ASCII string to unsigned int conversion
+static unsigned int _atoi(const char** str)
 {
-	unsigned int r, i, j, w, f;
-	int n, prec;
-	char str[SZB_OUTPUT], c, d, *p, pad;
-#if XF_USE_LLI
-	long long v;
-	unsigned long long uv;
+  unsigned int i = 0U;
+  while (_is_digit(**str)) {
+    i = i * 10U + (unsigned int)(*((*str)++) - '0');
+  }
+  return i;
+}
+
+
+// output the specified string in reverse, taking care of any zero-padding
+static size_t _out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
+{
+  const size_t start_idx = idx;
+
+  // pad spaces up to given width
+  if (!(flags & FLAGS_LEFT) && !(flags & FLAGS_ZEROPAD)) {
+    for (size_t i = len; i < width; i++) {
+      out(' ', buffer, idx++, maxlen);
+    }
+  }
+
+  // reverse string
+  while (len) {
+    out(buf[--len], buffer, idx++, maxlen);
+  }
+
+  // append pad spaces up to given width
+  if (flags & FLAGS_LEFT) {
+    while (idx - start_idx < width) {
+      out(' ', buffer, idx++, maxlen);
+    }
+  }
+
+  return idx;
+}
+
+
+// internal itoa format
+static size_t _ntoa_format(out_fct_type out, char* buffer, size_t idx, size_t maxlen, char* buf, size_t len, bool negative, unsigned int base, unsigned int prec, unsigned int width, unsigned int flags)
+{
+  // pad leading zeros
+  if (!(flags & FLAGS_LEFT)) {
+    if (width && (flags & FLAGS_ZEROPAD) && (negative || (flags & (FLAGS_PLUS | FLAGS_SPACE)))) {
+      width--;
+    }
+    while ((len < prec) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+      buf[len++] = '0';
+    }
+    while ((flags & FLAGS_ZEROPAD) && (len < width) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+      buf[len++] = '0';
+    }
+  }
+
+  // handle hash
+  if (flags & FLAGS_HASH) {
+    if (!(flags & FLAGS_PRECISION) && len && ((len == prec) || (len == width))) {
+      len--;
+      if (len && (base == 16U)) {
+        len--;
+      }
+    }
+    if ((base == 16U) && !(flags & FLAGS_UPPERCASE) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+      buf[len++] = 'x';
+    }
+    else if ((base == 16U) && (flags & FLAGS_UPPERCASE) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+      buf[len++] = 'X';
+    }
+    else if ((base == 2U) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+      buf[len++] = 'b';
+    }
+    if (len < PRINTF_NTOA_BUFFER_SIZE) {
+      buf[len++] = '0';
+    }
+  }
+
+  if (len < PRINTF_NTOA_BUFFER_SIZE) {
+    if (negative) {
+      buf[len++] = '-';
+    }
+    else if (flags & FLAGS_PLUS) {
+      buf[len++] = '+';  // ignore the space if the '+' exists
+    }
+    else if (flags & FLAGS_SPACE) {
+      buf[len++] = ' ';
+    }
+  }
+
+  return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+}
+
+
+// internal itoa for 'long' type
+static size_t _ntoa_long(out_fct_type out, char* buffer, size_t idx, size_t maxlen, unsigned long value, bool negative, unsigned long base, unsigned int prec, unsigned int width, unsigned int flags)
+{
+  char buf[PRINTF_NTOA_BUFFER_SIZE];
+  size_t len = 0U;
+
+  // no hash for 0 values
+  if (!value) {
+    flags &= ~FLAGS_HASH;
+  }
+
+  // write if precision != 0 and value is != 0
+  if (!(flags & FLAGS_PRECISION) || value) {
+    do {
+      const char digit = (char)(value % base);
+      buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit - 10;
+      value /= base;
+    } while (value && (len < PRINTF_NTOA_BUFFER_SIZE));
+  }
+
+  return _ntoa_format(out, buffer, idx, maxlen, buf, len, negative, (unsigned int)base, prec, width, flags);
+}
+
+
+// internal itoa for 'long long' type
+#if defined(PRINTF_SUPPORT_LONG_LONG)
+static size_t _ntoa_long_long(out_fct_type out, char* buffer, size_t idx, size_t maxlen, unsigned long long value, bool negative, unsigned long long base, unsigned int prec, unsigned int width, unsigned int flags)
+{
+  char buf[PRINTF_NTOA_BUFFER_SIZE];
+  size_t len = 0U;
+
+  // no hash for 0 values
+  if (!value) {
+    flags &= ~FLAGS_HASH;
+  }
+
+  // write if precision != 0 and value is != 0
+  if (!(flags & FLAGS_PRECISION) || value) {
+    do {
+      const char digit = (char)(value % base);
+      buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit - 10;
+      value /= base;
+    } while (value && (len < PRINTF_NTOA_BUFFER_SIZE));
+  }
+
+  return _ntoa_format(out, buffer, idx, maxlen, buf, len, negative, (unsigned int)base, prec, width, flags);
+}
+#endif  // PRINTF_SUPPORT_LONG_LONG
+
+
+#if defined(PRINTF_SUPPORT_FLOAT)
+
+#if defined(PRINTF_SUPPORT_EXPONENTIAL)
+// forward declaration so that _ftoa can switch to exp notation for values > PRINTF_MAX_FLOAT
+static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags);
+#endif
+
+
+// internal ftoa for fixed decimal floating point
+static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
+{
+  char buf[PRINTF_FTOA_BUFFER_SIZE];
+  size_t len  = 0U;
+  double diff = 0.0;
+
+  // powers of 10
+  static const double pow10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+
+  // test for special values
+  if (value != value)
+    return _out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
+  if (value < -DBL_MAX)
+    return _out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
+  if (value > DBL_MAX)
+    return _out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
+
+  // test for very large values
+  // standard printf behavior is to print EVERY whole number digit -- which could be 100s of characters overflowing your buffers == bad
+  if ((value > PRINTF_MAX_FLOAT) || (value < -PRINTF_MAX_FLOAT)) {
+#if defined(PRINTF_SUPPORT_EXPONENTIAL)
+    return _etoa(out, buffer, idx, maxlen, value, prec, width, flags);
 #else
-	long v;
-	unsigned long uv;
+    return 0U;
 #endif
+  }
 
-	for (;;) {
-		c = *fmt++;					/* Get a format character */
-		if (!c) break;				/* End of format? */
-		if (c != '%') {				/* Pass it through if not a % sequense */
-			xfputc(func, c); continue;
-		}
-		f = w = 0;			 		/* Clear parms */
-		pad = ' '; prec = -1;
-		c = *fmt++;					/* Get first char of the sequense */
-		if (c == '0') {				/* Flag: left '0' padded */
-			pad = '0'; c = *fmt++;
-		} else {
-			if (c == '-') {			/* Flag: left justified */
-				f = 2; c = *fmt++;
-			}
-		}
-		if (c == '*') {				/* Minimum width from an argument */
-			n = va_arg(arp, int);
-			if (n < 0) {			/* Flag: left justified */
-				n = 0 - n; f = 2;
-			}
-			w = n; c = *fmt++;
-		} else {
-			while (c >= '0' && c <= '9') {	/* Minimum width */
-				w = w * 10 + c - '0';
-				c = *fmt++;
-			}
-		}
-		if (c == '.') {				/* Precision */
-			c = *fmt++;
-			if (c == '*') {				/* Precision from an argument */
-				prec = va_arg(arp, int);
-				c = *fmt++;
-			} else {
-				prec = 0;
-				while (c >= '0' && c <= '9') {
-					prec = prec * 10 + c - '0';
-					c = *fmt++;
-				}
-			}
-		}
-		if (c == 'l') {		/* Prefix: Size is long */
-			f |= 4; c = *fmt++;
-#if XF_USE_LLI
-			if (c == 'l') {	/* Prefix: Size is long long */
-				f |= 8; c = *fmt++;
-			}
+  // test for negative
+  bool negative = false;
+  if (value < 0) {
+    negative = true;
+    value = 0 - value;
+  }
+
+  // set default precision, if not set explicitly
+  if (!(flags & FLAGS_PRECISION)) {
+    prec = PRINTF_DEFAULT_FLOAT_PRECISION;
+  }
+  // limit precision to 9, cause a prec >= 10 can lead to overflow errors
+  while ((len < PRINTF_FTOA_BUFFER_SIZE) && (prec > 9U)) {
+    buf[len++] = '0';
+    prec--;
+  }
+
+  int whole = (int)value;
+  double tmp = (value - whole) * pow10[prec];
+  unsigned long frac = (unsigned long)tmp;
+  diff = tmp - frac;
+
+  if (diff > 0.5) {
+    ++frac;
+    // handle rollover, e.g. case 0.99 with prec 1 is 1.0
+    if (frac >= pow10[prec]) {
+      frac = 0;
+      ++whole;
+    }
+  }
+  else if (diff < 0.5) {
+  }
+  else if ((frac == 0U) || (frac & 1U)) {
+    // if halfway, round up if odd OR if last digit is 0
+    ++frac;
+  }
+
+  if (prec == 0U) {
+    diff = value - (double)whole;
+    if ((!(diff < 0.5) || (diff > 0.5)) && (whole & 1)) {
+      // exactly 0.5 and ODD, then round up
+      // 1.5 -> 2, but 2.5 -> 2
+      ++whole;
+    }
+  }
+  else {
+    unsigned int count = prec;
+    // now do fractional part, as an unsigned number
+    while (len < PRINTF_FTOA_BUFFER_SIZE) {
+      --count;
+      buf[len++] = (char)(48U + (frac % 10U));
+      if (!(frac /= 10U)) {
+        break;
+      }
+    }
+    // add extra 0s
+    while ((len < PRINTF_FTOA_BUFFER_SIZE) && (count-- > 0U)) {
+      buf[len++] = '0';
+    }
+    if (len < PRINTF_FTOA_BUFFER_SIZE) {
+      // add decimal
+      buf[len++] = '.';
+    }
+  }
+
+  // do whole part, number is reversed
+  while (len < PRINTF_FTOA_BUFFER_SIZE) {
+    buf[len++] = (char)(48 + (whole % 10));
+    if (!(whole /= 10)) {
+      break;
+    }
+  }
+
+  // pad leading zeros
+  if (!(flags & FLAGS_LEFT) && (flags & FLAGS_ZEROPAD)) {
+    if (width && (negative || (flags & (FLAGS_PLUS | FLAGS_SPACE)))) {
+      width--;
+    }
+    while ((len < width) && (len < PRINTF_FTOA_BUFFER_SIZE)) {
+      buf[len++] = '0';
+    }
+  }
+
+  if (len < PRINTF_FTOA_BUFFER_SIZE) {
+    if (negative) {
+      buf[len++] = '-';
+    }
+    else if (flags & FLAGS_PLUS) {
+      buf[len++] = '+';  // ignore the space if the '+' exists
+    }
+    else if (flags & FLAGS_SPACE) {
+      buf[len++] = ' ';
+    }
+  }
+
+  return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+}
+
+
+#if defined(PRINTF_SUPPORT_EXPONENTIAL)
+// internal ftoa variant for exponential floating-point type, contributed by Martijn Jasperse <m.jasperse@gmail.com>
+static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
+{
+  // check for NaN and special values
+  if ((value != value) || (value > DBL_MAX) || (value < -DBL_MAX)) {
+    return _ftoa(out, buffer, idx, maxlen, value, prec, width, flags);
+  }
+
+  // determine the sign
+  const bool negative = value < 0;
+  if (negative) {
+    value = -value;
+  }
+
+  // default precision
+  if (!(flags & FLAGS_PRECISION)) {
+    prec = PRINTF_DEFAULT_FLOAT_PRECISION;
+  }
+
+  // determine the decimal exponent
+  // based on the algorithm by David Gay (https://www.ampl.com/netlib/fp/dtoa.c)
+  union {
+    uint64_t U;
+    double   F;
+  } conv;
+
+  conv.F = value;
+  int exp2 = (int)((conv.U >> 52U) & 0x07FFU) - 1023;           // effectively log2
+  conv.U = (conv.U & ((1ULL << 52U) - 1U)) | (1023ULL << 52U);  // drop the exponent so conv.F is now in [1,2)
+  // now approximate log10 from the log2 integer part and an expansion of ln around 1.5
+  int expval = (int)(0.1760912590558 + exp2 * 0.301029995663981 + (conv.F - 1.5) * 0.289529654602168);
+  // now we want to compute 10^expval but we want to be sure it won't overflow
+  exp2 = (int)(expval * 3.321928094887362 + 0.5);
+  const double z  = expval * 2.302585092994046 - exp2 * 0.6931471805599453;
+  const double z2 = z * z;
+  conv.U = (uint64_t)(exp2 + 1023) << 52U;
+  // compute exp(z) using continued fractions, see https://en.wikipedia.org/wiki/Exponential_function#Continued_fractions_for_ex
+  conv.F *= 1 + 2 * z / (2 - z + (z2 / (6 + (z2 / (10 + z2 / 14)))));
+  // correct for rounding errors
+  if (value < conv.F) {
+    expval--;
+    conv.F /= 10;
+  }
+
+  // the exponent format is "%+03d" and largest value is "307", so set aside 4-5 characters
+  unsigned int minwidth = ((expval < 100) && (expval > -100)) ? 4U : 5U;
+
+  // in "%g" mode, "prec" is the number of *significant figures* not decimals
+  if (flags & FLAGS_ADAPT_EXP) {
+    // do we want to fall-back to "%f" mode?
+    if ((value >= 1e-4) && (value < 1e6)) {
+      if ((int)prec > expval) {
+        prec = (unsigned)((int)prec - expval - 1);
+      }
+      else {
+        prec = 0;
+      }
+      flags |= FLAGS_PRECISION;   // make sure _ftoa respects precision
+      // no characters in exponent
+      minwidth = 0U;
+      expval   = 0;
+    }
+    else {
+      // we use one sigfig for the whole part
+      if ((prec > 0) && (flags & FLAGS_PRECISION)) {
+        --prec;
+      }
+    }
+  }
+
+  // will everything fit?
+  unsigned int fwidth = width;
+  if (width > minwidth) {
+    // we didn't fall-back so subtract the characters required for the exponent
+    fwidth -= minwidth;
+  } else {
+    // not enough characters, so go back to default sizing
+    fwidth = 0U;
+  }
+  if ((flags & FLAGS_LEFT) && minwidth) {
+    // if we're padding on the right, DON'T pad the floating part
+    fwidth = 0U;
+  }
+
+  // rescale the float value
+  if (expval) {
+    value /= conv.F;
+  }
+
+  // output the floating part
+  const size_t start_idx = idx;
+  idx = _ftoa(out, buffer, idx, maxlen, negative ? -value : value, prec, fwidth, flags & ~FLAGS_ADAPT_EXP);
+
+  // output the exponent part
+  if (minwidth) {
+    // output the exponential symbol
+    out((flags & FLAGS_UPPERCASE) ? 'E' : 'e', buffer, idx++, maxlen);
+    // output the exponent value
+    idx = _ntoa_long(out, buffer, idx, maxlen, (expval < 0) ? -expval : expval, expval < 0, 10, 0, minwidth-1, FLAGS_ZEROPAD | FLAGS_PLUS);
+    // might need to right-pad spaces
+    if (flags & FLAGS_LEFT) {
+      while (idx - start_idx < width) out(' ', buffer, idx++, maxlen);
+    }
+  }
+  return idx;
+}
+#endif  // PRINTF_SUPPORT_EXPONENTIAL
+#endif  // PRINTF_SUPPORT_FLOAT
+
+
+// internal vsnprintf
+static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
+{
+  unsigned int flags, width, precision, n;
+  size_t idx = 0U;
+
+  if (!buffer) {
+    // use null output function
+    out = _out_null;
+  }
+
+  while (*format)
+  {
+    // format specifier?  %[flags][width][.precision][length]
+    if (*format != '%') {
+      // no
+      out(*format, buffer, idx++, maxlen);
+      format++;
+      continue;
+    }
+    else {
+      // yes, evaluate it
+      format++;
+    }
+
+    // evaluate flags
+    flags = 0U;
+    do {
+      switch (*format) {
+        case '0': flags |= FLAGS_ZEROPAD; format++; n = 1U; break;
+        case '-': flags |= FLAGS_LEFT;    format++; n = 1U; break;
+        case '+': flags |= FLAGS_PLUS;    format++; n = 1U; break;
+        case ' ': flags |= FLAGS_SPACE;   format++; n = 1U; break;
+        case '#': flags |= FLAGS_HASH;    format++; n = 1U; break;
+        default :                                   n = 0U; break;
+      }
+    } while (n);
+
+    // evaluate width field
+    width = 0U;
+    if (_is_digit(*format)) {
+      width = _atoi(&format);
+    }
+    else if (*format == '*') {
+      const int w = va_arg(va, int);
+      if (w < 0) {
+        flags |= FLAGS_LEFT;    // reverse padding
+        width = (unsigned int)-w;
+      }
+      else {
+        width = (unsigned int)w;
+      }
+      format++;
+    }
+
+    // evaluate precision field
+    precision = 0U;
+    if (*format == '.') {
+      flags |= FLAGS_PRECISION;
+      format++;
+      if (_is_digit(*format)) {
+        precision = _atoi(&format);
+      }
+      else if (*format == '*') {
+        const int prec = (int)va_arg(va, int);
+        precision = prec > 0 ? (unsigned int)prec : 0U;
+        format++;
+      }
+    }
+
+    // evaluate length field
+    switch (*format) {
+      case 'l' :
+        flags |= FLAGS_LONG;
+        format++;
+        if (*format == 'l') {
+          flags |= FLAGS_LONG_LONG;
+          format++;
+        }
+        break;
+      case 'h' :
+        flags |= FLAGS_SHORT;
+        format++;
+        if (*format == 'h') {
+          flags |= FLAGS_CHAR;
+          format++;
+        }
+        break;
+#if defined(PRINTF_SUPPORT_PTRDIFF_T)
+      case 't' :
+        flags |= (sizeof(ptrdiff_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+        format++;
+        break;
 #endif
-		}
-		if (!c) break;				/* End of format? */
-		switch (c) {				/* Type is... */
-		case 'b':					/* Unsigned binary */
-			r = 2; break;
-		case 'o':					/* Unsigned octal */
-			r = 8; break;
-		case 'd':					/* Signed decimal */
-		case 'u':					/* Unsigned decimal */
-			r = 10; break;
-		case 'x':					/* Hexdecimal (lower case) */
-		case 'X':					/* Hexdecimal (upper case) */
-			r = 16; break;
-		case 'c':					/* A character */
-			xfputc(func, (char)va_arg(arp, int)); continue;
-		case 's':					/* String */
-			p = va_arg(arp, char*);		/* Get a pointer argument */
-			if (!p) p = "";				/* Null ptr generates a null string */
-			j = strlen(p);
-			if (prec >= 0 && j > (unsigned int)prec) j = prec;	/* Limited length of string body */
-			for ( ; !(f & 2) && j < w; j++) xfputc(func, pad);	/* Left pads */
-			while (*p && prec--) xfputc(func, *p++);/* String body */
-			while (j++ < w) xfputc(func, ' ');		/* Right pads */
-			continue;
-#if XF_USE_FP
-		case 'f':					/* Float (decimal) */
-		case 'e':					/* Float (e) */
-		case 'E':					/* Float (E) */
-			ftoa(p = str, va_arg(arp, double), prec, c);	/* Make fp string */
-			for (j = strlen(p); !(f & 2) && j < w; j++) xfputc(func, pad);	/* Left pads */
-			while (*p) xfputc(func, *p++);		/* Value */
-			while (j++ < w) xfputc(func, ' ');	/* Right pads */
-			continue;
+      case 'j' :
+        flags |= (sizeof(intmax_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+        format++;
+        break;
+      case 'z' :
+        flags |= (sizeof(size_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+        format++;
+        break;
+      default :
+        break;
+    }
+
+    // evaluate specifier
+    switch (*format) {
+      case 'd' :
+      case 'i' :
+      case 'u' :
+      case 'x' :
+      case 'X' :
+      case 'o' :
+      case 'b' : {
+        // set the base
+        unsigned int base;
+        if (*format == 'x' || *format == 'X') {
+          base = 16U;
+        }
+        else if (*format == 'o') {
+          base =  8U;
+        }
+        else if (*format == 'b') {
+          base =  2U;
+        }
+        else {
+          base = 10U;
+          flags &= ~FLAGS_HASH;   // no hash for dec format
+        }
+        // uppercase
+        if (*format == 'X') {
+          flags |= FLAGS_UPPERCASE;
+        }
+
+        // no plus or space flag for u, x, X, o, b
+        if ((*format != 'i') && (*format != 'd')) {
+          flags &= ~(FLAGS_PLUS | FLAGS_SPACE);
+        }
+
+        // ignore '0' flag when precision is given
+        if (flags & FLAGS_PRECISION) {
+          flags &= ~FLAGS_ZEROPAD;
+        }
+
+        // convert the integer
+        if ((*format == 'i') || (*format == 'd')) {
+          // signed
+          if (flags & FLAGS_LONG_LONG) {
+#if defined(PRINTF_SUPPORT_LONG_LONG)
+            const long long value = va_arg(va, long long);
+            idx = _ntoa_long_long(out, buffer, idx, maxlen, (unsigned long long)(value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
 #endif
-		default:					/* Unknown type (passthrough) */
-			xfputc(func, c); continue;
-		}
-
-		/* Get an integer argument and put it in numeral */
-#if XF_USE_LLI
-		if (f & 8) {	/* long long argument? */
-			v = (long long)va_arg(arp, long long);
-		} else {
-			if (f & 4) {	/* long argument? */
-				v = (c == 'd') ? (long long)va_arg(arp, long) : (long long)va_arg(arp, unsigned long);
-			} else {		/* int/short/char argument */
-				v = (c == 'd') ? (long long)va_arg(arp, int) : (long long)va_arg(arp, unsigned int);
-			}
-		}
-#else
-		if (f & 4) {	/* long argument? */
-			v = (long)va_arg(arp, long);
-		} else {		/* int/short/char argument */
-			v = (c == 'd') ? (long)va_arg(arp, int) : (long)va_arg(arp, unsigned int);
-		}
+          }
+          else if (flags & FLAGS_LONG) {
+            const long value = va_arg(va, long);
+            idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned long)(value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
+          }
+          else {
+            const int value = (flags & FLAGS_CHAR) ? (char)va_arg(va, int) : (flags & FLAGS_SHORT) ? (short int)va_arg(va, int) : va_arg(va, int);
+            idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int)(value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
+          }
+        }
+        else {
+          // unsigned
+          if (flags & FLAGS_LONG_LONG) {
+#if defined(PRINTF_SUPPORT_LONG_LONG)
+            idx = _ntoa_long_long(out, buffer, idx, maxlen, va_arg(va, unsigned long long), false, base, precision, width, flags);
 #endif
-		if (c == 'd' && v < 0) {	/* Negative value? */
-			v = 0 - v; f |= 1;
-		}
-		i = 0; uv = v;
-		do {	/* Make an integer number string */
-			d = (char)(uv % r); uv /= r;
-			if (d > 9) d += (c == 'x') ? 0x27 : 0x07;
-			str[i++] = d + '0';
-		} while (uv != 0 && i < sizeof str);
-		if (f & 1) str[i++] = '-';					/* Sign */
-		for (j = i; !(f & 2) && j < w; j++) xfputc(func, pad);	/* Left pads */
-		do xfputc(func, str[--i]); while (i != 0);	/* Value */
-		while (j++ < w) xfputc(func, ' ');			/* Right pads */
-	}
+          }
+          else if (flags & FLAGS_LONG) {
+            idx = _ntoa_long(out, buffer, idx, maxlen, va_arg(va, unsigned long), false, base, precision, width, flags);
+          }
+          else {
+            const unsigned int value = (flags & FLAGS_CHAR) ? (unsigned char)va_arg(va, unsigned int) : (flags & FLAGS_SHORT) ? (unsigned short int)va_arg(va, unsigned int) : va_arg(va, unsigned int);
+            idx = _ntoa_long(out, buffer, idx, maxlen, value, false, base, precision, width, flags);
+          }
+        }
+        format++;
+        break;
+      }
+#if defined(PRINTF_SUPPORT_FLOAT)
+      case 'f' :
+      case 'F' :
+        if (*format == 'F') flags |= FLAGS_UPPERCASE;
+        idx = _ftoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+        format++;
+        break;
+#if defined(PRINTF_SUPPORT_EXPONENTIAL)
+      case 'e':
+      case 'E':
+      case 'g':
+      case 'G':
+        if ((*format == 'g')||(*format == 'G')) flags |= FLAGS_ADAPT_EXP;
+        if ((*format == 'E')||(*format == 'G')) flags |= FLAGS_UPPERCASE;
+        idx = _etoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+        format++;
+        break;
+#endif  // PRINTF_SUPPORT_EXPONENTIAL
+#endif  // PRINTF_SUPPORT_FLOAT
+      case 'c' : {
+        unsigned int l = 1U;
+        // pre padding
+        if (!(flags & FLAGS_LEFT)) {
+          while (l++ < width) {
+            out(' ', buffer, idx++, maxlen);
+          }
+        }
+        // char output
+        out((char)va_arg(va, int), buffer, idx++, maxlen);
+        // post padding
+        if (flags & FLAGS_LEFT) {
+          while (l++ < width) {
+            out(' ', buffer, idx++, maxlen);
+          }
+        }
+        format++;
+        break;
+      }
+
+      case 's' : {
+        const char* p = va_arg(va, char*);
+        unsigned int l = _strnlen_s(p, precision ? precision : (size_t)-1);
+        // pre padding
+        if (flags & FLAGS_PRECISION) {
+          l = (l < precision ? l : precision);
+        }
+        if (!(flags & FLAGS_LEFT)) {
+          while (l++ < width) {
+            out(' ', buffer, idx++, maxlen);
+          }
+        }
+        // string output
+        while ((*p != 0) && (!(flags & FLAGS_PRECISION) || precision--)) {
+          out(*(p++), buffer, idx++, maxlen);
+        }
+        // post padding
+        if (flags & FLAGS_LEFT) {
+          while (l++ < width) {
+            out(' ', buffer, idx++, maxlen);
+          }
+        }
+        format++;
+        break;
+      }
+
+      case 'p' : {
+        width = sizeof(void*) * 2U;
+        flags |= FLAGS_ZEROPAD | FLAGS_UPPERCASE;
+#if defined(PRINTF_SUPPORT_LONG_LONG)
+        const bool is_ll = sizeof(uintptr_t) == sizeof(long long);
+        if (is_ll) {
+          idx = _ntoa_long_long(out, buffer, idx, maxlen, (uintptr_t)va_arg(va, void*), false, 16U, precision, width, flags);
+        }
+        else {
+#endif
+          idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned long)((uintptr_t)va_arg(va, void*)), false, 16U, precision, width, flags);
+#if defined(PRINTF_SUPPORT_LONG_LONG)
+        }
+#endif
+        format++;
+        break;
+      }
+
+      case '%' :
+        out('%', buffer, idx++, maxlen);
+        format++;
+        break;
+
+      default :
+        out(*format, buffer, idx++, maxlen);
+        format++;
+        break;
+    }
+  }
+
+  // termination
+  out((char)0, buffer, idx < maxlen ? idx : maxlen - 1U, maxlen);
+
+  // return written chars without terminating \0
+  return (int)idx;
 }
 
 
-void xprintf (			/* Put a formatted string to the default device */
-	const char*	fmt,	/* Pointer to the format string */
-	...					/* Optional arguments */
-)
+///////////////////////////////////////////////////////////////////////////////
+
+int printf_(const char* format, ...)
 {
-	va_list arp;
-
-
-	va_start(arp, fmt);
-	xvfprintf(xfunc_output, fmt, arp);
-	va_end(arp);
+  va_list va;
+  va_start(va, format);
+  char buffer[1];
+  const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
+  va_end(va);
+  return ret;
 }
 
 
-void xfprintf (			/* Put a formatted string to the specified device */
-	void(*func)(int),	/* Pointer to the output function */
-	const char*	fmt,	/* Pointer to the format string */
-	...					/* Optional arguments */
-)
+int sprintf_(char* buffer, const char* format, ...)
 {
-	va_list arp;
-
-
-	va_start(arp, fmt);
-	xvfprintf(func, fmt, arp);
-	va_end(arp);
+  va_list va;
+  va_start(va, format);
+  const int ret = _vsnprintf(_out_buffer, buffer, (size_t)-1, format, va);
+  va_end(va);
+  return ret;
 }
 
-void xvprintf (
-    const char *fmt,
-    va_list arp
-)
+
+int snprintf_(char* buffer, size_t count, const char* format, ...)
 {
-    xvfprintf(xfunc_output, fmt, arp);
+  va_list va;
+  va_start(va, format);
+  const int ret = _vsnprintf(_out_buffer, buffer, count, format, va);
+  va_end(va);
+  return ret;
 }
 
 
-void xsprintf (			/* Put a formatted string to the memory */
-	char* buff,			/* Pointer to the output buffer */
-	const char*	fmt,	/* Pointer to the format string */
-	...					/* Optional arguments */
-)
+int vprintf_(const char* format, va_list va)
 {
-	va_list arp;
-
-
-	strptr = buff;		/* Enable destination for memory */
-	va_start(arp, fmt);
-	xvfprintf(0, fmt, arp);
-	va_end(arp);
-	*strptr = 0;		/* Terminate output string */
-	strptr = 0;			/* Disable destination for memory */
+  char buffer[1];
+  return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
 }
 
-void xvsprintf (
-    char *buff,
-    const char *fmt,
-    va_list arp
-)
+
+int vsnprintf_(char* buffer, size_t count, const char* format, va_list va)
 {
-	strptr = buff;		/* Enable destination for memory */
-	xvfprintf(0, fmt, arp);
-	*strptr = 0;		/* Terminate output string */
-	strptr = 0;			/* Disable destination for memory */
+  return _vsnprintf(_out_buffer, buffer, count, format, va);
 }
 
-#if XF_USE_DUMP
-/*----------------------------------------------*/
-/* Dump a line of binary dump                   */
-/*----------------------------------------------*/
 
-void put_dump (
-	const void* buff,		/* Pointer to the array to be dumped */
-	unsigned long addr,		/* Heading address value */
-	int len,				/* Number of items to be dumped */
-	int width				/* Size of buff[0] (1, 2, 4) */
-)
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
 {
-	int i;
-	const unsigned char *bp;
-	const unsigned short *sp;
-	const unsigned long *lp;
-
-
-	xprintf("%08lX ", addr);		/* address */
-
-	switch (width) {
-	case 1:
-		bp = buff;
-		for (i = 0; i < len; i++) {		/* Hexdecimal dump */
-			xprintf(" %02X", bp[i]);
-		}
-		xputs("  ");
-		for (i = 0; i < len; i++) {		/* ASCII dump */
-			xputc((unsigned char)((bp[i] >= ' ' && bp[i] <= '~') ? bp[i] : '.'));
-		}
-		break;
-	case 2:
-		sp = buff;
-		do {							/* Hexdecimal dump */
-			xprintf(" %04X", *sp++);
-		} while (--len);
-		break;
-	case 4:
-		lp = buff;
-		do {							/* Hexdecimal dump */
-			xprintf(" %08LX", *lp++);
-		} while (--len);
-		break;
-	}
-
-	xputc('\n');
+  va_list va;
+  va_start(va, format);
+  const out_fct_wrap_type out_fct_wrap = { out, arg };
+  const int ret = _vsnprintf(_out_fct, (char*)(uintptr_t)&out_fct_wrap, (size_t)-1, format, va);
+  va_end(va);
+  return ret;
 }
-#endif	/* XF_USE_DUMP */
-
-#endif	/* XF_USE_OUTPUT */
-
-
-
-#if XF_USE_INPUT
-int (*xfunc_input)(void);	/* Pointer to the default input stream */
-
-/*----------------------------------------------*/
-/* Get a line from the input                    */
-/*----------------------------------------------*/
-
-
-int xgets (			/* 0:End of stream, 1:A line arrived */
-	char* buff,		/* Pointer to the buffer */
-	int len			/* Buffer length */
-)
-{
-	int c, i;
-
-
-	if (!xfunc_input) return 0;	/* No input function is specified */
-
-	i = 0;
-	for (;;) {
-		c = xfunc_input();			/* Get a char from the incoming stream */
-		if (c < 0 || c == '\r') break;	/* End of stream or CR? */
-		if (c == '\b' && i) {		/* BS? */
-			i--;
-			if (XF_INPUT_ECHO) xputc(c);
-			continue;
-		}
-		if (c >= ' ' && i < len - 1) {	/* Visible chars? */
-			buff[i++] = c;
-			if (XF_INPUT_ECHO) xputc(c);
-		}
-	}
-	if (XF_INPUT_ECHO) {
-		xputc('\r');
-		xputc('\n');
-	}
-	buff[i] = 0;	/* Terminate with a \0 */
-	return (int)(c == '\r');
-}
-
-
-/*----------------------------------------------*/
-/* Get a value of integer string                */
-/*----------------------------------------------*/
-/*	"123 -5   0x3ff 0b1111 0377  w "
-	    ^                           1st call returns 123 and next ptr
-	       ^                        2nd call returns -5 and next ptr
-                   ^                3rd call returns 1023 and next ptr
-                          ^         4th call returns 15 and next ptr
-                               ^    5th call returns 255 and next ptr
-                                  ^ 6th call fails and returns 0
-*/
-
-int xatoi (			/* 0:Failed, 1:Successful */
-	char **str,		/* Pointer to pointer to the string */
-	long *res		/* Pointer to the valiable to store the value */
-)
-{
-	unsigned long val;
-	unsigned char c, r, s = 0;
-
-
-	*res = 0;
-
-	while ((c = **str) == ' ') (*str)++;	/* Skip leading spaces */
-
-	if (c == '-') {		/* negative? */
-		s = 1;
-		c = *(++(*str));
-	}
-
-	if (c == '0') {
-		c = *(++(*str));
-		switch (c) {
-		case 'x':		/* hexdecimal */
-			r = 16; c = *(++(*str));
-			break;
-		case 'b':		/* binary */
-			r = 2; c = *(++(*str));
-			break;
-		default:
-			if (c <= ' ') return 1;	/* single zero */
-			if (c < '0' || c > '9') return 0;	/* invalid char */
-			r = 8;		/* octal */
-		}
-	} else {
-		if (c < '0' || c > '9') return 0;	/* EOL or invalid char */
-		r = 10;			/* decimal */
-	}
-
-	val = 0;
-	while (c > ' ') {
-		if (c >= 'a') c -= 0x20;
-		c -= '0';
-		if (c >= 17) {
-			c -= 7;
-			if (c <= 9) return 0;	/* invalid char */
-		}
-		if (c >= r) return 0;		/* invalid char for current radix */
-		val = val * r + c;
-		c = *(++(*str));
-	}
-	if (s) val = 0 - val;			/* apply sign if needed */
-
-	*res = val;
-	return 1;
-}
-
-
-#if XF_USE_FP
-/*----------------------------------------------*/
-/* Get a value of the real number string        */
-/*----------------------------------------------*/
-/* Float version of xatoi
-*/
-
-int xatof (			/* 0:Failed, 1:Successful */
-	char **str,		/* Pointer to pointer to the string */
-	double *res		/* Pointer to the valiable to store the value */
-)
-{
-	double val;
-	int s, f, e;
-	unsigned char c;
-
-
-	*res = 0;
-	s = f = 0;
-
-	while ((c = **str) == ' ') (*str)++;	/* Skip leading spaces */
-	if (c == '-') {			/* Negative? */
-		c = *(++(*str)); s = 1; 
-	} else if (c == '+') {	/* Positive? */
-		c = *(++(*str));
-	}
-	if (c == XF_DPC) {		/* Leading dp? */
-		f = -1; 			/* Start at fractional part */
-		c = *(++(*str));
-	}
-	if (c <= ' ') return 0;	/* Wrong termination? */
-	val = 0;
-	while (c > ' ') {		/* Get a value of decimal */
-		if (c == XF_DPC) {	/* Embedded dp? */
-			if (f < 0) return 0;	/* Wrong dp? */
-			f = -1;			/* Enter fractional part */
-		} else {
-			if (c < '0' || c > '9') break;	/* End of decimal? */
-			c -= '0';
-			if (f == 0) {	/* In integer part */
-				val = val * 10 + c;
-			} else {		/* In fractional part */
-				val += i10x(f--) * c;
-			}
-		}
-		c = *(++(*str));
-	}
-	if (c > ' ') {	/* It may be an exponent */
-		if (c != 'e' && c != 'E') return 0;	/* Wrong character? */
-		c = *(++(*str));
-		if (c == '-') {
-			c = *(++(*str)); s |= 2;	/* Negative exponent */
-		} else if (c == '+') {
-			c = *(++(*str));			/* Positive exponent */
-		}
-		if (c <= ' ') return 0;	/* Wrong termination? */
-		e = 0;
-		while (c > ' ') {		/* Get value of exponent */
-			c -= '0';
-			if (c > 9) return 0;	/* Not a numeral? */
-			e = e * 10 + c;
-			c = *(++(*str));
-		}
-		val *= i10x((s & 2) ? -e : e);	/* Apply exponent */
-	}
-
-	if (s & 1) val = -val;	/* Negate sign if needed */
-
-	*res = val;
-	return 1;
-}
-#endif /* XF_USE_FP */
-
-#endif /* XF_USE_INPUT */

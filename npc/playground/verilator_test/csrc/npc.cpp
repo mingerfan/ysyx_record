@@ -64,6 +64,15 @@ static void npc_eval() {
   dut.eval();
 #ifdef CONFIG_NPC_WAVE
   tfp->dump(contextp->time());
+#ifdef CONFIG_WAVE_RINGBUF
+  static int cnt = 0;
+  tfp->flush();
+  if (cnt++ >= CONFIG_WAVE_RINGBUF_SIZE) {
+    tfp->close();
+    tfp->open("/home/xs/ysyx/ysyx-workbench/npc/build/sim.vcd");
+    cnt = 0;
+  }
+#endif
 #endif
   // G_DEBUG_I("is_ebreak:%d", is_ebreak());
 }

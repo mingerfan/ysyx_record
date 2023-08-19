@@ -164,7 +164,7 @@ object IDUInsInfo {
     val immSwitchMap = immutable.Map(
         "immI"  -> Array("addi", "sltiu", "andi", "ori", "xori", 
         "addiw", "slli", "srli", "srai", "slliw", "sraiw", "srliw", "jalr", 
-        "ld", "lw", "lwu", "lb", "lbu"),
+        "ld", "lw", "lwu", "lh", "lhu", "lb", "lbu"),
         "immU"  -> Array("lui", "auipc"),
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sw", "sh", "sb"),

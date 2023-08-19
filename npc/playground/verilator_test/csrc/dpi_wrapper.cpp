@@ -3,12 +3,9 @@
 #include "debug.h"
 #include "npc_memory.h"
 #include "macro.h"
-<<<<<<< Updated upstream
-=======
 #include "device.h"
 #include "utils.h"
 #include "difftest.h"
->>>>>>> Stashed changes
 
 void invalid_inst_(unsigned long long c_pc)
 {
@@ -32,18 +29,13 @@ void pmem_read(long long raddr, long long *rdata) {
             G_DEBUG_E("pmem addr read err at 0x%016llx", raddr);
             return; 
         }
-<<<<<<< Updated upstream
-        *rdata = paddr_read(raddr & ~0x7ull, 8);
-=======
         if (raddr == RTC_ADDR) {
             difftest_skip_ref();
             *rdata = get_time();
-            printf("time: %lld\n", *rdata);
         }
         else {
             *rdata = paddr_read(raddr & ~0x7ull, 8);
         }
->>>>>>> Stashed changes
         G_DEBUG_I("raddr: 0x%016lx rdata: 0x%016llx", raddr, *rdata);
     } else {
         *rdata = 0;
@@ -61,8 +53,6 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
             return; 
         }
         G_DEBUG_I("waddr: 0x%016lx wmask:0x%016lx", waddr, wmask);
-<<<<<<< Updated upstream
-=======
 
         if (waddr == SERIAL_PORT) {
             difftest_skip_ref();
@@ -70,7 +60,6 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
             return;
         } 
 
->>>>>>> Stashed changes
         uint64_t val = paddr_read(waddr & ~0x7ull, 8);
         uint64_t res = 0;
         for (int i = 0; i < 8; i++) {
@@ -81,6 +70,7 @@ void pmem_write(long long waddr, long long wdata, char wmask) {
             }
         }
         paddr_write(waddr & ~0x7ull, 8, res);
+
         G_DEBUG_I("wdata: 0x%016lx waddr:0x%016lx val: 0x%016lx res: 0x%016lx",
         wdata, waddr & ~0x7ull, val, res);
     }

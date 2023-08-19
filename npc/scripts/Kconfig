@@ -1,0 +1,76 @@
+mainmenu "NPC Configuration Menu"
+
+config NVBOARD_ON
+    bool "to use NVBOARD"
+    default n
+
+menuconfig NPC
+    depends on !NVBOARD_ON
+    bool "Simulate the NPC" 
+
+if NPC
+    config NPC_PC
+        hex "base addr of pc"
+        default 0x80000000
+
+    config NPC_WAVE
+        bool "generate waveform"
+        default y
+
+    config WAVE_RINGBUF
+        depends on NPC_WAVE
+        bool "enable ring buffer for wave"
+        default n
+
+    config WAVE_RINGBUF_SIZE
+        depends on WAVE_RINGBUF
+        int "Max buffer size"
+        default 128
+
+    config NPC_MSIZE
+        hex "the size of memory"
+        default 0x8000000
+    
+    menu "Testing and Debugging"
+    config TRACE
+    bool "Enable tracer"
+    default y
+
+    config WATCHPOINT
+    bool "enable watchpoint"
+    default false
+
+    config TRACE_START
+    depends on TRACE
+    int "When tracing is enabled (unit: number of instructions)"
+    default 0
+
+    config TRACE_END
+    depends on TRACE
+    int "When tracing is disabled (unit: number of instructions)"
+    default 10000
+
+    config ITRACE
+    depends on TRACE
+    bool "Enable instruction tracer"
+    default y
+
+    config FTRACE
+    depends on TRACE
+    bool "Enable ftrace"
+    default y
+
+    config DIFFTEST
+    depends on TRACE
+    bool "Enable difftest"
+    default y
+
+    endmenu
+
+endif
+
+config DBGI_LEVEL
+    int "debug info print level"
+    default 0
+    help 
+        0 disable 1 error 2 warning 3 info

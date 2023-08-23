@@ -18,10 +18,13 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 #include <mytrace.h>
+#include <isa.h>
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
+
+#define CSR (*csr(BITS(imm, 11, 0)))
 
 enum {
   TYPE_I, TYPE_U, TYPE_S, TYPE_J, TYPE_R, TYPE_B,
@@ -128,6 +131,11 @@ static int decode_exec(Decode *s) {
 
   // Environment Call and Breakpoints
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, bool success; s->dnpc = isa_raise_intr(isa_reg_str2val("a7", &success), s->pc));
+
+  //  Control and Status Register (CSR) Instructions
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, if (dest != 0) R(dest) = CSR; CSR = src1);
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(dest) = CSR; CSR |= src1);
 
   // RV64M
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(dest) = src1*src2);

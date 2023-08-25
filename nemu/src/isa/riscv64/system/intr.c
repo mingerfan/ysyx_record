@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <macro.h>
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
@@ -22,6 +23,13 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   cpu.csrs.mepc = epc;
   cpu.csrs.mcause = 0xb;
   return cpu.csrs.mtvec;
+}
+
+word_t isa_return_intr() {
+  // sets MPV(not in mstatus)=0, MPP[12:11]=0, MIE[3]=MPIE[7], and MPIE=1
+  cpu.csrs.mstatus &= ~(word_t)(1 << 12 | 1 << 11 | 1 << 3);
+  cpu.csrs.mstatus |= (BITS(cpu.csrs.mstatus, 7, 7) << 3 | 1 << 7);
+  return cpu.csrs.mepc;
 }
 
 word_t isa_query_intr() {

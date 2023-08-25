@@ -129,9 +129,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb     , S, Mw(src1 + imm, 1, src2&BITMASK(8)));
   // Memory Ordering Instructions
 
-  // Environment Call and Breakpoints
+  //  Machine-Mode Privileged Instructions
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, bool success; s->dnpc = isa_raise_intr(isa_reg_str2val("a7", &success), s->pc));
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = isa_return_intr());
 
   //  Control and Status Register (CSR) Instructions
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, if (dest != 0) R(dest) = CSR; CSR = src1);

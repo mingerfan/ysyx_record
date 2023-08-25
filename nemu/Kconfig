@@ -184,6 +184,11 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
 
+config ETRACE
+  depends on TRACE
+  bool "Enable Etrace"
+  default y
+
 config WATCHPOINT
   bool "Enable watch point"
   default y

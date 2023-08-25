@@ -23,4 +23,7 @@ void trace_ftrace_print(uint32_t inst, uint64_t pc);
 void trace_device_read(paddr_t addr, int len, IOMap *map, word_t data);
 void trace_device_write(paddr_t addr, int len, IOMap *map, word_t data);
 
+void trace_etrace_ecall(CPU_state cpu, word_t NO);
+void trace_etrace_mret();
+
 #endif

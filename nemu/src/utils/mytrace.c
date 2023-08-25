@@ -208,3 +208,15 @@ void trace_ftrace_print(uint32_t inst, uint64_t pc)
     }
 #endif
 }
+
+void trace_etrace_ecall(CPU_state cpu, word_t NO) {
+#ifdef CONFIG_ETRACE
+    printf("ECALL! mepc: 0x%016lx, mtvec: 0x%016lx, NO: %ld\n", cpu.csrs.mepc, cpu.csrs.mtvec, NO);
+#endif
+}
+
+void trace_etrace_mret() {
+#ifdef CONFIG_ETRACE
+    printf("Return from MRET!\n");
+#endif
+}

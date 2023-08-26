@@ -24,7 +24,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   cpu.csrs.mepc = epc;
   cpu.csrs.mcause = 0xb;
   trace_etrace_ecall(cpu, NO);
-  return cpu.csrs.mtvec;
+  return cpu.csrs.mtvec & ~0x11;
 }
 
 word_t isa_return_intr() {

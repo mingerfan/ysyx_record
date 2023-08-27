@@ -11,6 +11,10 @@ import basic._
 import myutil._
 import immGet._
 
+trait IsBitPat {
+    def IsBitPat(): Boolean
+}
+
 object IDUInfo {
     val OP_BITS = (6, 0)
     val FUNCT3_BITS = (14, 12)
@@ -26,7 +30,7 @@ class DecOutIO extends Bundle {
     val rs2 = Output(UInt(log2Ceil(topInfo.R_NUM).W))    // register source 2 index
 }
 
-class InsStruct(op_p: String, funct3_p: String, funct7_p: String, sp_p: String = "-1") {
+class InsStruct(op_p: String, funct3_p: String, funct7_p: String, sp_p: String = "-1") extends IsBitPat {
     val op = Integer.parseInt(op_p, 2)
     val funct3 = Integer.parseInt(funct3_p, 2)
     val funct7 = Integer.parseInt(funct7_p, 2)
@@ -35,6 +39,20 @@ class InsStruct(op_p: String, funct3_p: String, funct7_p: String, sp_p: String =
     require(funct3 >= -1)
     require(funct7 >= -1)
     require(sp >= -1)
+
+    def IsBitPat(): Boolean = {
+        false
+    }
+}
+
+class BitPatDec(s: String) extends IsBitPat {
+    val res = BitPat(s)
+    def BitPatRes() = {
+        res
+    }
+    def IsBitPat(): Boolean = {
+        true
+    }
 }
 
 
@@ -92,17 +110,25 @@ class IDU extends Module {
     val insts = mutable.Map[String, Bool]()
     for ((key, value) <- instructions) {
         val ismatch = Wire(Bool())
-        ismatch := dec_opl.out(BITS(value.op, 3, 0)) & dec_oph.out(BITS(value.op, 6, 4)) &
-        (if (value.funct3 < 0) true.B else dec_3.out(value.funct3)) &
-        (if (value.funct7 < 0) true.B else (dec_7l.out(BITS(value.funct7, 3, 0)) & dec_7h.out(BITS(value.funct7, 6, 4)))) &
-        (if (value.sp < 0) true.B else inst(31, 26) === value.sp.U)
+        ismatch := (value match {
+            case value1: InsStruct =>  dec_opl.out(BITS(value1.op, 3, 0)) & dec_oph.out(BITS(value1.op, 6, 4)) &
+        (if (value1.funct3 < 0) true.B else dec_3.out(value1.funct3)) &
+        (if (value1.funct7 < 0) true.B else (dec_7l.out(BITS(value1.funct7, 3, 0)) & dec_7h.out(BITS(value1.funct7, 6, 4)))) &
+        (if (value1.sp < 0) true.B else inst(31, 26) === value1.sp.U) 
+            case value2: BitPatDec => inst === value2.BitPatRes()
+            
+            case _ => throw new RuntimeException("Unexpected type")
+        } )
         insts += (key -> ismatch)
     }
     
     val instBools = VecInit(insts.values.toSeq)
     val inst_hit = instBools.reduceTree(_ | _)
 
-    ebreak := WireDefault(inst === "b000000000001_00000_000_00000_1110011".U)
+    ebreak := (insts.get("ebreak") match {
+        case Some(x) => x
+        case _ => throw new RuntimeException("No ebreak")
+    })
     inv_inst := !inst_hit && !WireDefault(inst === "b000000000001_00000_000_00000_1110011".U)
     // val ebreak_detect_ = Module(new ebreak_detect)
     // ebreak_detect_.io.ebreak := ebreak

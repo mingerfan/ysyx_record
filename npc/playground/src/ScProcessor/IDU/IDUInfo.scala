@@ -12,7 +12,7 @@ import myutil._
 import immGet._
 
 object IDUInsInfo {
-    val instructions = Map(
+    val instructions = Map[String, IsBitPat] (
         "addi" -> new InsStruct("0010011", "000", "-1"),
         // "slti" -> new InsStruct("0010011", "010", "-1"),
         "sltiu" -> new InsStruct("0010011", "011", "-1"),
@@ -75,7 +75,8 @@ object IDUInsInfo {
         "divw" -> new InsStruct("0111011", "100", "0000001"),
         "divuw" -> new InsStruct("0111011", "101", "0000001"),
         "remw" -> new InsStruct("0111011", "110", "0000001"),
-        "remuw" -> new InsStruct("0111011", "111", "0000001")
+        "remuw" -> new InsStruct("0111011", "111", "0000001"),
+        "ebreak"-> new BitPatDec("b000000000001_00000_000_00000_1110011")
     )
 
     val aluOpsMap = immutable.Map(

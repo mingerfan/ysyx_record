@@ -28,6 +28,7 @@ class top extends Module {
     val rf = Module(new RF.RFModule)    
     val pc = Module(new PC.PC)
     val mem_wr = Module(new MEMWR.MEMWR)
+    val csr = Module(new RF.CSR)
 
     dbg_regs := 0.U
     if (NPC_SIM) {
@@ -76,6 +77,15 @@ class top extends Module {
     mem_wr.io.memOps:= idu.dpCtrl.memOp
     mem_wr.io.mem_wr_flag := idu.mem_wr
 
+    // csr input
+    csr.io.rdAddr := idu.dataOut.csr
+    csr.io.wrEn   := hit("csrWr")
+    csr.io.wrAddr := idu.dataOut.csr
+    csr.io.rsIn   := rf.io.rdData1
+    csr.io.immIn  := idu.dataOut.imm
+    csr.io.csrOps := idu.dpCtrl.csrOp
+
+    // ebreak and invalid instruction detection
     val ebreak_detect_ = Module(new ebreak_detect)
     val inv_inst_ = Module(new inv_inst)
 

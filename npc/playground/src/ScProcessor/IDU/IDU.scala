@@ -28,6 +28,7 @@ class DecOutIO extends Bundle {
     val rd = Output(UInt(log2Ceil(topInfo.R_NUM).W))     // register destination index
     val rs1 = Output(UInt(log2Ceil(topInfo.R_NUM).W))    // register source 1 index
     val rs2 = Output(UInt(log2Ceil(topInfo.R_NUM).W))    // register source 2 index
+    val csr = Output(UInt(RF.CSRInfo.CSR_ADDR_WIDTH.W))  // csr addr
 }
 
 class InsStruct(op_p: String, funct3_p: String, funct7_p: String, sp_p: String = "-1") extends IsBitPat {
@@ -67,6 +68,7 @@ class IDU extends Module {
         val pcOp = Output(UInt(PC.PCInfo.OPS_NUM.W))
         val rfOp = Output(UInt(RF.RFMInfo.OPS_NUM.W))
         val memOp = Output(UInt(MEMWR.MEMWRInfo.OPS_NUM.W))
+        val csrOp = Output(UInt(RF.CSRInfo.OPS_NUM.W))
     })
     val mem_wr = IO(Output(Bool()))
     val ebreak = IO(Output(Bool()))
@@ -136,15 +138,17 @@ class IDU extends Module {
     val immLogic = WireLogic(immSwitch, immSwitchMap, insts)
     val hit = U_HIT_CURRYING(immLogic, immSwitch)_
     dataOut.imm := Mux1H(Seq(
-        hit("immI") -> immDecI(inst),
-        hit("immU") -> immDecU(inst),
-        hit("immJ") -> immDecJ(inst),
-        hit("immB") -> immDecB(inst),
-        hit("immS") -> immDecS(inst)
+        hit("immI")     -> immDecI(inst),
+        hit("immU")     -> immDecU(inst),
+        hit("immJ")     -> immDecJ(inst),
+        hit("immB")     -> immDecB(inst),
+        hit("immS")     -> immDecS(inst),
+        hit("immCsr")   -> immDecCsr(inst),
     ))
     dataOut.rd := inst(11, 7)
     dataOut.rs1 := inst(19, 15)
     dataOut.rs2 := inst(24, 20)
+    dataOut.csr := inst(31, 20)
 
 
     dpCtrl.aluOp := WireLogic(aluOps, aluOpsMap, insts)
@@ -153,6 +157,7 @@ class IDU extends Module {
     dpCtrl.pcOp  := WireLogic(pcOps, pcOpsMap, insts)
     dpCtrl.rfOp  := WireLogic(rfOps, rfOpsMap, insts)
     dpCtrl.memOp := WireLogic(memOps, memOpsMap, insts)
+    dpCtrl.csrOp := WireLogic(csrOps, csrOpsMap, insts)
 }
 
 object IDUMain extends App {

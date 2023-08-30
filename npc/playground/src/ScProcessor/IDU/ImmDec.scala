@@ -29,4 +29,8 @@ object immGet {
         inst(20) ## inst(30, 25) ##
         inst(24, 21)## 0.U(1.W)
     }
+
+    def immDecCsr(inst: UInt) = {
+        inst(19, 15)
+    }
 }

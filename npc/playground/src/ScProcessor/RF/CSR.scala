@@ -4,10 +4,11 @@ import chisel3._
 import chisel3.util._
 import rfInfo._
 import topInfo._
-import csrInfo._
+import CSRInfo._
+import tools._
 
 
-object csrInfo {
+object CSRInfo {
     val CSR_WIDTH = topInfo.XLEN
     val CSR_ADDR = Map (
         "mepc"      -> 0x341,
@@ -16,26 +17,37 @@ object csrInfo {
         "mstatus"   -> 0x300
     )
     val CSR_NUM = CSR_ADDR.size
+    val CSR_ADDR_WIDTH = 12 // inst(31, 20)
+    val OPS_NUM = IDU.IDUInsInfo.csrOps.length
 }
 
 class CSR() extends Module {
     val io = new Bundle {
-        val rdAddr1 = Input(UInt(log2Ceil(CSR_NUM).W))
-        val rdData1 = Output(UInt(CSR_WIDTH.W))
-        val wrEn = Input(Bool())
-        val wrAddr = Input(UInt(log2Ceil(CSR_NUM).W))
-        val wrData = Input(UInt(CSR_WIDTH.W))
+        val rdAddr  = Input(UInt(log2Ceil(CSR_ADDR_WIDTH).W))
+        val rdData  = Output(UInt(CSR_WIDTH.W))
+        val wrEn    = Input(Bool())
+        val wrAddr  = Input(UInt(log2Ceil(CSR_ADDR_WIDTH).W))
+        val rsIn    = Input(UInt(REGS_WIDTH.W))
+        val immIn   = Input(UInt(5.W))
+        val csrOps = Input(UInt(OPS_NUM.W))
     }
+
+    val hit = U_HIT_CURRYING(io.csrOps, IDU.IDUInsInfo.csrOps)_
+
+    val wrData = Mux1H(Seq(
+        hit("rsIn")     -> io.rsIn,
+        // hit("immIn")    -> io.immIn,
+    ))
 
     def csrhit(s: String) = {
         CSR_ADDR.get(s) match {
-            case Some(x) => (x.U === io.rdAddr1)
+            case Some(x) => (x.U === io.rdAddr)
             case None => throw new RuntimeException("No match csr addr")
         }
     }
 
     def write(s: String, d: UInt) = {
-        Mux(csrhit(s), io.wrData, d)
+        Mux(csrhit(s), wrData, d)
     }
 
     val mepc = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
@@ -48,7 +60,7 @@ class CSR() extends Module {
     mtvec   := write("mtvec", mtvec)
     mstatus := write("mstatus", mstatus)
 
-    io.rdData1 := Mux1H(Seq(
+    io.rdData := Mux1H(Seq(
         csrhit("mepc")      -> mepc,
         csrhit("mcause")    -> mcause,
         csrhit("mtvec")     -> mtvec,

@@ -19,6 +19,7 @@ class RFModule extends Module {
         val exu = Input(UInt(XLEN.W))
         val pc_next = Input(UInt(XLEN.W))
         val mem = Input(UInt(XLEN.W))
+        val csr = Input(UInt(RF.CSRInfo.CSR_WIDTH.W))
     })
     val dbg_regs_w = if (NPC_SIM) REGS_NUM*REGS_WIDTH else 0
     val dbg_regs = IO(Output(UInt(dbg_regs_w.W)))
@@ -37,6 +38,7 @@ class RFModule extends Module {
     rf_in.io.wrData := Mux1H(Seq(
         hit("exu")  -> in.exu,
         hit("pcn")  -> in.pc_next,
-        hit("mem")  -> in.mem
+        hit("mem")  -> in.mem,
+        hit("csr")  -> in.csr,
     ))
 }

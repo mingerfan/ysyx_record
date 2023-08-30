@@ -22,7 +22,7 @@ object CSRInfo {
 }
 
 class CSR() extends Module {
-    val io = new Bundle {
+    val io = IO(new Bundle {
         val rdAddr  = Input(UInt(CSR_ADDR_WIDTH.W))
         val rdData  = Output(UInt(CSR_WIDTH.W))
         val wrEn    = Input(Bool())
@@ -30,13 +30,25 @@ class CSR() extends Module {
         val rsIn    = Input(UInt(REGS_WIDTH.W))
         val immIn   = Input(UInt(5.W))
         val csrOps = Input(UInt(OPS_NUM.W))
-    }
+    })
 
     val hit = U_HIT_CURRYING(io.csrOps, IDU.IDUInsInfo.csrOps)_
 
+    val mepc = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
+    val mcause = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
+    val mtvec = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
+    val mstatus = RegEnable("ha00001800".U(CSR_WIDTH.W), io.wrEn)
+
+    val csr_data = Mux1H(Seq(
+        csrhit("mepc")      -> mepc,
+        csrhit("mcause")    -> mcause,
+        csrhit("mtvec")     -> mtvec,
+        csrhit("mstatus")   -> mstatus
+    ))
+
     val wrData = Mux1H(Seq(
-        hit("rsIn")     -> io.rsIn,
-        // hit("immIn")    -> io.immIn,
+        hit("csrrw") -> io.rsIn,
+        hit("csrrs") -> (csr_data | io.rsIn),
     ))
 
     def csrhit(s: String) = {
@@ -50,20 +62,15 @@ class CSR() extends Module {
         Mux(csrhit(s), wrData, d)
     }
 
-    val mepc = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mcause = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mtvec = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mstatus = RegEnable("ha00001800".U(CSR_WIDTH.W), io.wrEn)
-
-    mepc    := write("mepc", mepc)
-    mcause  := write("mcause", mcause)
-    mtvec   := write("mtvec", mtvec)
-    mstatus := write("mstatus", mstatus)
+    when (~reset.asBool) {
+        mepc    := write("mepc", mepc)
+        mcause  := write("mcause", mcause)
+        mtvec   := write("mtvec", mtvec)
+        mstatus := write("mstatus", mstatus)
+    }
 
     io.rdData := Mux1H(Seq(
-        csrhit("mepc")      -> mepc,
-        csrhit("mcause")    -> mcause,
-        csrhit("mtvec")     -> mtvec,
-        csrhit("mstatus")   -> mstatus
+        (hit("csrrw") | hit("csrrs"))
+             -> csr_data,
     ))
 }

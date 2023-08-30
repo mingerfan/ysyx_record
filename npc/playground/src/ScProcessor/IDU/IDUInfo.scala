@@ -76,7 +76,10 @@ object IDUInsInfo {
         "divuw" -> new InsStruct("0111011", "101", "0000001"),
         "remw" -> new InsStruct("0111011", "110", "0000001"),
         "remuw" -> new InsStruct("0111011", "111", "0000001"),
-        "ebreak"-> new BitPatDec("b000000000001_00000_000_00000_1110011")
+        "ebreak"-> new BitPatDec("b000000000001_00000_000_00000_1110011"),
+        // zicsr instructions
+        "csrrw" -> new BitPatDec("b????????????_?????_001_?????_1110011"),
+        "csrrs" -> new BitPatDec("b????????????_?????_010_?????_1110011"),
     )
 
     val aluOpsMap = immutable.Map(
@@ -131,7 +134,8 @@ object IDUInsInfo {
         "mul", "div", "divu", "remu", 
         "mulw", "divw", "divuw", "remw", "remuw"),
         "pcn" -> Array("jal", "jalr"),
-        "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu", "lb")
+        "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu", "lb"),
+        "csr" -> Array("csrrw", "csrrs"),
     )
     val rfOps = MapKeyToArray(rfOpsMap)
 
@@ -144,7 +148,7 @@ object IDUInsInfo {
         "ld", "lw", "lwu", "lh", "lhu", "lb", "lbu",
         "sw", "sd", "sh", "sb",
         "mul", "div", "divu", "remu", 
-        "mulw", "divw", "divuw","remw", "remuw"),
+        "mulw", "divw", "divuw","remw", "remuw", "csrrw"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),
@@ -159,7 +163,7 @@ object IDUInsInfo {
     val ctrlsMap = immutable.Map(
         "nwrEn" -> Array("beq", "bne", "bge", "bgeu", "blt", "bltu",
         "sw", "sd", "sh", "sb"),
-        "csrWr" -> Array()
+        "csrWr" -> Array("csrrw", "csrrs"),
     )
     val ctrls = MapKeyToArray(ctrlsMap)
 
@@ -171,7 +175,7 @@ object IDUInsInfo {
         "immJ"  -> Array("jal"),
         "immS"  -> Array("sd", "sw", "sh", "sb"),
         "immB"  -> Array("beq", "bne", "blt", "bltu", "bge", "bgeu"),
-        "immCsr"-> Array(),
+        "immCsr"-> Array("csrrw", "csrrs"),
     )
     val immSwitch = MapKeyToArray(immSwitchMap)
 
@@ -191,8 +195,8 @@ object IDUInsInfo {
     val memOps = MapKeyToArray(memOpsMap)
 
     val csrOpsMap = immutable.Map(
-        "rsIn" -> Array(),
-        // "imIn" -> Array()
+        "csrrw" -> Array("csrrw"),
+        "csrrs" -> Array("csrrs"),
     )
     val csrOps = MapKeyToArray(csrOpsMap)
 }

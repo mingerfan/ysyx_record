@@ -63,6 +63,7 @@ class top extends Module {
     rf.in.exu       := exu.io.out
     rf.in.pc_next   := pc.pc_next
     rf.in.mem       := mem_wr.io.rd
+    rf.in.csr       := csr.io.rdData
 
     exu.io.exuOp    := idu.dpCtrl.exuOp
     exu.io.aluOp    := idu.dpCtrl.aluOp

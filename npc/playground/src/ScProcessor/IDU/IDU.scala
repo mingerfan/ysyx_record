@@ -73,6 +73,7 @@ class IDU extends Module {
     val mem_wr = IO(Output(Bool()))
     val ebreak = IO(Output(Bool()))
     val inv_inst = IO(Output(Bool()))
+    val write_x0 = IO(Output(Bool()))
 
     mem_wr := inst(6, 0) === "b0100011".U
 
@@ -158,6 +159,8 @@ class IDU extends Module {
     dpCtrl.rfOp  := WireLogic(rfOps, rfOpsMap, insts)
     dpCtrl.memOp := WireLogic(memOps, memOpsMap, insts)
     dpCtrl.csrOp := WireLogic(csrOps, csrOpsMap, insts)
+
+    write_x0 := inst(11, 7) === 0.U
 }
 
 object IDUMain extends App {

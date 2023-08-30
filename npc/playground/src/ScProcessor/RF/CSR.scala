@@ -23,10 +23,10 @@ object CSRInfo {
 
 class CSR() extends Module {
     val io = new Bundle {
-        val rdAddr  = Input(UInt(log2Ceil(CSR_ADDR_WIDTH).W))
+        val rdAddr  = Input(UInt(CSR_ADDR_WIDTH.W))
         val rdData  = Output(UInt(CSR_WIDTH.W))
         val wrEn    = Input(Bool())
-        val wrAddr  = Input(UInt(log2Ceil(CSR_ADDR_WIDTH).W))
+        val wrAddr  = Input(UInt(CSR_ADDR_WIDTH.W))
         val rsIn    = Input(UInt(REGS_WIDTH.W))
         val immIn   = Input(UInt(5.W))
         val csrOps = Input(UInt(OPS_NUM.W))

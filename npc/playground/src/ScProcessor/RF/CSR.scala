@@ -19,6 +19,7 @@ object CSRInfo {
     val CSR_NUM = CSR_ADDR.size
     val CSR_ADDR_WIDTH = 12 // inst(31, 20)
     val OPS_NUM = IDU.IDUInsInfo.csrOps.length
+    val DBG_CSR_W = if (NPC_SIM) CSR_NUM*CSR_WIDTH else 0
 }
 
 class CSR() extends Module {
@@ -31,13 +32,16 @@ class CSR() extends Module {
         val immIn   = Input(UInt(5.W))
         val csrOps = Input(UInt(OPS_NUM.W))
     })
+    val dbg_csrs = IO(Output(UInt(DBG_CSR_W.W)))
 
     val hit = U_HIT_CURRYING(io.csrOps, IDU.IDUInsInfo.csrOps)_
 
-    val mepc = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mcause = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mtvec = RegEnable(0.U(CSR_WIDTH.W), io.wrEn)
-    val mstatus = RegEnable("ha00001800".U(CSR_WIDTH.W), io.wrEn)
+    val mepc = RegInit(0.U(CSR_WIDTH.W))
+    val mcause = RegInit(0.U(CSR_WIDTH.W))
+    val mtvec = RegInit(0.U(CSR_WIDTH.W))
+    val mstatus = RegInit("ha00001800".U(CSR_WIDTH.W))
+
+    dbg_csrs := mepc ## mcause ## mtvec ## mstatus
 
     val csr_data = Mux1H(Seq(
         csrhit("mepc")      -> mepc,
@@ -59,15 +63,14 @@ class CSR() extends Module {
     }
 
     def write(s: String, d: UInt) = {
-        Mux(csrhit(s), wrData, d)
+        Mux(csrhit(s) & io.wrEn, wrData, d)
     }
 
-    when (~reset.asBool) {
-        mepc    := write("mepc", mepc)
-        mcause  := write("mcause", mcause)
-        mtvec   := write("mtvec", mtvec)
-        mstatus := write("mstatus", mstatus)
-    }
+    mepc    := write("mepc", mepc)
+    mcause  := write("mcause", mcause)
+    mtvec   := write("mtvec", mtvec)
+    mstatus := write("mstatus", mstatus)
+
 
     io.rdData := Mux1H(Seq(
         (hit("csrrw") | hit("csrrs"))

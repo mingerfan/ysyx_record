@@ -8,9 +8,19 @@
 
 extern TOP_NAME dut;
 
+struct riscv64_csrs
+{
+  /* data */
+  word_t mepc;
+  word_t mcause;
+  word_t mtvec;
+  word_t mstatus;
+};
+
 struct CPU_state {
     word_t gpr[32];
     vaddr_t pc;
+    struct riscv64_csrs csrs;
 };
 
 static inline uint64_t get_regs(int num)
@@ -19,6 +29,9 @@ static inline uint64_t get_regs(int num)
     uint64_t val =  dut.dbg_regs[num*2] + ((uint64_t)dut.dbg_regs[num*2+1]<<32);
     return val;
 }
+
+uint64_t get_csrs_byidx(int idx, bool *success);
+uint64_t get_csrs_byname(const char *s, bool *success);
 
 static inline uint64_t get_pc() {
     uint64_t val = dut.io_pc;

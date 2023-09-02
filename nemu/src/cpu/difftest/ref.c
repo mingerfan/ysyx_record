@@ -35,12 +35,24 @@ void difftest_regcpy(void *dut, bool direction) {
       cpu.gpr[i] = dut_ctx->gpr[i];
     }
     cpu.pc = dut_ctx->pc;
+    #define toref(csr) cpu.csrs.csr = dut_ctx->csrs.csr
+    toref(mepc);
+    toref(mcause);
+    toref(mtvec);
+    toref(mstatus);
+    #undef toref
   } else {
     if (direction == DIFFTEST_TO_DUT) {
       for (int i = 0; i < 32; i++) {
         dut_ctx->gpr[i] = cpu.gpr[i];
       }
       dut_ctx->pc = cpu.pc;
+      #define todut(csr) dut_ctx->csrs.csr = cpu.csrs.csr
+      todut(mepc);
+      todut(mcause);
+      todut(mtvec);
+      todut(mstatus);
+      #undef todut
     }
   }
 }

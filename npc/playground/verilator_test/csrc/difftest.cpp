@@ -2,6 +2,7 @@
 #include <debug.h>
 #include <dlfcn.h>
 #include <state.h>
+#include <macro.h>
 
 
 void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
@@ -51,7 +52,18 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc)
           return false;
       }
     }
+    uint64_t data;
+    #define check(csr) do { if (ref_r->csrs.csr != (data = get_csrs_byname(#csr, NULL))) {\
+        G_DEBUG_WR("unmatched csr: %s DUT: 0x%016lx REF: 0x%016lx At 0x%08lx\n", \
+            #csr, data, ref_r->csrs.csr, pc);\
+            return false;\
+    }} while(0);
+    check(mepc);
+    check(mcause);
+    check(mtvec);
+    check(mstatus);
     return true;
+    #undef check
 }
 
 static void checkregs(CPU_state *ref, vaddr_t pc) 

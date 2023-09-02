@@ -22,6 +22,7 @@ class top extends Module {
         val pc = Output(UInt(XLEN.W))   // PC output to read ins in memory
     })
     val dbg_regs = IO(Output(UInt(dbg_regs_w.W)))
+    val dbg_csrs  = IO(Output(UInt(RF.CSRInfo.DBG_CSR_W.W)))
     
     val idu = Module(new IDU.IDU)
     val exu = Module(new EXU.EXU)
@@ -33,6 +34,7 @@ class top extends Module {
     dbg_regs := 0.U
     if (NPC_SIM) {
         dbg_regs := rf.dbg_regs
+        dbg_csrs  := csr.dbg_csrs
     }
 
     val hit = U_HIT_CURRYING(idu.dpCtrl.ctrls_out, IDU.IDUInsInfo.ctrls)_

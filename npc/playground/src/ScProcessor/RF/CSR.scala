@@ -30,7 +30,8 @@ class CSR() extends Module {
         val wrAddr  = Input(UInt(CSR_ADDR_WIDTH.W))
         val rsIn    = Input(UInt(REGS_WIDTH.W))
         val immIn   = Input(UInt(5.W))
-        val csrOps = Input(UInt(OPS_NUM.W))
+        val pc      = Input(UInt(XLEN.W))
+        val csrOps  = Input(UInt(OPS_NUM.W))
     })
     val dbg_csrs = IO(Output(UInt(DBG_CSR_W.W)))
 
@@ -66,8 +67,8 @@ class CSR() extends Module {
         Mux(csrhit(s) & io.wrEn, wrData, d)
     }
 
-    mepc    := write("mepc", mepc)
-    mcause  := write("mcause", mcause)
+    mepc    := Mux(hit("ecall"), io.pc, write("mepc", mepc))
+    mcause  := Mux(hit("ecall"), "hb".U, write("mcause", mcause))
     mtvec   := write("mtvec", mtvec)
     mstatus := write("mstatus", mstatus)
 
@@ -75,5 +76,6 @@ class CSR() extends Module {
     io.rdData := Mux1H(Seq(
         (hit("csrrw") | hit("csrrs"))
              -> csr_data,
+        hit("ecall") -> (mtvec & ~("b11".U(CSR_WIDTH.W))),
     ))
 }

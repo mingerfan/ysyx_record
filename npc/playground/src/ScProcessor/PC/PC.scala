@@ -19,6 +19,7 @@ class PC extends Module {
         val rs1 = Input(UInt(XLEN.W))
         val rs2 = Input(UInt(XLEN.W))
         val exu = Input(UInt(XLEN.W))
+        val csr = Input(UInt(RF.CSRInfo.CSR_WIDTH.W))
     })
 
     val pc_reg = RegInit(PC_INIT.U(XLEN.W))
@@ -37,6 +38,7 @@ class PC extends Module {
         hit("bltu") -> (Mux(in.rs1 < in.rs2, immpc, pc_next)),
         hit("bge")  -> (Mux(in.rs1.asSInt >= in.rs2.asSInt, immpc, pc_next)),
         hit("bgeu") -> (Mux(in.rs1 >= in.rs2, immpc, pc_next)),
+        hit("ecall")-> in.csr,
     ))
 
     pc_out := pc_reg

@@ -49,6 +49,7 @@ class top extends Module {
     pc.in.rs1   := rf.io.rdData1
     pc.in.rs2   := rf.io.rdData2
     pc.in.exu   := exu.io.out
+    pc.in.csr   := csr.io.rdData
 
     // IFU is simple, so we don't write it in a single module
     // it seems that it is not neccesary to cache the inst to the register
@@ -86,6 +87,7 @@ class top extends Module {
     csr.io.wrAddr := idu.dataOut.csr
     csr.io.rsIn   := rf.io.rdData1
     csr.io.immIn  := idu.dataOut.imm
+    csr.io.pc     := pc.pc_out
     csr.io.csrOps := idu.dpCtrl.csrOp
 
     // ebreak and invalid instruction detection

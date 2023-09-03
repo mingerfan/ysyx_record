@@ -38,7 +38,7 @@ class PC extends Module {
         hit("bltu") -> (Mux(in.rs1 < in.rs2, immpc, pc_next)),
         hit("bge")  -> (Mux(in.rs1.asSInt >= in.rs2.asSInt, immpc, pc_next)),
         hit("bgeu") -> (Mux(in.rs1 >= in.rs2, immpc, pc_next)),
-        hit("ecall")-> in.csr,
+        (hit("ecall")| hit("mret")) -> in.csr,
     ))
 
     pc_out := pc_reg

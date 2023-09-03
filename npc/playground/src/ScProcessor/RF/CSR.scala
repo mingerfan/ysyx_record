@@ -67,15 +67,19 @@ class CSR() extends Module {
         Mux(csrhit(s) & io.wrEn, wrData, d)
     }
 
+    val mret_status = (mstatus(63, 13) ## 0.U(2.W) ## mstatus(10, 8)
+    ## 1.U(1.W) ## mstatus(6, 4) ## mstatus(7) ## mstatus(2, 0))
+
     mepc    := Mux(hit("ecall"), io.pc, write("mepc", mepc))
     mcause  := Mux(hit("ecall"), "hb".U, write("mcause", mcause))
     mtvec   := write("mtvec", mtvec)
-    mstatus := write("mstatus", mstatus)
+    mstatus := Mux(hit("mret"), mret_status, write("mstatus", mstatus))
 
 
     io.rdData := Mux1H(Seq(
         (hit("csrrw") | hit("csrrs"))
              -> csr_data,
         hit("ecall") -> (mtvec & ~("b11".U(CSR_WIDTH.W))),
+        hit("mret")  -> mepc,
     ))
 }

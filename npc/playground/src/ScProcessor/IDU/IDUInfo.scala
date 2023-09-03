@@ -65,6 +65,7 @@ object IDUInsInfo {
         // control insts
         "ebreak" -> new InsStruct("1110011", "000", "0000000"),
         "ecall"  -> new BitPatDec("b000000000000_00000_000_00000_1110011"),
+        "mret"   -> new BitPatDec("b0011000_00010_00000_000_00000_1110011"),
 
         "mul" -> new InsStruct("0110011", "000", "0000001"),
         // "mulh" -> new InsStruct("0110011", "001", "0000001"),
@@ -161,12 +162,13 @@ object IDUInsInfo {
         "blt" -> Array("blt"),
         "bgeu"-> Array("bgeu"),
         "ecall"-> Array("ecall"),
+        "mret"-> Array("mret"),
     )
     val pcOps = MapKeyToArray(pcOpsMap)
 
     val ctrlsMap = immutable.Map(
         "nwrEn" -> Array("beq", "bne", "bge", "bgeu", "blt", "bltu",
-        "sw", "sd", "sh", "sb", "ecall"),
+        "sw", "sd", "sh", "sb", "ecall", "mret"),
         "csrWr" -> Array("csrrw", "csrrs"),
     )
     val ctrls = MapKeyToArray(ctrlsMap)
@@ -202,6 +204,7 @@ object IDUInsInfo {
         "csrrw" -> Array("csrrw"),
         "csrrs" -> Array("csrrs"),
         "ecall" -> Array("ecall"),
+        "mret"  -> Array("mret"),
     )
     val csrOps = MapKeyToArray(csrOpsMap)
 }

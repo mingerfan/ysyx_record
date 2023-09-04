@@ -27,7 +27,7 @@ class ALU extends Module {
     val in1orin2 = io.in1 | io.in2
     val in1mlin2_32 = io.in1(31, 0)*io.in2(31, 0)
     val in1MULin2 = io.in1 * io.in2
-    val in1DIVin2 = (io.in1.asSInt()/io.in2.asSInt()).asUInt()
+    val in1DIVin2 = (io.in1.asSInt/io.in2.asSInt).asUInt
     val in1DIVUin2 = io.in1/io.in2
     val in1DIVWin2 = io.in1(31, 0).asSInt/io.in2(31, 0).asSInt
     val in1DIVUWin2 = io.in1(31, 0)/io.in2(31, 0)

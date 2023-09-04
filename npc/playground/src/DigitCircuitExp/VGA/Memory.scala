@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util._
 import math._
 import chisel3.util.experimental.loadMemoryFromFileInline
-import firrtl.annotations.MemoryLoadFileType
+// import firrtl.annotations.MemoryLoadFileType
 import java.io.File
 
 // rom width 8

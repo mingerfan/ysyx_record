@@ -14,7 +14,7 @@ abstract class REdgeCnt(maxNum: Int) extends Module {
     // re aka rising edge
     val reDet = Wire(Bool())
     reDet := io.reClk & !RegNext(io.reClk) 
-    when (RegNext(reset.asBool())||reset.asBool()) {
+    when (RegNext(reset.asBool)||reset.asBool) {
         reDet := false.B
     }
     val cntReg = RegInit(0.U(w.W))

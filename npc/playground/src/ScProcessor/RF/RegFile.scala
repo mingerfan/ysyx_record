@@ -59,9 +59,9 @@ class RegFile extends Module {
 
     regs.io.rdAddr1 := io.rdAddr1
     regs.io.rdAddr2 := io.rdAddr2
-    regs.io.wrEn := Mux(reset.asBool(), true.B, io.wrEn)
+    regs.io.wrEn := Mux(reset.asBool, true.B, io.wrEn)
     regs.io.wrAddr := io.wrAddr
-    regs.io.wrData := Mux(reset.asBool(), 0.U, io.wrData)
+    regs.io.wrData := Mux(reset.asBool, 0.U, io.wrData)
     io.rdData1 := Mux(io.rdAddr1 === 0.U, 0.U, regs.io.rdData1)
     io.rdData2 := Mux(io.rdAddr2 === 0.U, 0.U, regs.io.rdData2)
 }

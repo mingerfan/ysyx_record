@@ -16,19 +16,14 @@ object playground extends ScalaModule with ScalafmtModule { m =>
     "-P:chiselplugin:genBundleElements"
   )
   override def ivyDeps = Agg(
-    ivy"edu.berkeley.cs::chisel3:3.5.4",
-    ivy"com.sifive::chisel-circt:0.6.0",
+    ivy"org.chipsalliance::chisel:5.0.0",
   )
   override def scalacPluginIvyDeps = Agg(
-    ivy"edu.berkeley.cs:::chisel3-plugin:3.5.4",
+    ivy"org.chipsalliance:::chisel-plugin:5.0.0",
   )
-  object tools extends ScalaModule {
-    def scalaVersion = "2.13.8"
-  }
   object test extends Tests with ScalaTest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
-      ivy"org.scalatest::scalatest:3.1.4",
-      ivy"edu.berkeley.cs::chiseltest:0.5.4",
+      ivy"edu.berkeley.cs::chiseltest:5.0.0"
     )
   }
 }

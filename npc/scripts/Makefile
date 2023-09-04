@@ -15,7 +15,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 CISSRCS = $(shell find $(abspath $(PLAYGROUND_DIR)/src/) -name "*.scala")
 
-VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.v" ! -name "$(TOPNAME).v")
+VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.sv" ! -name "$(TOPNAME).sv")
 VSRCS += $(shell find $(abspath $(PLAYGROUND_DIR)/vsrc/) -name "*.v" -or -name "*.sv" -or -name "*.vlt")
 VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).v
 EX_FILE = $(BUILD_DIR)/$(TOPNAME)_splited/~generated

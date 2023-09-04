@@ -18,6 +18,7 @@ build/
 playground/include/config/
 playground/include/generated/
 playground/src/temp/
+!scripts/
 
 # vscode
 .bloop/

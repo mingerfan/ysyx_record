@@ -2,7 +2,7 @@ NXDC_FILES = $(NPC_HOME)/playground/verilator_test/deps/top.nxdc
 INC_PATH += $(PLAYGROUND_DIR)/include
 
 VBIN = $(OBJ_DIR)/$(TOPNAME)
-VGEN = $(BUILD_DIR)/$(TOPNAME).v
+VGEN = $(BUILD_DIR)/$(TOPNAME).sv
 
 # SRC_AUTO_BIND = $(abspath $(OBJ_DIR)/auto_bind.cpp)
 
@@ -17,7 +17,7 @@ CISSRCS = $(shell find $(abspath $(PLAYGROUND_DIR)/src/) -name "*.scala")
 
 VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.sv" ! -name "$(TOPNAME).sv")
 VSRCS += $(shell find $(abspath $(PLAYGROUND_DIR)/vsrc/) -name "*.v" -or -name "*.sv" -or -name "*.vlt")
-VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).v
+VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).sv
 EX_FILE = $(BUILD_DIR)/$(TOPNAME)_splited/~generated
 CSRCS = $(shell find $(abspath ./playground/verilator_test/csrc/) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(if $(CONFIG_NVBOARD_ON), $(SRC_AUTO_BIND))

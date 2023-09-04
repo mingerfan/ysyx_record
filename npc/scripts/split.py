@@ -9,7 +9,7 @@ start_key='module'
 
 for item in files:
     item_list = item.split(".")
-    if not item_list.endswith("sv"):
+    if item_list[-1] != "sv":
         continue
     item_list.pop(-1)
     pure_name = "".join(item_list)
@@ -28,12 +28,13 @@ for item in files:
     with open(build_path+item) as fp:
         lines = fp.readlines()
         for line in lines:
-            # line = line.strip('\n')#去掉回车    
+            # line = line.strip('\n')#去掉回车
+            module_index = line.find(start_key)    
             if "endmodule" in line:
                 fp_module.writelines(line)
                 flag = 0    
-                fp_module.close()             
-            elif start_key in line:
+                fp_module.close()    
+            elif module_index == 0:
                 str_line = "".join(line)
                 result=pattern.findall(str_line)
                 module_name = "".join(result)

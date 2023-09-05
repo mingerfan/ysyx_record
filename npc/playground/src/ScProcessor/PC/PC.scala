@@ -28,8 +28,7 @@ class PC extends Module {
 
     pc_next := pc_reg + (INS_LEN/8).U
     val immpc = pc_reg + in.imm
-    pc_reg := Mux1H(Seq(
-        hit("Inc")  -> (pc_next),
+    pc_reg := MuxCase(pc_next, Seq(
         hit("Jal")  -> (immpc),
         hit("Jalr") -> ((in.imm + in.rs1) & ~(1.U(XLEN.W))),
         hit("beq")  -> (Mux(in.exu === 0.U, immpc, pc_next)),

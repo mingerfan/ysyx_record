@@ -131,12 +131,6 @@ object IDUInsInfo {
     val exuOps = MapKeyToArray(exuOpsMap)
 
     val rfOpsMap = immutable.Map(
-        "exu" -> Array("addi", "sltiu", "andi", "ori", "xori", 
-        "addiw", "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui",  
-        "auipc", "add", "sub", "slt", "sltu", "and", "or", "xor",
-        "addw", "subw", "sll", "srl", "sllw", "srlw", "sraw",
-        "mul", "div", "divu", "remu", 
-        "mulw", "divw", "divuw", "remw", "remuw"),
         "pcn" -> Array("jal", "jalr"),
         "mem" -> Array("ld", "lw", "lwu", "lh", "lhu", "lbu", "lb"),
         "csr" -> Array("csrrw", "csrrs"),
@@ -145,14 +139,6 @@ object IDUInsInfo {
 
     // todo: delete Inc
     val pcOpsMap = immutable.Map(
-        "Inc" -> Array("addi", "sltiu", "andi", "ori", "xori", "addiw", 
-        "slli", "srli", "srai", "slliw", "srliw", "sraiw", "lui", "auipc", 
-        "add", "sub", "slt", "sltu", "and", "or", "xor",
-        "addw", "subw", "sll", "srl", "sllw", "srlw", "sraw", 
-        "ld", "lw", "lwu", "lh", "lhu", "lb", "lbu",
-        "sw", "sd", "sh", "sb",
-        "mul", "div", "divu", "remu", 
-        "mulw", "divw", "divuw","remw", "remuw", "csrrw", "csrrs"),
         "Jal" -> Array("jal"),
         "Jalr"-> Array("jalr"),
         "beq" -> Array("beq"),

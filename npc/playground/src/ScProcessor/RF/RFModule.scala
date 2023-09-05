@@ -35,8 +35,7 @@ class RFModule extends Module {
     } 
 
     rf_in.io <> io
-    rf_in.io.wrData := Mux1H(Seq(
-        hit("exu")  -> in.exu,
+    rf_in.io.wrData := MuxCase(in.exu, Seq(
         hit("pcn")  -> in.pc_next,
         hit("mem")  -> in.mem,
         hit("csr")  -> in.csr,

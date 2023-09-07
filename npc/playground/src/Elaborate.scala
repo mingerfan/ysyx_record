@@ -1,7 +1,7 @@
-import chisel3._
-import chisel3.util._
+import circt.stage._
 
 object Elaborate extends App {
     def top = new ScProcessor.top
-    emitVerilog(top, Array("--target-dir", "./build"))
+    val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
+    (new ChiselStage).execute(args, generator)
 }

@@ -2,7 +2,7 @@ NXDC_FILES = $(NPC_HOME)/playground/verilator_test/deps/top.nxdc
 INC_PATH += $(PLAYGROUND_DIR)/include
 
 VBIN = $(OBJ_DIR)/$(TOPNAME)
-VGEN = $(BUILD_DIR)/$(TOPNAME).sv
+VGEN = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).sv
 
 # SRC_AUTO_BIND = $(abspath $(OBJ_DIR)/auto_bind.cpp)
 
@@ -18,7 +18,6 @@ CISSRCS = $(shell find $(abspath $(PLAYGROUND_DIR)/src/) -name "*.scala")
 VSRCS = $(shell find $(abspath $(BUILD_DIR)/$(TOPNAME)_splited/) -name "*.sv" ! -name "$(TOPNAME).sv")
 VSRCS += $(shell find $(abspath $(PLAYGROUND_DIR)/vsrc/) -name "*.v" -or -name "*.sv" -or -name "*.vlt")
 VSRC_TOP = $(BUILD_DIR)/$(TOPNAME)_splited/$(TOPNAME).sv
-EX_FILE = $(BUILD_DIR)/$(TOPNAME)_splited/~generated
 CSRCS = $(shell find $(abspath ./playground/verilator_test/csrc/) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(if $(CONFIG_NVBOARD_ON), $(SRC_AUTO_BIND))
 
@@ -36,9 +35,8 @@ default: all
 
 all: $(VBIN)
 
-$(VSRC_TOP): split
 
-VBIN_DP = $(VSRC_TOP) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+VBIN_DP = $(VGEN) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 $(VBIN): $(VBIN_DP) $(NPC_HOME)/.config
 	@rm -rf $(LOGS_DIR) $(OBJ_DIR)
@@ -57,15 +55,10 @@ test:
 # mill playground.tools.run tools.precompiler
 $(VGEN): $(CISSRCS)
 	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
+	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)/$(TOPNAME)_splited/ --split-verilog --target verilog
 	$(call git_commit, "generate verilog")
 
 verilog: $(VGEN)
-
-$(EX_FILE): $(VGEN)
-	python3 $(SCRIPTS_DIR)/split.py
-
-split: $(EX_FILE)	
 
 help:
 	mill -i __.test.runMain Elaborate --help

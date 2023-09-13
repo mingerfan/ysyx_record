@@ -211,7 +211,7 @@ void trace_ftrace_print(uint32_t inst, uint64_t pc)
 
 void trace_etrace_ecall(CPU_state cpu, word_t NO) {
 #ifdef CONFIG_ETRACE
-    printf("ECALL! mepc: 0x%016lx, mtvec: 0x%016lx, NO: %ld\n", cpu.csrs.mepc, cpu.csrs.mtvec, NO);
+    printf("ECALL! mepc: 0x%016lx, mtvec: 0x%016lx, NO: %ld, pc: 0x%08lx\n", cpu.csrs.mepc, cpu.csrs.mtvec, NO, cpu.pc);
 #endif
 }
 

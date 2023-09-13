@@ -1,6 +1,7 @@
 #include <am.h>
 #include <riscv/riscv.h>
 #include <klib.h>
+#include "../../../include/arch/riscv64-nemu.h"
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
@@ -8,8 +9,10 @@ Context* __am_irq_handle(Context *c) {
   // printf("mcause: 0x%lx, mstatus: 0x%lx, mepc: 0x%lx\n", c->mcause, c->mstatus, c->mepc);
   if (user_handler) {
     Event ev = {0};
-    switch (c->gpr[17]) {
+    switch (c->GPR1) {
       case -1: ev.event = EVENT_YIELD; break;
+      case  0:
+      case  1: ev.event = EVENT_SYSCALL; break;
       default: ev.event = EVENT_ERROR; break;
     }
 

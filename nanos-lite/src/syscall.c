@@ -1,9 +1,13 @@
 #include <common.h>
 #include "syscall.h"
-#define ENABLE_STRACE 1
+#define ENABLE_STRACE 0
 #define STRACE() strace(c, __func__);
 #define fn(x) static inline void x##_(Context *c)
 #define call(x) x##_(c)
+#define ARG1 (c->GPR2)
+#define ARG2 (c->GPR3)
+#define ARG3 (c->GPR4)
+#define RET(x) (c->GPRx = x) 
 
 static inline void strace(Context *c, const char *name) {
 #if ENABLE_STRACE
@@ -14,13 +18,31 @@ static inline void strace(Context *c, const char *name) {
 fn(SYS_yield) {
   STRACE();
   yield();
-  c->GPRx = 0;
+  RET(0);
 }
 
 fn(SYS_exit) {
   STRACE();
   halt(0);
   // it seems no necessity to give return value
+}
+
+
+fn(SYS_write) {
+  STRACE();
+  if (ARG1 == 1 || ARG1 == 2) {
+    for (int i = 0; i < ARG3; i++) {
+      putch(*(char*)(ARG2 + i));
+    }
+    RET(ARG3);
+  } else {
+    panic("haven't implement other fd");
+  }
+}
+
+fn(SYS_brk) {
+  STRACE();
+  RET(0);
 }
 
 void do_syscall(Context *c) {
@@ -30,6 +52,8 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_yield: call(SYS_yield); break;
     case SYS_exit : call(SYS_exit); break;
+    case SYS_write: call(SYS_write); break;
+    case SYS_brk  : call(SYS_brk); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 }

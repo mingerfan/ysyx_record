@@ -1,5 +1,6 @@
 #include <common.h>
 #include "syscall.h"
+#include "fs.h"
 #define ENABLE_STRACE 0
 #define STRACE() strace(c, __func__);
 #define fn(x) static inline void x##_(Context *c)
@@ -11,7 +12,7 @@
 
 static inline void strace(Context *c, const char *name) {
 #if ENABLE_STRACE
-  printf("Current syscall is %s\n", name);
+  printf("Current syscall is %s, args: %x, %x, %x\n", name, ARG1, ARG2, ARG3);
 #endif
 }
 
@@ -27,22 +28,34 @@ fn(SYS_exit) {
   // it seems no necessity to give return value
 }
 
-
-fn(SYS_write) {
-  STRACE();
-  if (ARG1 == 1 || ARG1 == 2) {
-    for (int i = 0; i < ARG3; i++) {
-      putch(*(char*)(ARG2 + i));
-    }
-    RET(ARG3);
-  } else {
-    panic("haven't implement other fd");
-  }
-}
-
 fn(SYS_brk) {
   STRACE();
   RET(0);
+}
+
+fn(SYS_open) {
+  STRACE();
+  RET(fs_open((const char*)ARG1, ARG2, ARG3));
+}
+
+fn(SYS_read) {
+  STRACE();
+  RET(fs_read(ARG1, (void*)ARG2, ARG3));
+}
+
+fn(SYS_write) {
+  STRACE();
+  RET(fs_write(ARG1, (const void*)ARG2, ARG3));
+}
+
+fn(SYS_lseek) {
+  STRACE();
+  RET(fs_lseek(ARG1, ARG2, ARG3));
+}
+
+fn(SYS_close) {
+  STRACE();
+  RET(fs_close(ARG1));
 }
 
 void do_syscall(Context *c) {
@@ -52,8 +65,12 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_yield: call(SYS_yield); break;
     case SYS_exit : call(SYS_exit); break;
-    case SYS_write: call(SYS_write); break;
     case SYS_brk  : call(SYS_brk); break;
+    case SYS_open : call(SYS_open); break;
+    case SYS_read : call(SYS_read); break;
+    case SYS_write: call(SYS_write); break;
+    case SYS_lseek: call(SYS_lseek); break;
+    case SYS_close: call(SYS_close); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 }

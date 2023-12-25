@@ -72,6 +72,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   int max_size = file_table[fd].size;
   int cur_off = file_table[fd].open_offset;
   if (whence == SEEK_SET) {
+    printf("offset: %ld\n", offset);
     assert(offset >= 0 && offset < max_size);
     file_table[fd].open_offset = offset;
   } else if (whence == SEEK_CUR) {
@@ -83,7 +84,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   } else {
     return -1;
   }
-  return file_table[fd].open_offset;
+  return file_table[fd].open_offset + 1;
 }
 
 size_t fs_write(int fd, const void *buf, size_t len) {

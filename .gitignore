@@ -13,3 +13,4 @@
 /fceux-am
 /nvboard
 /am-kernels
+!/rustOS/libos/.cargo/*

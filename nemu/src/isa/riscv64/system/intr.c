@@ -24,6 +24,10 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   cpu.csrs.mepc = epc;
   cpu.csrs.mcause = 0xb;
   trace_etrace_ecall(cpu, NO);
+  // reset MPIE
+  cpu.csrs.mstatus &= ~(word_t)(1 << 7);
+  // set MPP = 11b, MPIE = MIE
+  cpu.csrs.mstatus |= (1 << 11 | 1 << 12 | BITS(cpu.csrs.mstatus, 3, 3) << 7);
   return cpu.csrs.mtvec & ~0x3;
 }
 

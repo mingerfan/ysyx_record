@@ -2,6 +2,7 @@
 TARGET := riscv64imac-unknown-none-elf
 MODE := release
 KERNEL_ELF := target/$(TARGET)/$(MODE)/libos
+KERNEL_ELF_ABS := $(realpath $(KERNEL_ELF))
 KERNEL_BIN := $(KERNEL_ELF).bin
 KERNEL_BIN_ABS := $(realpath $(KERNEL_BIN))
 DISASM_TMP := target/$(TARGET)/$(MODE)/asm
@@ -49,4 +50,4 @@ run: build
 	@mkdir -p $(LOG_PATH)
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(KERNEL_BIN_ABS)
 
-.PHONY: log
+.PHONY: kernel build disasm disasm-vim run

@@ -41,15 +41,15 @@ void trace_inst_record(char *log)
 
 void trace_inst_print()
 {
-    log_write("\n------------------- iringbuf trace -------------------\n");
+    log_write_en("\n------------------- iringbuf trace -------------------\n");
     int error_pos = iringbuf_idx - 1 < 0 ? IRINGBUF_SIZE - 1 : iringbuf_idx - 1;
     for (int i = 0; i < first_idx; ++i) {
         if (i == error_pos) {
-            log_write("> ");
+            log_write_en("> ");
         }
-        log_write("%s\n", iringbuf[i]);
+        log_write_en("%s\n", iringbuf[i]);
     }
-    log_write("------------------- iringbuf trace -------------------\n");
+    log_write_en("------------------- iringbuf trace -------------------\n");
 }
 
 void trace_memory_read(paddr_t addr, int len, word_t data)

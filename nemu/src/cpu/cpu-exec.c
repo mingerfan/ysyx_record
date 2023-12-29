@@ -139,8 +139,6 @@ void cpu_exec(uint64_t n) {
     case NEMU_QUIT: statistic();
   }
 #ifdef CONFIG_IRINGBUF
-  if (nemu_state.state == NEMU_END && nemu_state.halt_ret != 0) {
-    trace_inst_print();
-  }
+  trace_inst_print();
 #endif
 }

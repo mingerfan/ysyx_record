@@ -10,6 +10,7 @@
 
 extern char iringbuf[IRINGBUF_SIZE][IRINGBUF_INFO_SIZE];
 
+int trace_inst_curidx();
 void trace_inst_record(char *log);
 void trace_inst_print();
 

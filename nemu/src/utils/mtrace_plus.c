@@ -32,6 +32,7 @@ static char MT_NAME[MT_FLAG_END][5] = {
 void trigger_state(int idx_, uint32_t inst) {
 #ifdef CONFIG_MTRACE
     idx = idx_;
+    MT_LIST[idx].idx = 1;
     MT_LIST[idx].inst = inst;
 #endif
 }
@@ -39,7 +40,6 @@ void trigger_state(int idx_, uint32_t inst) {
 static bool hit_MT() {
 #ifdef CONFIG_MTRACE
     if (enable_mtrace_plus() && idx >= 0 && idx < MT_FLAG_END) {
-        MT_LIST[idx].idx = 1;
         return true;
     }
 #endif
@@ -66,13 +66,15 @@ void get_inst_print(char *s)
 }
 
 static bool filter(paddr_t addr, int len, word_t data) {
-    int rd  = BITS(MT_LIST[idx].inst, 11, 7);
+    bool flag = false;
+    // int rd  = BITS(MT_LIST[idx].inst, 11, 7);
     // int rs1 = BITS(MT_LIST[idx].inst, 19, 15);
     // int rs2 = BITS(MT_LIST[idx].inst, 24, 20);
-    if (rd == 10) {
-        return true;
+    if ((addr > 0x80000000 && addr <= 0x800008a0)) {
+        flag = true;
     }
-    return false;
+    
+    return flag;
 }
 
 void mtrace_plus(paddr_t addr, int len, word_t data)

@@ -5,7 +5,7 @@
 #include <klib_tool.h>
 #include <xprintf.h>
 
-void _putchar(char c) {
+void putchar_(char c) {
   putch((uint8_t)c);
 }
 

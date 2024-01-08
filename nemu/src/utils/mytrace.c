@@ -6,7 +6,6 @@
 #include <macro.h>
 #include "../isa/riscv64/local-include/reg.h"
 #include <stdio.h>
-#include <mtrace_plus.h>
 
 char iringbuf[IRINGBUF_SIZE][IRINGBUF_INFO_SIZE] = {};
 static int iringbuf_idx = 0;
@@ -31,10 +30,6 @@ static FILE *ftrace_fp = NULL;
   | BITS(i, 7, 7) << 11 \
   | BITS(i, 30, 25) << 5 | BITS(i, 11, 8) << 1; } while(0)
 
-int trace_inst_curidx() 
-{
-    return iringbuf_idx;
-}
 
 void trace_inst_record(char *log)
 {
@@ -61,11 +56,7 @@ void trace_memory_read(paddr_t addr, int len, word_t data)
 {
 #ifdef CONFIG_MTRACE
     if (addr >= CONFIG_MTRACE_START && addr < CONFIG_MTRACE_END) {
-        if (!enable_mtrace_plus()) {
-            printf("MTrace--Read--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
-        } else {
-            mtrace_plus(addr, len, data);
-        }
+        printf("MTrace--Read--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
     }
 #endif
 }
@@ -74,11 +65,7 @@ void trace_memory_write(paddr_t addr, int len, word_t data)
 {
 #ifdef CONFIG_MTRACE
     if (addr >= CONFIG_MTRACE_START && addr < CONFIG_MTRACE_END) {
-        if (!enable_mtrace_plus()) {
-            printf("MTrace--Write--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
-        } else {
-            mtrace_plus(addr, len, data);
-        }
+        printf("MTrace--Write--at 0x%x--len: %d--data: 0x%016lx\n", addr, len, data);
     }
 #endif
 }

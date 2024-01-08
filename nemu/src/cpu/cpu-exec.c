@@ -19,7 +19,6 @@
 #include <locale.h>
 #include "../monitor/sdb/sdb.h"
 #include <mytrace.h>
-#include <mtrace_plus.h>
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -82,10 +81,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 #ifdef CONFIG_IRINGBUF
   trace_inst_record(s->logbuf);
-#endif
-
-#ifdef CONFIG_MTRACE
-  get_inst_print(s->logbuf);
 #endif
 }
 

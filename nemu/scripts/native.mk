@@ -47,4 +47,13 @@ $(clean-tools):
 clean-tools: $(clean-tools)
 clean-all: clean distclean clean-tools
 
-.PHONY: run gdb run-env clean-tools clean-all $(clean-tools)
+AM_TEST_PATH = $(AM_HOME)/../am-kernels/tests
+
+rtest: 
+	@$(MAKE) -C $(AM_TEST_PATH)/cpu-tests/ ARCH=riscv64-nemu run
+	@$(MAKE) -C $(AM_TEST_PATH)/klib-tests/ ARCH=riscv64-nemu run
+	@timeout 6 $(MAKE) -C $(AM_TEST_PATH)/am-tests/ ARCH=riscv64-nemu mainargs=v run || echo "\n*******video test timed out*******\n"
+	@timeout 8 $(MAKE) -C $(AM_TEST_PATH)/am-tests/ ARCH=riscv64-nemu mainargs=i run || echo "\n*******intrp test timed out*******\n"
+	@timeout 6 $(MAKE) -C $(AM_TEST_PATH)/am-tests/ ARCH=riscv64-nemu mainargs=t run || echo "\n*******rtc   test timed out*******\n"
+
+.PHONY: run gdb run-env clean-tools clean-all $(clean-tools) rtest

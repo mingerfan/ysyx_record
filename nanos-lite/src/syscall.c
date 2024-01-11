@@ -51,7 +51,6 @@ fn(SYS_write) {
 fn(SYS_lseek) {
   STRACE();
   long unsigned int val;
-  printf("arg2: %ld\n", ARG2);
   val = fs_lseek(ARG1, ARG2, ARG3);
   printf("offset val: %ld\n", val);
   RET(val);

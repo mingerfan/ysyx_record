@@ -59,7 +59,7 @@ int fs_open(const char *pathname, int flags, int mode) {
 size_t fs_read(int fd, void *buf, size_t len) {
   int disk_off = file_table[fd].disk_offset;
   if (fd < 3 || fd >= ARRAY_SIZE(file_table)) return -1;
-  if (len + file_table[fd].open_offset > file_table[fd].size) {
+  if (len + file_table[fd].open_offset >= file_table[fd].size) {
     len = file_table[fd].size - file_table[fd].open_offset;
   }
   if (len > 0) ramdisk_read(buf, disk_off + file_table[fd].open_offset, len);
@@ -72,19 +72,18 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   int max_size = file_table[fd].size;
   int cur_off = file_table[fd].open_offset;
   if (whence == SEEK_SET) {
-    printf("offset: %ld\n", offset);
     assert(offset >= 0 && offset < max_size);
     file_table[fd].open_offset = offset;
   } else if (whence == SEEK_CUR) {
-    assert((offset + cur_off) >= 0 && (offset + cur_off) < max_size);
+    assert((offset + cur_off) >= 0 && (offset + cur_off) <= max_size);
     file_table[fd].open_offset = offset + cur_off;
   } else if (whence == SEEK_END) {
-    assert((offset + max_size - 1) < max_size && (offset + max_size - 1) >= 0);
-    file_table[fd].open_offset = max_size - 1 + offset;
+    assert((offset + max_size - 1) <= max_size && (offset + max_size - 1) >= 0);
+    file_table[fd].open_offset = max_size + offset;
   } else {
     return -1;
   }
-  return file_table[fd].open_offset + 1;
+  return file_table[fd].open_offset;
 }
 
 size_t fs_write(int fd, const void *buf, size_t len) {
@@ -97,10 +96,9 @@ size_t fs_write(int fd, const void *buf, size_t len) {
     }
     return len;
   }
-  if (len + file_table[fd].open_offset > file_table[fd].size) {
-    len = file_table[fd].size - file_table[fd].open_offset;
-  }
-  if (len > 0) ramdisk_write(buf, disk_off + file_table[fd].open_offset, len);
+  assert(len + file_table[fd].open_offset <= file_table[fd].size);
+  ramdisk_write(buf, disk_off + file_table[fd].open_offset, len);
+  file_table[fd].open_offset += len;
   return len;
 }
 

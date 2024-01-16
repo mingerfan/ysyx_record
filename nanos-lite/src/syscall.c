@@ -1,4 +1,5 @@
 #include <common.h>
+#include <sys/time.h>
 #include "syscall.h"
 #include "fs.h"
 #define ENABLE_STRACE 0
@@ -61,6 +62,12 @@ fn(SYS_close) {
   RET(fs_close(ARG1));
 }
 
+fn(SYS_gettimeofday) {
+  int gettimeofday_(struct timeval *tv);
+  assert((void*)ARG2 == NULL);
+  RET(gettimeofday_((void*)ARG1));
+}
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -74,6 +81,7 @@ void do_syscall(Context *c) {
     case SYS_write: call(SYS_write); break;
     case SYS_lseek: call(SYS_lseek); break;
     case SYS_close: call(SYS_close); break;
+    case SYS_gettimeofday: call(SYS_gettimeofday); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 }

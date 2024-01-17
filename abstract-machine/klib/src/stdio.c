@@ -40,7 +40,11 @@ int sprintf(char *out, const char *fmt, ...) {
 } 
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  panic("Not implemented");
+  va_list args;
+  va_start(args, fmt);
+  const int ret = vsnprintf_(out, n, fmt, args);
+  va_end(args);
+  return ret;
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {

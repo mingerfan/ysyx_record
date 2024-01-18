@@ -31,29 +31,11 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
   return 0;
 }
 
-size_t vfs_stdout(const void *buf, size_t offset, size_t len)
-{
-  const char *c = buf;
-  for (int i = 0; i < len; i++) {
-    putch(*(c+i));
-  }
-  return len;
-}
-
-size_t vfs_stderr(const void *buf, size_t offset, size_t len)
-{
-  const char *c = buf;
-  for (int i = 0; i < len; i++) {
-    putch(*(c+i));
-  }
-  return len;
-}
-
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, vfs_stdout},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, vfs_stderr},
+  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
+  [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
   {"/dev/events", 0, 0, events_read, invalid_write},
 #include "files.h"
 };

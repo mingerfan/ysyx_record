@@ -89,7 +89,7 @@ int NDL_Init(uint32_t flags) {
   assert(newline);
   assert(sscanf(buf, "WIDTH:%d", &screen_w) == 1);
   assert(sscanf(newline + 1, "HEIGHT:%d", &screen_h) == 1);
-  printf("width: %d, height: %d\n", screen_w, screen_h);
+  printf("SCREEN WIDTH: %d, SCREEN HEIGHT: %d\n", screen_w, screen_h);
   close(dispinfo);
 
   return 0;

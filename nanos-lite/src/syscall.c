@@ -53,7 +53,7 @@ fn(SYS_lseek) {
   STRACE();
   long unsigned int val;
   val = fs_lseek(ARG1, ARG2, ARG3);
-  printf("offset val: %ld\n", val);
+  // printf("offset val: %ld\n", val);
   RET(val);
 }
 

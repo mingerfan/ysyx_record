@@ -1,6 +1,7 @@
 #include <fs.h>
 #include <string.h>
 #include <device.h>
+#include <common.h>
 
 #define ARRAY_SIZE(arr)		(sizeof(arr) / sizeof((arr)[0]))
 
@@ -37,12 +38,10 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
   [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
   {"/dev/events", 0, 0, events_read, invalid_write},
+  {"/dev/fb", 0, 0, invalid_read, fb_write},
+  {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
 #include "files.h"
 };
-
-void init_fs() {
-  // TODO: initialize the size of /dev/fb
-}
 
 static int find_file(const char *pathname) {
   for (int i = 0; i < ARRAY_SIZE(file_table); i++) {
@@ -52,6 +51,23 @@ static int find_file(const char *pathname) {
   }
   panic("Should not reach here");
 }
+
+void init_fs() {
+  // TODO: initialize the size of /dev/fb
+  int idx = find_file("/dev/fb");
+  AM_GPU_CONFIG_T am_gpu_cfg;
+  am_gpu_cfg = io_read(AM_GPU_CONFIG);
+  int width = am_gpu_cfg.width;
+  int height = am_gpu_cfg.height;
+  file_table[idx].size = width * height * 4;
+
+  // uint32_t buf[400 * 20];
+  // for (int i = 0; i < 400*20; i++) {
+  //   buf[i] = 0xff00ff;
+  // }
+  // fb_write(buf, 329999, 400*20*4);
+}
+
 
 int fs_open(const char *pathname, int flags, int mode) {
   int i = find_file(pathname);
@@ -63,8 +79,8 @@ size_t fs_read(int fd, void *buf, size_t len) {
   int disk_off = file_table[fd].disk_offset;
   if (fd < 0 || fd >= ARRAY_SIZE(file_table)) return -1;
   if (file_table[fd].read != NULL) {
-    // not use offset now
-    return file_table[fd].read(buf, 0, len);
+    // copy file offset to offset param
+    return file_table[fd].read(buf, file_table[fd].open_offset, len);
   }
   if (len + file_table[fd].open_offset >= file_table[fd].size) {
     len = file_table[fd].size - file_table[fd].open_offset;
@@ -102,8 +118,8 @@ size_t fs_write(int fd, const void *buf, size_t len) {
     file_table[fd].open_offset += len;
     return len;
   }
-  // not use offset now
-  return file_table[fd].write(buf, 0, len);
+  // copy file offset to offset param
+  return file_table[fd].write(buf, file_table[fd].open_offset, len);
 }
 
 int fs_close(int fd) {

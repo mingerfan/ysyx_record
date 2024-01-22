@@ -1,6 +1,7 @@
 #include <device.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #if defined(MULTIPROGRAM) && !defined(TIME_SHARING)
 # define MULTIPROGRAM_YIELD() yield()
@@ -35,11 +36,44 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_CONFIG_T am_gpu_cfg;
+  am_gpu_cfg = io_read(AM_GPU_CONFIG);
+  int width = am_gpu_cfg.width;
+  int height = am_gpu_cfg.height;
+  return snprintf(buf, len, "WIDTH:%d\nHEIGHT:%d\n", width, height);
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_CONFIG_T am_gpu_cfg;
+  am_gpu_cfg = io_read(AM_GPU_CONFIG);
+  int width = am_gpu_cfg.width;
+  int height = am_gpu_cfg.height;
+
+  size_t pixoff = offset >> 2;
+  size_t pixlen = len >> 2;
+  assert(pixoff < width * height);
+
+  int x = pixoff % width;
+  int y = pixoff / width;
+  assert(y * width + x < width * height);
+
+  // AM_GPU_FBDRAW_T gpu_fb;
+  // printf("GPU OFF: %ld, GPU_LEN: %ld, x: %d, y:%d\n", pixoff, pixlen, x, y);
+  for (int i = 0; i < pixlen; i++) {
+    // gpu_fb.x = x++;
+    // gpu_fb.y = y;
+    // gpu_fb.w = 1;
+    // gpu_fb.h = 1;
+    // gpu_fb.pixels = (*uint32_t)(uintptr_t)buf;
+    // gpu_fb.sync = true;
+    uint32_t *pixels = (uint32_t*)(uintptr_t)buf;
+    io_write(AM_GPU_FBDRAW, x++, y, pixels + i, 1, 1, true);
+    if (x >= width) {
+      x = 0;
+      y++;
+    }
+  }
+  return len;
 }
 
 int gettimeofday_(struct timeval *tv) {

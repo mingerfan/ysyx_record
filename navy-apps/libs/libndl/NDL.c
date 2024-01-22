@@ -10,6 +10,7 @@
 static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
+static int canvas_w = 0, canvas_h = 0;
 
 uint32_t NDL_GetTicks() {
   struct timeval tv;
@@ -40,9 +41,27 @@ void NDL_OpenCanvas(int *w, int *h) {
     }
     close(fbctl);
   }
+  if (*w > screen_w) *w = screen_w;
+  if (*h > screen_h) *h = screen_h;
+  canvas_w = *w;
+  canvas_h = *h;
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
+  assert( x + w <= canvas_w );
+  assert( y + h <= canvas_h );
+  int canvasx_0 = (screen_w - canvas_w) / 2;
+  int canvasy_0 = (screen_h - canvas_h) / 2;
+  x = canvasx_0 + x;
+  y = canvasy_0 + y;
+  int fb = open("/dev/fb", O_WRONLY);
+  for (int i = canvasy_0; i < canvasy_0 + h; i++) {
+    // write(fb, pixels, w);
+    lseek(fb, (i * screen_w + canvasx_0) * 4, SEEK_SET);
+    write(fb, pixels, w * 4);
+    pixels += w;
+  }
+  close(fb);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -63,6 +82,16 @@ int NDL_Init(uint32_t flags) {
   if (getenv("NWM_APP")) {
     evtdev = 3;
   }
+  int dispinfo = open("/proc/dispinfo", O_RDONLY);
+  char buf[30];
+  read(dispinfo, buf, 30);
+  char *newline = strchr(buf, '\n');
+  assert(newline);
+  assert(sscanf(buf, "WIDTH:%d", &screen_w) == 1);
+  assert(sscanf(newline + 1, "HEIGHT:%d", &screen_h) == 1);
+  printf("width: %d, height: %d\n", screen_w, screen_h);
+  close(dispinfo);
+
   return 0;
 }
 

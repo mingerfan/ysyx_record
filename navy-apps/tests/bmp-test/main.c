@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <NDL.h>
 #include <BMP.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 int main() {
   NDL_Init(0);

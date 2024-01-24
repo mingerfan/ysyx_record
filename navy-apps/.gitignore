@@ -6,6 +6,9 @@
 !.gitignore
 !*.[cSh]
 !*.cpp
+!*.rs
+!*.toml
+!*Cargo.lock
 !scripts/*.mk
 build/
 repo/

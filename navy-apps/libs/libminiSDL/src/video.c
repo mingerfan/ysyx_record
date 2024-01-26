@@ -16,7 +16,22 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  assert(0);
+  assert(s->format->BitsPerPixel == 32);
+  assert(s->format->Rmask == DEFAULT_RMASK);
+  assert(s->format->Gmask == DEFAULT_GMASK);
+  assert(s->format->Bmask == DEFAULT_BMASK);
+  uint32_t *p = (uint32_t*)s->pixels;
+  p = p + y * s->w + x;
+  SDL_LockSurface(s);
+  if (x == 0 && y == 0 && w == 0 && h == 0) {
+    NDL_DrawRect((uint32_t*)s->pixels, 0, 0, s->w, s->h);
+    return;
+  }
+  for (int i = 0; i < h; i++) {
+    NDL_DrawRect(p, x, y + i, w, 1);
+    p += s->w;
+  }
+  SDL_UnlockSurface(s);
 }
 
 // APIs below are already implemented.
@@ -197,10 +212,8 @@ uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint
 }
 
 int SDL_LockSurface(SDL_Surface *s) {
-  assert(0);
   return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *s) {
-  assert(0);
 }

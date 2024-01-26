@@ -31,7 +31,7 @@ void NDL_OpenCanvas(int *w, int *h) {
     char buf[64];
     int len = sprintf(buf, "%d %d", screen_w, screen_h);
     // let NWM resize the window and create the frame buffer
-    write(fbctl, buf, len);
+    assert(write(fbctl, buf, len) != -1);
     while (1) {
       // 3 = evtdev
       int nread = read(3, buf, sizeof(buf) - 1);
@@ -58,7 +58,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   for (int i = canvasy_0; i < canvasy_0 + h; i++) {
     // write(fb, pixels, w);
     lseek(fb, (i * screen_w + canvasx_0) * 4, SEEK_SET);
-    write(fb, pixels, w * 4);
+    assert(write(fb, pixels, w * 4) != -1);
     pixels += w;
   }
   close(fb);
@@ -84,7 +84,7 @@ int NDL_Init(uint32_t flags) {
   }
   int dispinfo = open("/proc/dispinfo", O_RDONLY);
   char buf[30];
-  read(dispinfo, buf, 30);
+  assert(read(dispinfo, buf, 30) != -1);
   char *newline = strchr(buf, '\n');
   assert(newline);
   assert(sscanf(buf, "WIDTH:%d", &screen_w) == 1);

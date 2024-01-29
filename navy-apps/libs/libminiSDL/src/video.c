@@ -3,16 +3,88 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
-  assert(0);
+  assert(dst->format->BitsPerPixel == 32);
+  assert((src != NULL) && (dst != NULL));
+  uint16_t w, h;
+  int16_t source_x, source_y, dst_x, dst_y;
+
+  if (srcrect == NULL) {
+    w = src->w;
+    h = src->h;
+    source_x = 0;
+    source_y = 0;
+  } else {
+    w = srcrect->w;
+    h = srcrect->h;
+    source_x = srcrect->x;
+    source_y = srcrect->y;
+  }
+  if (dstrect == NULL) {
+    dst_x = 0;
+    dst_y = 0;
+  } else {
+    dst_x = dstrect->x;
+    dst_y = dstrect->y;
+    dstrect->w = w;
+    dstrect->h = h;
+  }
+
+  if ((source_x + w > src->w)|| (source_y + h > src->h)) {
+    printf("Warning: Out of buffer, Blit failed!\t");
+    printf("src_w = %d, src_h = %d, dst_w = %d, dst_h = %d, \
+    w = %d, h = %d, source_x = %d, source_y = %d, dst_x = %d, dst_y = %d\n", \
+    src->w, src->h, dst->w, dst->h,\
+    w, h, source_x, source_y, dst_x, dst_y);
+    return;
+  }
+
+  uint32_t *dp = (uint32_t*)dst->pixels + dst_y * dst->w + dst_x;
+  uint32_t *sp = (uint32_t*)src->pixels + source_x * src->w + source_y;
+  // printf("src_w = %d, src_h = %d, dst_w = %d, dst_h = %d, \
+  // w = %d, h = %d, source_x = %d, source_y = %d, dst_x = %d, dst_y = %d\n", \
+  // src->w, src->h, dst->w, dst->h,\
+  // w, h, source_x, source_y, dst_x, dst_y);
+
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < h; j++) {
+      *(dp + j * dst->w + i) = *(sp + j * src->w + i);
+    }
+  }
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  assert(0);
+  // didn't support clip
+  assert(dst->format->BitsPerPixel == 32);
+  assert(dst != NULL);
+  uint32_t *p = (uint32_t*)dst->pixels;
+  int s_w = dst->w, s_h = dst->h;
+  int16_t x, y;
+  uint16_t w, h;
+
+  assert((x + w <= s_w) && (y + h <= s_h));
+  if (dstrect == NULL) {
+    x = 0;
+    y = 0;
+    w = s_w;
+    h = s_h;
+  } else {
+    x = dstrect->x;
+    y = dstrect->y;
+    w = dstrect->w;
+    h = dstrect->h;
+  }
+  p += y * s_w + x;
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < h; j++) {
+      *(p + j * s_w + i) = color;
+    }
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {

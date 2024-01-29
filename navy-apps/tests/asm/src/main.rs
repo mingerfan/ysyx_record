@@ -4,7 +4,7 @@ use std::process::Command;
 
 fn main() {
     // 用你想遍历的文件夹路径替换
-    let path = "../";
+    let path = "../../apps";
 
     if let Ok(entries) = fs::read_dir(path) {
         for entry in entries {

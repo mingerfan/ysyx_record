@@ -2,6 +2,9 @@
 #include <sdl-timer.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdint.h>
+
+uint32_t sdl_boot_time;
 
 SDL_TimerID SDL_AddTimer(uint32_t interval, SDL_NewTimerCallback callback, void *param) {
   assert(0);
@@ -14,8 +17,7 @@ int SDL_RemoveTimer(SDL_TimerID id) {
 }
 
 uint32_t SDL_GetTicks() {
-  assert(0);
-  return 0;
+  return NDL_GetTicks() - sdl_boot_time;
 }
 
 void SDL_Delay(uint32_t ms) {

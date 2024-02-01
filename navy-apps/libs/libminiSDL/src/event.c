@@ -12,6 +12,8 @@ static const char *keyname[] = {
   _KEYS(keyname)
 };
 
+uint8_t key_state[SDLK_PAGEDOWN] = {};
+
 int SDL_PushEvent(SDL_Event *ev) {
   assert(0);
   return 0;
@@ -33,9 +35,11 @@ int SDL_PollEvent(SDL_Event *ev) {
     if (strcmp(k_status, "kd") == 0) {
       ev->key.type = SDL_KEYDOWN;
       ev->key.keysym.sym = key_cmp(key);
+      key_state[ev->key.keysym.sym] = 1;
     } else if (strcmp(k_status, "ku") == 0) {
       ev->key.type = SDL_KEYUP;
       ev->key.keysym.sym = key_cmp(key);
+      key_state[ev->key.keysym.sym] = 0;
     }
     return 1;
   }
@@ -52,9 +56,11 @@ int SDL_WaitEvent(SDL_Event *event) {
       if (strcmp(k_status, "kd") == 0) {
         event->key.type = SDL_KEYDOWN;
         event->key.keysym.sym = key_cmp(key);
+        key_state[event->key.keysym.sym] = 1;
       } else if (strcmp(k_status, "ku") == 0) {
         event->key.type = SDL_KEYUP;
         event->key.keysym.sym = key_cmp(key);
+        key_state[event->key.keysym.sym] = 0;
       }
       return 1;
     } else if (res < 0) {
@@ -69,6 +75,8 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 }
 
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  assert(0);
-  return NULL;
+  if (numkeys != NULL) {
+    *numkeys = SDLK_PAGEDOWN;
+  }
+  return key_state;
 }

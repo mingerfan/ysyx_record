@@ -44,6 +44,7 @@ static Finfo file_table[] __attribute__((used)) = {
 };
 
 static int find_file(const char *pathname) {
+  // printf("File: %s\n", pathname);
   for (int i = 0; i < ARRAY_SIZE(file_table); i++) {
     if (strcmp(pathname, file_table[i].name) == 0) {
       return i;

@@ -4,12 +4,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+  // printf("Call blit surface\n");
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
-  assert(dst->format->BitsPerPixel == 32);
+  // assert(dst->format->BitsPerPixel == 32);
   assert((src != NULL) && (dst != NULL));
   uint16_t w, h;
   int16_t source_x, source_y, dst_x, dst_y;
@@ -44,23 +46,39 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     return;
   }
 
-  uint32_t *dp = (uint32_t*)dst->pixels + dst_y * dst->w + dst_x;
-  uint32_t *sp = (uint32_t*)src->pixels + source_x * src->w + source_y;
-  // printf("src_w = %d, src_h = %d, dst_w = %d, dst_h = %d, \
-  // w = %d, h = %d, source_x = %d, source_y = %d, dst_x = %d, dst_y = %d\n", \
-  // src->w, src->h, dst->w, dst->h,\
-  // w, h, source_x, source_y, dst_x, dst_y);
+  // 这里我们不打算支持寻找最接近颜色的行为，而是直接复制pixels
+  if (dst->format->BitsPerPixel == 32) {
+    uint32_t *dp = (uint32_t*)dst->pixels + dst_y * dst->w + dst_x;
+    uint32_t *sp = (uint32_t*)src->pixels + source_y * src->w + source_x;
+    // printf("src_w = %d, src_h = %d, dst_w = %d, dst_h = %d, \
+    // w = %d, h = %d, source_x = %d, source_y = %d, dst_x = %d, dst_y = %d\n", \
+    // src->w, src->h, dst->w, dst->h,\
+    // w, h, source_x, source_y, dst_x, dst_y);
 
-  for (int i = 0; i < w; i++) {
+    
+      for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+        *(dp + j * dst->w + i) = *(sp + j * src->w + i);
+        }
+      }
+  } else if (dst->format->BitsPerPixel == 8) {
+    uint8_t *dp_8 = (uint8_t*)dst->pixels + dst_y * dst->w + dst_x;
+    uint8_t *sp_8 = (uint8_t*)src->pixels + source_y * src->w + source_x;
+
     for (int j = 0; j < h; j++) {
-      *(dp + j * dst->w + i) = *(sp + j * src->w + i);
+      for (int i = 0; i < w; i++) {
+        *(dp_8 + j * dst->w + i) = *(sp_8 + j * src->w + i);
+      }
     }
+  } else {
+    printf("Error: unsupport color format: %d!", dst->format->BitsPerPixel);
+    assert(0);
   }
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   // didn't support clip
-  assert(dst->format->BitsPerPixel == 32);
+  // assert(dst->format->BitsPerPixel == 32);
   assert(dst != NULL);
   uint32_t *p = (uint32_t*)dst->pixels;
   int s_w = dst->w, s_h = dst->h;
@@ -88,20 +106,42 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  assert(s->format->BitsPerPixel == 32);
-  assert(s->format->Rmask == DEFAULT_RMASK);
-  assert(s->format->Gmask == DEFAULT_GMASK);
-  assert(s->format->Bmask == DEFAULT_BMASK);
   uint32_t *p = (uint32_t*)s->pixels;
   p = p + y * s->w + x;
   SDL_LockSurface(s);
-  if (x == 0 && y == 0 && w == 0 && h == 0) {
-    NDL_DrawRect((uint32_t*)s->pixels, 0, 0, s->w, s->h);
-    return;
-  }
-  for (int i = 0; i < h; i++) {
-    NDL_DrawRect(p, x, y + i, w, 1);
-    p += s->w;
+  if (s->format->BitsPerPixel == 32) {
+    if (x == 0 && y == 0 && w == 0 && h == 0) {
+      NDL_DrawRect((uint32_t*)s->pixels, 0, 0, s->w, s->h);
+      return;
+    }
+    for (int i = 0; i < h; i++) {
+      NDL_DrawRect(p, x, y + i, w, 1);
+      p += s->w;
+    }
+  } else if (s->format->BitsPerPixel == 8) {
+    assert(s->format->palette != NULL);
+    if (x == 0 && y == 0 && w == 0 && h == 0) {
+      w = s->w;
+      h = s->h;
+    }
+    uint8_t *pixels = ((uint8_t*)s->pixels) + y * s->w + x;
+    SDL_Color color_struct;
+    uint32_t pixel_color;
+    uint8_t index;
+    uint32_t *pixels_32 = malloc(sizeof(uint32_t)*w);
+    for (int j = 0; j < h; j++) {
+      for (int i = 0; i < w; i++) {
+        index = *(pixels + j * s->w + i);
+        color_struct = s->format->palette->colors[index];
+        pixels_32[i] = color_struct.r << 16 | color_struct.g << 8\
+        | color_struct.b;
+      }
+      NDL_DrawRect(pixels_32, x, y + j, w, 1);
+    }
+    free(pixels_32);
+  } else {
+    printf("Error: unsupport color format: %d!", s->format->BitsPerPixel);
+    assert(0);
   }
   SDL_UnlockSurface(s);
 }

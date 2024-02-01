@@ -59,9 +59,9 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   x = canvasx_0 + x;
   y = canvasy_0 + y;
   int fb = open("/dev/fb", O_WRONLY);
-  for (int i = canvasy_0; i < canvasy_0 + h; i++) {
+  for (int i = y; i < y + h; i++) {
     // write(fb, pixels, w);
-    lseek(fb, (i * screen_w + canvasx_0) * 4, SEEK_SET);
+    lseek(fb, (i * screen_w + x) * 4, SEEK_SET);
     assert(write(fb, pixels, w * 4) != -1);
     pixels += w;
   }

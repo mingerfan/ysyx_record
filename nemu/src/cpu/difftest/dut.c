@@ -26,6 +26,8 @@ void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
+bool difftest_detach = false;
+
 #ifdef CONFIG_DIFFTEST
 
 static bool is_skip_ref = false;
@@ -34,15 +36,17 @@ static int skip_dut_nr_inst = 0;
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
 void difftest_skip_ref() {
-  is_skip_ref = true;
-  // If such an instruction is one of the instruction packing in QEMU
-  // (see below), we end the process of catching up with QEMU's pc to
-  // keep the consistent behavior in our best.
-  // Note that this is still not perfect: if the packed instructions
-  // already write some memory, and the incoming instruction in NEMU
-  // will load that memory, we will encounter false negative. But such
-  // situation is infrequent.
-  skip_dut_nr_inst = 0;
+  if (difftest_detach == false) {
+    is_skip_ref = true;
+    // If such an instruction is one of the instruction packing in QEMU
+    // (see below), we end the process of catching up with QEMU's pc to
+    // keep the consistent behavior in our best.
+    // Note that this is still not perfect: if the packed instructions
+    // already write some memory, and the incoming instruction in NEMU
+    // will load that memory, we will encounter false negative. But such
+    // situation is infrequent.
+    skip_dut_nr_inst = 0;
+  }
 }
 
 // this is used to deal with instruction packing in QEMU.
@@ -52,10 +56,12 @@ void difftest_skip_ref() {
 //   Let REF run `nr_ref` instructions first.
 //   We expect that DUT will catch up with REF within `nr_dut` instructions.
 void difftest_skip_dut(int nr_ref, int nr_dut) {
-  skip_dut_nr_inst += nr_dut;
+  if (difftest_detach == false) {
+    skip_dut_nr_inst += nr_dut;
 
-  while (nr_ref -- > 0) {
-    ref_difftest_exec(1);
+    while (nr_ref -- > 0) {
+      ref_difftest_exec(1);
+    }
   }
 }
 
@@ -91,6 +97,11 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
+void difftest_state_scyn() {
+  ref_difftest_memcpy(PMEM_LEFT, guest_to_host(PMEM_LEFT), PMEM_RIGHT - PMEM_LEFT + 1, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+}
+
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
     nemu_state.state = NEMU_ABORT;
@@ -100,32 +111,34 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 }
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
-  CPU_state ref_r;
+  if (difftest_detach == false) {
+    CPU_state ref_r;
 
-  if (skip_dut_nr_inst > 0) {
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    if (ref_r.pc == npc) {
-      skip_dut_nr_inst = 0;
-      checkregs(&ref_r, npc);
+    if (skip_dut_nr_inst > 0) {
+      ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+      if (ref_r.pc == npc) {
+        skip_dut_nr_inst = 0;
+        checkregs(&ref_r, npc);
+        return;
+      }
+      skip_dut_nr_inst --;
+      if (skip_dut_nr_inst == 0)
+        panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
       return;
     }
-    skip_dut_nr_inst --;
-    if (skip_dut_nr_inst == 0)
-      panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
-    return;
+
+    if (is_skip_ref) {
+      // to skip the checking of an instruction, just copy the reg state to reference design
+      ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+      is_skip_ref = false;
+      return;
+    }
+
+    ref_difftest_exec(1);
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+
+    checkregs(&ref_r, pc);
   }
-
-  if (is_skip_ref) {
-    // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = false;
-    return;
-  }
-
-  ref_difftest_exec(1);
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-
-  checkregs(&ref_r, pc);
 }
 #else
 void init_difftest(char *ref_so_file, long img_size, int port) { }

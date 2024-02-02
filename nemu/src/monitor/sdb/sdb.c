@@ -24,6 +24,7 @@
 
 static int is_batch_mode = false;
 extern NEMUState nemu_state;
+extern bool difftest_detach;
 
 void init_regex();
 void init_wp_pool();
@@ -75,6 +76,8 @@ static int cmd_mt(char *args);
 static int cmd_mtt(char *args);
 static int cmd_d(char *args);
 static int cmd_w(char *args);
+static int cmd_detach(char *args);
+static int cmd_attach(char *args);
 
 static struct
 {
@@ -91,7 +94,9 @@ static struct
     {"mt", "Match try", cmd_mt},
     {"mtt", "Match try test", cmd_mtt},
     {"d", "Delete watchpoint", cmd_d},
-    {"w", "Add watchpoint", cmd_w}
+    {"w", "Add watchpoint", cmd_w},
+    {"detach", "Detach difftest", cmd_detach},
+    {"attach", "Attach difftest", cmd_attach},
     /* TODO: Add more commands */
 
 };
@@ -254,9 +259,22 @@ static int cmd_w(char *args)
   return 0;
 }
 
+static int cmd_detach(char *args) {
+  difftest_detach = true;
+  printf("Set detach to: %d\n", difftest_detach);
+  return 0;
+}
+
+static int cmd_attach(char *args) {
+  void difftest_state_scyn();
+  difftest_detach = false;
+  difftest_state_scyn();
+  return 0;
+}
+
 void sdb_set_batch_mode()
 {
-  is_batch_mode = true;
+  // is_batch_mode = true;
 }
 
 void sdb_mainloop()

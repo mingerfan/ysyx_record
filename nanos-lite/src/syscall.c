@@ -2,6 +2,8 @@
 #include <sys/time.h>
 #include "syscall.h"
 #include "fs.h"
+#include <proc.h>
+#include <stdio.h>
 #define ENABLE_STRACE 0
 #define STRACE() strace(c, __func__);
 #define fn(x) static inline void x##_(Context *c)
@@ -25,7 +27,8 @@ fn(SYS_yield) {
 
 fn(SYS_exit) {
   STRACE();
-  halt(0);
+  void naive_uload(PCB *pcb, const char *filename);
+  naive_uload(NULL, "bin/menu");
   // it seems no necessity to give return value
 }
 
@@ -68,6 +71,12 @@ fn(SYS_gettimeofday) {
   RET(gettimeofday_((void*)ARG1));
 }
 
+fn(SYS_execve) {
+  void naive_uload(PCB *pcb, const char *filename);
+  naive_uload(NULL, (const char *)ARG1);
+  RET(-1);
+}
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -82,6 +91,7 @@ void do_syscall(Context *c) {
     case SYS_lseek: call(SYS_lseek); break;
     case SYS_close: call(SYS_close); break;
     case SYS_gettimeofday: call(SYS_gettimeofday); break;
-    default: panic("Unhandled syscall ID = %d", a[0]);
+    case SYS_execve: call(SYS_execve); break;
+    default: panic("Unhandled syscall ID = %lu", a[0]);
   }
 }

@@ -78,6 +78,8 @@ static int cmd_d(char *args);
 static int cmd_w(char *args);
 static int cmd_detach(char *args);
 static int cmd_attach(char *args);
+static int cmd_save(char *args);
+static int cmd_load(char *args);
 
 static struct
 {
@@ -97,6 +99,8 @@ static struct
     {"w", "Add watchpoint", cmd_w},
     {"detach", "Detach difftest", cmd_detach},
     {"attach", "Attach difftest", cmd_attach},
+    {"save", "Save snapshot", cmd_save},
+    {"load", "Load snapshot", cmd_load},
     /* TODO: Add more commands */
 
 };
@@ -260,21 +264,49 @@ static int cmd_w(char *args)
 }
 
 static int cmd_detach(char *args) {
+#ifdef CONFIG_DIFFTEST
   difftest_detach = true;
   printf("Set detach to: %d\n", difftest_detach);
+#endif
   return 0;
 }
 
 static int cmd_attach(char *args) {
+#ifdef CONFIG_DIFFTEST
   void difftest_state_scyn();
   difftest_detach = false;
   difftest_state_scyn();
+#endif
+  return 0;
+}
+
+static int cmd_save(char *args) {
+  void save_snapshot(const char *path);
+  char *arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("Can not parse args in command save\n");
+    return 0;
+  }
+  printf("Save path: %s\n", arg);
+  save_snapshot(arg);
+  return 0;
+}
+
+static int cmd_load(char *args) {
+  void load_snapshot(const char *path);
+  char *arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("Can not parse args in command load");
+    return 0;
+  }
+  printf("Load path: %s\n", arg);
+  load_snapshot(args);
   return 0;
 }
 
 void sdb_set_batch_mode()
 {
-  // is_batch_mode = true;
+  is_batch_mode = true;
 }
 
 void sdb_mainloop()

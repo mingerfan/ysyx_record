@@ -5,9 +5,23 @@ import chisel3.util._
 import scala.math._
 
 object bitUtils {
+    def ZeroExt(x: UInt, len: Int) = {
+        val xlen = x.getWidth
+        require(xlen < len)
+        Cat(0.U((len - xlen).W), x)
+    }
+
+    def SignExt(x: UInt, len: Int) = {
+        val xlen = x.getWidth
+        val sign_bit = x(xlen - 1)
+        require(xlen < len)
+        Cat(Fill(len - xlen, sign_bit), x)
+    }
+
     // extend a UInt to 64bits
     def U_SEXT64(x: UInt, len: Int) = {
-        Fill(64-len, x(len-1)) ## (x(len-1, 0))
+        require(len >= 0);
+        SignExt(x(len - 1, 0), 64)
     }
 
     // set bits to zero, which between low and high bit are reserved
@@ -23,7 +37,7 @@ object bitUtils {
     def GenMask(high: Int, low: Int) = {
         require(low >= 0);
         require(low < high);
-        (VecInit(List.fill(high+1)(true.B)).asUInt >> low  << low).asUInt
+        (Fill(high + 1, 1.U(1.W)) >> low  << low).asUInt
     }
 
     def GenMask(pos: Int) = {

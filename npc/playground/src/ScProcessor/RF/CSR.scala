@@ -6,6 +6,7 @@ import rfInfo._
 import topInfo._
 import CSRInfo._
 import utils.tools._
+import utils.bitUtils._
 
 
 object CSRInfo {
@@ -20,6 +21,35 @@ object CSRInfo {
     val CSR_ADDR_WIDTH = 12 // inst(31, 20)
     val OPS_NUM = IDU.IDUInsInfo.csrOps.length
     val DBG_CSR_W = if (NPC_SIM) CSR_NUM*CSR_WIDTH else 0
+}
+
+class mstatusBundle extends Bundle{
+    val sd      = UInt(1.W)
+    val pad5    = UInt(25.W)
+    val mbe     = UInt(1.W)
+    val sbe     = UInt(1.W)
+    val sxl     = UInt(2.W)
+    val uxl     = UInt(2.W)
+    val pad4    = UInt(9.W)
+    val tsr     = UInt(1.W)
+    val tw      = UInt(1.W)
+    val tvm     = UInt(1.W)
+    val mxr     = UInt(1.W)
+    val sum     = UInt(1.W)
+    val mprv    = UInt(1.W)
+    val xs      = UInt(2.W)
+    val fs      = UInt(2.W)
+    val mpp     = UInt(2.W)
+    val pad3    = UInt(2.W)
+    val spp     = UInt(1.W)
+    val mpie    = UInt(1.W)
+    val ube     = UInt(1.W)
+    val spie    = UInt(1.W)
+    val pad2    = UInt(1.W)
+    val mie     = UInt(1.W)
+    val pad1    = UInt(1.W)
+    val sie     = UInt(1.W)
+    val pad0    = UInt(1.W)
 }
 
 class CSR() extends Module {

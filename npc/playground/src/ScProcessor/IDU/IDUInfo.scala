@@ -6,9 +6,8 @@ import scala.collection.immutable
 import scala.collection.mutable
 import IDUInfo._
 import IDUInsInfo._
-import tools._
+import utils.tools._
 import basic._
-import myutil._
 import immGet._
 
 object IDUInsInfo {

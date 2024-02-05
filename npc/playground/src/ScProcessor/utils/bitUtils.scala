@@ -1,18 +1,13 @@
 package ScProcessor
+package utils
 import chisel3._
 import chisel3.util._
 import scala.math._
 
-object tools {
+object bitUtils {
     // extend a UInt to 64bits
     def U_SEXT64(x: UInt, len: Int) = {
         Fill(64-len, x(len-1)) ## (x(len-1, 0))
-    }
-
-    // to get the particular bit of x, hinted by the index of str in array y
-    def U_HIT_CURRYING(x: UInt, y: Array[String])(str: String) = {
-        // println(s"$str:" + y.indexOf(str))
-        x(y.indexOf(str))
     }
 
     // set bits to zero, which between low and high bit are reserved
@@ -29,5 +24,4 @@ object tools {
     def BITS(x: BigInt, high: Int, low: Int) = {
         MASK(MASK(x, high, low)>>low, high-low, 0)
     }
-
 }

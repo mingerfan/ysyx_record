@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import topInfo._
 import PCInfo._
-import tools._
+import utils.tools._
 
 object PCInfo {
     val OPS_NUM = IDU.IDUInsInfo.pcOps.length

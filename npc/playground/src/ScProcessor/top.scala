@@ -4,7 +4,7 @@ import chisel3.util._
 import topInfo._
 import scala.math._
 import chisel3.dontTouch
-import tools._
+import utils.tools._
 
 object topInfo {
     val INSTRUCTION = "riscv64"

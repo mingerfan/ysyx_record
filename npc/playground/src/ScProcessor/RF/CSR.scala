@@ -5,7 +5,7 @@ import chisel3.util._
 import rfInfo._
 import topInfo._
 import CSRInfo._
-import tools._
+import utils.tools._
 
 
 object CSRInfo {

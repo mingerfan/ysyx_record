@@ -2,7 +2,7 @@ package ScProcessor
 package IDU
 import chisel3._
 import chisel3.util._
-import tools._
+import utils.tools._
 
 object immGet {
     def immDecI(inst: UInt) = {

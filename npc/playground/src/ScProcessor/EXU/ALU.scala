@@ -3,7 +3,8 @@ package EXU
 import chisel3._
 import chisel3.util._
 import ALUInfo._
-import tools._
+import utils.tools._
+import utils.bitUtils._
 
 object ALUInfo {
     val OPS_NUM = IDU.IDUInsInfo.aluOps.length

@@ -3,7 +3,7 @@ package RF
 import chisel3._
 import chisel3.util._
 import topInfo._
-import tools._
+import utils.tools._
 import rfInfo._
 import RFMInfo._
 import topInfo._

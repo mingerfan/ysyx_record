@@ -13,17 +13,16 @@ object playground extends ScalaModule with ScalafmtModule { m =>
     "-deprecation",
     "-feature",
     "-Xcheckinit",
-    "-P:chiselplugin:genBundleElements"
   )
   override def ivyDeps = Agg(
-    ivy"org.chipsalliance::chisel:5.0.0",
+    ivy"org.chipsalliance::chisel:6.0.0",
   )
   override def scalacPluginIvyDeps = Agg(
-    ivy"org.chipsalliance:::chisel-plugin:5.0.0",
+    ivy"org.chipsalliance:::chisel-plugin:6.0.0",
   )
   object test extends Tests with ScalaTest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
-      ivy"edu.berkeley.cs::chiseltest:5.0.0"
+      ivy"org.scalatest::scalatest::3.2.16",
     )
   }
 }

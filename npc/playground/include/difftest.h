@@ -15,6 +15,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void difftest_check(vaddr_t pc);
 void difftest_step_nocheck(vaddr_t pc, vaddr_t npc);
+void difftest_state_sync(CPU_state *cpu);
 
 #else
 
@@ -22,7 +23,8 @@ static inline void init_difftest(char *ref_so_file, long img_size, int port, CPU
 static inline void difftest_skip_ref() {}
 static inline void difftest_step(vaddr_t pc, vaddr_t npc) {}
 static inline bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) { return true; }
-static inline void difftest_check(vaddr_t pc);
-static inline void difftest_step_nocheck(vaddr_t pc, vaddr_t npc);
+static inline void difftest_check(vaddr_t pc) {}
+static inline void difftest_step_nocheck(vaddr_t pc, vaddr_t npc) {}
+static inline void difftest_state_sync(CPU_state *cpu) {}
 
 #endif

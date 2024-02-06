@@ -79,6 +79,8 @@ static int cmd_mtt(char *args);
 static int cmd_m(char *args);
 static int cmd_d(char *args);
 static int cmd_w(char *args);
+static int cmd_detach(char *args);
+static int cmd_attach(char *args);
 
 static struct
 {
@@ -95,7 +97,9 @@ static struct
     {"mt", "Match try", cmd_mt},
     {"m", "memory get", cmd_m},
     {"d", "Delete watchpoint", cmd_d},
-    {"w", "Add watchpoint", cmd_w}
+    {"w", "Add watchpoint", cmd_w},
+    {"detach", "Detach difftest", cmd_detach},
+    {"attach", "Attach difftest", cmd_attach},
     /* TODO: Add more commands */
 
 };
@@ -225,6 +229,24 @@ static int cmd_w(char *args)
     p = new_wp();
     bind_exprs_wp(p, arg);
   }
+  return 0;
+}
+
+static int cmd_detach(char *args)
+{
+  extern bool detach_difftest;
+  detach_difftest = true;
+  return 0;
+}
+
+static int cmd_attach(char *args)
+{
+  extern bool detach_difftest;
+  void difftest_state_sync(CPU_state *cpu);
+  CPU_state dut;
+  detach_difftest = false;
+  rr_wrap(&dut);
+  difftest_state_sync(&dut);
   return 0;
 }
 

@@ -11,6 +11,7 @@ void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
+bool detach_difftest = false;
 
 #ifdef CONFIG_DIFFTEST
 
@@ -41,6 +42,14 @@ void init_difftest(char *ref_so_file, long img_size, int port, CPU_state *cpu)
     G_DEBUG_I("DIFFTEST INIT COMPLETED");
 }
 
+void difftest_state_sync(CPU_state *cpu)
+{
+  ref_difftest_memcpy(CONFIG_NPC_PC, guest_to_host(CONFIG_NPC_PC), CONFIG_NPC_MSIZE, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(cpu, DIFFTEST_TO_REF);
+}
+
+// 在添加流水线以后，difftest的pc获取可能是一个问题，就得好好考虑一下怎么获取pc了
+// 而且流水线不是一定每个时钟周期都更新pc，这也是一个问题
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc)
 {
     for (int i = 0; i < 32; i++) {
@@ -75,6 +84,15 @@ static void checkregs(CPU_state *ref, vaddr_t pc)
   }
 }
 
+void difftest_check(vaddr_t pc)
+{
+  CPU_state ref_r;
+  if (!detach_difftest) {
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    checkregs(&ref_r, pc);
+  }
+}
+
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
 void difftest_skip_ref() 
@@ -92,34 +110,67 @@ void difftest_skip_ref()
 
 void difftest_step(vaddr_t pc, vaddr_t npc) 
 {
-  CPU_state ref_r;
+  if (!detach_difftest) {
+    CPU_state ref_r;
 
-  if (skip_dut_nr_inst > 0) {
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    if (ref_r.pc == npc) {
-      skip_dut_nr_inst = 0;
-      checkregs(&ref_r, npc);
+    if (skip_dut_nr_inst > 0) {
+      ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+      if (ref_r.pc == npc) {
+        skip_dut_nr_inst = 0;
+        checkregs(&ref_r, npc);
+        return;
+      }
+      skip_dut_nr_inst --;
+      if (skip_dut_nr_inst == 0)
+        panic("can not catch up with ref.pc = " "0x%016lx" " at pc = " "0x%016lx", ref_r.pc, pc);
       return;
     }
-    skip_dut_nr_inst --;
-    if (skip_dut_nr_inst == 0)
-      panic("can not catch up with ref.pc = " "0x%016lx" " at pc = " "0x%016lx", ref_r.pc, pc);
-    return;
+
+    if (is_skip_ref) {
+      // to skip the checking of an instruction, just copy the reg state to reference design
+      CPU_state cpu;
+      rr_wrap(&cpu);
+      ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+      is_skip_ref = false;
+      return;
+    }
+
+    ref_difftest_exec(1);
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+
+    checkregs(&ref_r, npc);
   }
+}
 
-  if (is_skip_ref) {
-    // to skip the checking of an instruction, just copy the reg state to reference design
-    CPU_state cpu;
-    rr_wrap(&cpu);
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = false;
-    return;
+void difftest_step_nocheck(vaddr_t pc, vaddr_t npc) 
+{
+  if (!detach_difftest) {
+    CPU_state ref_r;
+
+    if (skip_dut_nr_inst > 0) {
+      ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+      if (ref_r.pc == pc) {
+        skip_dut_nr_inst = 0;
+        checkregs(&ref_r, pc);
+        return;
+      }
+      skip_dut_nr_inst --;
+      if (skip_dut_nr_inst == 0)
+        panic("can not catch up with ref.pc = " "0x%016lx" " at pc = " "0x%016lx", ref_r.pc, pc);
+      return;
+    }
+
+    if (is_skip_ref) {
+      // to skip the checking of an instruction, just copy the reg state to reference design
+      CPU_state cpu;
+      rr_wrap(&cpu);
+      ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+      is_skip_ref = false;
+      return;
+    }
+
+    ref_difftest_exec(1);
   }
-
-  ref_difftest_exec(1);
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-
-  checkregs(&ref_r, npc);
 }
 
 #endif

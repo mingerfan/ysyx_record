@@ -93,13 +93,16 @@ void cpu_exec(uint64_t n)
     default: npc_state.state = NPC_RUNNING;
   }
   extern bool use_ftrace;
+  uint64_t exec_last_pc = dut.io_pc;
   for (;n > 0; n--) {
     itrace_recorde();
-    if (use_ftrace) trace_ftrace_print((uint32_t)paddr_read(dut.io_pc, 4), dut.io_pc);
-    npc_eval();
     extern bool use_difftest;
+    if (use_ftrace) trace_ftrace_print((uint32_t)paddr_read(dut.io_pc, 4), dut.io_pc);
+    if (use_difftest) difftest_check(exec_last_pc); // 这里用last是为了方便debug，实际上状态确实是在当前pc不匹配的
+    exec_last_pc = dut.io_pc;
+    npc_eval();
     if (use_difftest) {
-      difftest_step(0, dut.io_pc);
+      difftest_step_nocheck(dut.io_pc, 0);
     }
     if (npc_state.state != NPC_RUNNING) {
       trace_inst_print(0);

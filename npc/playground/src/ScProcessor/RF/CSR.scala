@@ -40,7 +40,7 @@ trait HasCSRConst {
 
 
 // mret riscv privileged P21
-class MstatusBundle extends Bundle with csrRwMask with HasCSRConst {
+class MstatusBundle extends Bundle with HasCSRConst {
     // Bundle似乎不能包含0.U之类的UInt实例化的内容
     val sd      = UInt(1.W)
     val pad5    = UInt(25.W)
@@ -144,7 +144,7 @@ class CSR() extends Module with HasCSRConst {
     mcause  := Mux(hit("ecall"), "hb".U, write("mcause", mcause))
     mtvec   := write("mtvec", mtvec)
     when(hit("mret")) {
-        mstatus_new.mpp     := MODE_U   // 因为没有实现U-mode，所以man P127的某些内容不适用，参考P21(然而这样过不了difftest)
+        mstatus_new.mpp     := MODE_U   // 因为没有实现U-mode，所以man P127的某些内容不适用，参考P21(然而这样过不了difftest，所以不用mode_m)
         mstatus_new.mie     := mstatus_old.mpie
         mstatus_new.mpie    := 1.U
         mstatus             := mstatus_new.asUInt

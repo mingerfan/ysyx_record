@@ -1,0 +1,4 @@
+
+[submodule "submodule/rustlib"]
+	path = submodule/rustlib
+	url = git@github.com:mingerfan/ftrace-dev.git

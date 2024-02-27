@@ -14,6 +14,16 @@ INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 OBJ_DIR  = $(BUILD_DIR)/obj-$(NAME)$(SO)
 BINARY   = $(BUILD_DIR)/$(NAME)$(SO)
 
+# add rustlib support
+RUST_CODE_PATH = $(NEMU_HOME)/../submodule/rustlib
+INC_PATH += $(RUST_CODE_PATH)/c_include
+RUST_LIB = $(RUST_CODE_PATH)/target/debug/libc_rustlib.a
+
+
+$(RUST_LIB): 
+	@cd $(RUST_CODE_PATH) && cargo build
+
+
 # Compilation flags
 ifeq ($(CC),clang)
 CXX := clang++
@@ -43,6 +53,7 @@ $(OBJ_DIR)/%.o: %.cc
 # Depencies
 -include $(OBJS:.o=.d)
 
+OBJS += $(RUST_LIB)
 # Some convenient rules
 
 .PHONY: app clean

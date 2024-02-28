@@ -164,7 +164,7 @@ int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
   extern bool use_ftrace;
   if (use_ftrace) {
-    trace_ftrace_print(s->isa.inst.val, s->pc);
+    trace_ftrace_trace(s->isa.inst.val, s->pc);
   }
   return decode_exec(s);
 }

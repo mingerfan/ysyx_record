@@ -141,4 +141,6 @@ void cpu_exec(uint64_t n) {
 #ifdef CONFIG_IRINGBUF
   trace_inst_print();
 #endif
+
+  trace_ftrace_print();
 }

@@ -17,6 +17,7 @@
 #include <memory/paddr.h>
 #include <mytrace.h>
 
+int ftrace_arg_state = 0;
 bool use_ftrace = false;
 
 void init_rand();
@@ -86,7 +87,19 @@ static int parse_args(int argc, char *argv[]) {
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 'f': trace_ftrace_init(optarg); use_ftrace = true; break;
+      case 'f': {
+        if (ftrace_arg_state == 0) {
+          printf("start ftrace\n");
+          trace_ftrace_start(optarg);
+          printf("end start ftrace\n");
+          use_ftrace = true;
+          ftrace_arg_state++;
+        } else {
+          trace_ftrace_add(optarg);
+          ftrace_arg_state++;
+        }
+        break;
+      }
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -131,6 +144,11 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize the simple debugger. */
   init_sdb();
+
+  /* Initialize the ftrace */
+  if (use_ftrace) {
+    trace_ftrace_init();
+  }
 
   IFDEF(CONFIG_ITRACE, init_disasm(
     MUXDEF(CONFIG_ISA_x86,     "i686",

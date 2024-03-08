@@ -17,7 +17,7 @@ BINARY   = $(BUILD_DIR)/$(NAME)$(SO)
 # add rustlib support
 RUST_CODE_PATH = $(NEMU_HOME)/../submodule/rustlib
 INC_PATH += $(RUST_CODE_PATH)/c_include
-RUST_LIB = $(RUST_CODE_PATH)/target/debug/libc_rustlib.a
+RUST_LIB = $(RUST_CODE_PATH)/target/release/libc_rustlib.a
 
 
 $(RUST_LIB): 

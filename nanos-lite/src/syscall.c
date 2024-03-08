@@ -28,7 +28,7 @@ fn(SYS_yield) {
 fn(SYS_exit) {
   STRACE();
   void naive_uload(PCB *pcb, const char *filename);
-  naive_uload(NULL, "bin/menu");
+  naive_uload(NULL, "/bin/menu");
   // it seems no necessity to give return value
 }
 

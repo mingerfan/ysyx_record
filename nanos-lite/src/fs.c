@@ -50,6 +50,7 @@ static int find_file(const char *pathname) {
       return i;
     }
   }
+  printf("Find path: %s failed\n", pathname);
   panic("Should not reach here");
 }
 

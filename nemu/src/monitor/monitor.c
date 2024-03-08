@@ -89,9 +89,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'd': diff_so_file = optarg; break;
       case 'f': {
         if (ftrace_arg_state == 0) {
-          printf("start ftrace\n");
           trace_ftrace_start(optarg);
-          printf("end start ftrace\n");
           use_ftrace = true;
           ftrace_arg_state++;
         } else {

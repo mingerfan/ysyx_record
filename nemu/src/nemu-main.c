@@ -15,7 +15,7 @@
 
 #include <common.h>
 #include <mytrace.h>
-#include <readelf.h>
+
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
   /* Start engine. */
   engine_start();
 
-  extern bool use_ftrace;
-  if (use_ftrace) {
-    trace_ftrace_deinit();
-  }
+#ifdef CONFIG_IRINGBUF
+  trace_inst_print();
+#endif
+  trace_ftrace_print();
 
   return is_exit_status_bad();
 }

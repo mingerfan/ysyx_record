@@ -138,9 +138,5 @@ void cpu_exec(uint64_t n) {
       // fall through
     case NEMU_QUIT: statistic();
   }
-#ifdef CONFIG_IRINGBUF
-  trace_inst_print();
-#endif
 
-  trace_ftrace_print();
 }

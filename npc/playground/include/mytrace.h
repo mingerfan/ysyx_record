@@ -24,15 +24,11 @@ static inline void itrace_recorde() {}
 static inline void itrace_deinit() {}
 #endif
 
-#ifdef CONFIG_FTRACE
-void trace_ftrace_init(char *log_path, char *elf_file);
+void trace_ftrace_start(char *file);
+void trace_ftrace_add(char *file);
+void trace_ftrace_init();
 void trace_ftrace_deinit();
-void trace_ftrace_print(uint32_t inst, uint64_t pc);
-#else
-
-static inline void trace_ftrace_init(char *log_path, char *elf_file) {}
-static inline void trace_ftrace_deinit() {}
-static inline void trace_ftrace_print(uint32_t inst, uint64_t pc) {}
-#endif
+void trace_ftrace_trace(uint32_t inst, uint64_t pc);
+void trace_ftrace_print();
 
 #endif

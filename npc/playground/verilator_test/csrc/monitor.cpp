@@ -16,6 +16,7 @@ static char *elf_path = NULL;
 static char *nemu_so_path= NULL;
 bool use_ftrace = false;
 bool use_difftest = false;
+int ftrace_arg_state = 0;
 
 static int parse_args(int argc, char *argv[])
 {
@@ -31,7 +32,18 @@ static int parse_args(int argc, char *argv[])
         switch (o) {
             case 'b': sdb_set_batch_mode(); break;
             case 'l': log_path = optarg; break;
-            case 'f': elf_path = optarg; use_ftrace = true; break;
+            case 'f': {
+                printf("Turn on use ftrace: %s\n", optarg);
+                if (ftrace_arg_state == 0) {
+                trace_ftrace_start(optarg);
+                use_ftrace = true;
+                ftrace_arg_state++;
+                } else {
+                trace_ftrace_add(optarg);
+                ftrace_arg_state++;
+                }
+                break;
+            }
             case 'd': nemu_so_path = optarg; use_difftest= true; break;
             case 1: bin_path = optarg; return 0;
             default: 
@@ -52,7 +64,7 @@ void monitor_init(int argc, char *argv[])
     itrace_init(log_path);
     
     if (use_ftrace) {
-        trace_ftrace_init(log_path, elf_path);
+        trace_ftrace_init();
     }
 
     if (use_difftest) {

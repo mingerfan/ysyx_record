@@ -23,6 +23,19 @@ CSRCS += $(if $(CONFIG_NVBOARD_ON), $(SRC_AUTO_BIND))
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+# add rustlib support
+RUST_CODE_PATH = $(NEMU_HOME)/../submodule/rustlib
+INC_PATH += $(RUST_CODE_PATH)/c_include
+RUST_LIB_PATH = $(RUST_CODE_PATH)/target/release
+RUST_LIB = $(RUST_LIB_PATH)/libc_rustlib.a
+RUST_LIB_BARE = c_rustlib
+
+LDFLAGS += -L$(RUST_LIB_PATH) -l$(RUST_LIB_BARE)
+
+$(RUST_LIB): 
+	@cd $(RUST_CODE_PATH) && cargo build
+
+
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) 
 LDFLAGS +=  -lSDL2 -lSDL2_image

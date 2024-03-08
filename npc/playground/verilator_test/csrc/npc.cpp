@@ -97,7 +97,7 @@ void cpu_exec(uint64_t n)
   for (;n > 0; n--) {
     itrace_recorde();
     extern bool use_difftest;
-    if (use_ftrace) trace_ftrace_print((uint32_t)paddr_read(dut.io_pc, 4), dut.io_pc);
+    if (use_ftrace) trace_ftrace_trace((uint32_t)paddr_read(exec_last_pc, 4), exec_last_pc);
     if (use_difftest) difftest_check(exec_last_pc); // 这里用last是为了方便debug，实际上状态确实是在当前pc不匹配的
     exec_last_pc = dut.io_pc;
     npc_eval();
@@ -131,6 +131,10 @@ int main(int argc, char *argv[]) {
   init(argc, argv);
   sdb_mainloop();
   de_init();
+  extern bool use_ftrace;
+  if (use_ftrace) {
+    trace_ftrace_print();
+  }
   return state_check_return();
 }
 

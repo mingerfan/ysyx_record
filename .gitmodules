@@ -2,3 +2,6 @@
 [submodule "submodule/rustlib"]
 	path = submodule/rustlib
 	url = git@github.com:mingerfan/ftrace-dev.git
+[submodule "submodule/rtthread"]
+	path = submodule/rtthread
+	url = git@github.com:NJU-ProjectN/rt-thread-am.git

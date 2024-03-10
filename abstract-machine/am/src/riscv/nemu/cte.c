@@ -39,6 +39,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *ctx = kstack.end;
   ctx = ctx - 1;
   ctx->mepc = (uintptr_t)entry - 4;
+  ctx->gpr[10] = (uintptr_t)arg;
   return ctx;
 }
 

@@ -31,6 +31,7 @@
         (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__))); \
       IFNDEF(CONFIG_TARGET_AM, extern FILE* log_fp; fflush(log_fp)); \
       IFDEF(CONFIG_IRINGBUF, void trace_inst_print(); trace_inst_print()); \
+      void trace_ftrace_print(); trace_ftrace_print(); \
       extern void assert_fail_msg(); \
       assert_fail_msg(); \
       assert(cond); \

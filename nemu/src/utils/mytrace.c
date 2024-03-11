@@ -207,6 +207,7 @@ void trace_ftrace_print()
 {
 #ifdef CONFIG_FTRACE
     if (use_ftrace && log_file != NULL) {
+        printf("Ftrace log at: %s\n", log_file);
         print_stack(log_file);
     }
 #endif

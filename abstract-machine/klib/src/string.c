@@ -101,7 +101,10 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
-  assert((out!=NULL)&&(in!=NULL));
+  // assert((out!=NULL)&&(in!=NULL));
+  if (in == NULL) {
+    return out;
+  }
   if (n == 0) {
     return NULL;
   }

@@ -20,6 +20,16 @@ typedef struct {
 // Arch-dependent processor context
 typedef struct Context Context;
 
+struct rt_func
+{
+  /* data */
+  void *tentry;
+  void *param;
+  void *texit;
+  void *free;
+};
+
+
 // An event of type @event, caused by @cause of pointer @ref
 typedef struct {
   enum {

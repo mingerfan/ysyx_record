@@ -13,6 +13,7 @@ object topInfo {
     val INS_LEN = 32
     val PC_INIT = BigInt("80000000", 16)
     val NPC_SIM = true
+    val ARCH = "single"
 }
 
 class top extends Module {

@@ -56,6 +56,23 @@ class BitPatDec(s: String) extends IsBitPat {
     }
 }
 
+class IDUWrapperBundleOut extends Bundle {
+    val aluOp = Output(UInt(EXU.ALUInfo.OPS_NUM.W)) // one-hot encoding
+    val exuOp = Output(UInt(EXU.EXUInfo.OPS_NUM.W)) // one-hot encoding
+    val ctrls_out = Output(UInt(ctrls.length.W))    // one-hot encoding
+    val pcOp = Output(UInt(PC.PCInfo.OPS_NUM.W))    // one-hot encoding
+    val rfOp = Output(UInt(RF.RFMInfo.OPS_NUM.W))   // one-hot encoding
+    val memOp = Output(UInt(MEMWR.MEMWRInfo.OPS_NUM.W)) // one-hot encoding
+    val csrOp = Output(UInt(RF.CSRInfo.OPS_NUM.W))  // one-hot encoding
+    val dataIdxOut = Output(new DecOutIO())
+    val mem_wr = Output(Bool())
+    val ebreak = Output(Bool())
+    val inv_inst = Output(Bool())
+}
+
+// class IDUWrapper extends Module {
+//     val 
+// }
 
 class IDU extends Module {
     val inst = IO(Input(UInt(topInfo.INS_LEN.W)))

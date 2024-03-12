@@ -86,6 +86,10 @@ class RegRecord extends Module {
     val finalDec = Module(new FinalDec)
 
     ctrlDec.io.In := dataReg(15,0)
+    ctrlDec.io.enter := false.B;
+    ctrlDec.io.shift := false.B;
+    ctrlDec.io.backspace := false.B;
+    ctrlDec.io.space := false.B;
     ctrlDec1.io.In := ctrlReg
     charDec.io.In := charReg
 

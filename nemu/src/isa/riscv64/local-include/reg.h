@@ -40,4 +40,9 @@ word_t* csr_next();
 
 #define CSRS_ITER(csr) for (word_t *csr = csr_start(); csr != NULL; csr = csr_next())
 
+#define CSR_MEPC          0x341
+#define CSR_MCAUSE        0x342
+#define CSR_MTVEC         0x305
+#define CSR_MSTATUS       0x300
+
 #endif

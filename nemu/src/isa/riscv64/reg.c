@@ -46,18 +46,14 @@ word_t* get_csr(const char *s) {
 }
 
 word_t* get_csr_bynum(uint64_t csr_addr) {
-  #define match(csr_name, x) (csr_addr == x)
-  if (match(mepc, 0x341)) {
-    return &cpu.csrs.mepc;
-  } else if (match(mcause, 0x342)) {
-    return &cpu.csrs.mcause;
-  } else if (match(mtvec, 0x305)) {
-    return &cpu.csrs.mtvec;
-  } else if (match(mstatus, 0x300)) {
-    return &cpu.csrs.mstatus;
+  switch (csr_addr)
+  {
+    case CSR_MEPC:          return &cpu.csrs.mepc;
+    case CSR_MCAUSE:        return &cpu.csrs.mcause;
+    case CSR_MTVEC:         return &cpu.csrs.mtvec;
+    case CSR_MSTATUS:       return &cpu.csrs.mstatus;
+    default: panic("This csr is not implemented! addr: 0x%lx", csr_addr);
   }
-  #undef match
-  panic("This csr is not implemented! addr: 0x%lx", csr_addr);
   return NULL;
 }
 

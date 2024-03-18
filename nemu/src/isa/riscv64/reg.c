@@ -57,6 +57,17 @@ word_t* get_csr_bynum(uint64_t csr_addr) {
   return NULL;
 }
 
+CsrFunc csr_handle_bynum(uint64_t csr_addr) {
+  switch (csr_addr)
+  {
+    case CSR_MEPC:          
+    case CSR_MCAUSE:        
+    case CSR_MTVEC:         return new_bynum(csr_addr);
+    case CSR_MSTATUS:       return new_mstatus();
+    default: panic("This csr is not implemented! addr: 0x%lx", csr_addr);
+  }
+}
+
 word_t* csr_start() {
   csr_index = 0;
   return get_csr(csrs[0]);

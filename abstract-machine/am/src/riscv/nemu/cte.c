@@ -39,6 +39,8 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *ctx = kstack.end;
   ctx = ctx - 1;
   ctx->mepc = (uintptr_t)entry - 4;
+  // 这里需要给其赋予一个合法的值
+  ctx->mstatus = 0xa00001800;
   return ctx;
 }
 

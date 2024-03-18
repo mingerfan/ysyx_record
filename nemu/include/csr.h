@@ -14,4 +14,8 @@ typedef struct CsrFunc
     word_t *csr;
 } CsrFunc;
 
-
+word_t default_read(CsrFunc *self);
+void default_write(CsrFunc *self, word_t data);
+CsrFunc new(const char *s);
+CsrFunc new_bynum(uint64_t csr_addr);
+CsrFunc new_mstatus();

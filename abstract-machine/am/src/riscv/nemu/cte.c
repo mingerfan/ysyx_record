@@ -55,6 +55,8 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   ctx = ctx - 1;
   ctx->mepc = (uintptr_t)wraper;
   ctx->gpr[10] = (uintptr_t)func_struct;
+  // 这里需要给其赋予一个合法的值
+  ctx->mstatus = 0xa00001800;
   return ctx;
 }
 

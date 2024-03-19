@@ -29,6 +29,7 @@ class top extends Module {
     val exu = Module(new EXU.EXU)
     val rf = Module(new RF.RFModule)    
     val pc = Module(new PC.PC)
+    val ifu = Module(new IFU.IFU)
     val mem_wr = Module(new MEMWR.MEMWR)
     val csr = Module(new RF.CSR)
 
@@ -51,6 +52,10 @@ class top extends Module {
     pc.in.rs2   := rf.io.rdData2
     pc.in.exu   := exu.io.out
     pc.in.csr   := csr.io.rdData
+
+    ifu.in.pc := pc.pc_out
+
+    assert(io.inst === ifu.out.inst)
 
     // IFU is simple, so we don't write it in a single module
     // it seems that it is not neccesary to cache the inst to the register

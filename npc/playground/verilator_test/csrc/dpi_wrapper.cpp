@@ -42,6 +42,12 @@ void pmem_read(long long raddr, long long *rdata) {
     }
 }
 
+void inst_read(long long pc, long long *rdata) {
+    if (pc >= CONFIG_NPC_PC) {
+        *rdata = paddr_read(pc, 4);
+    }
+}
+
 void pmem_write(long long waddr, long long wdata, char wmask) {
     if (npc_state.state == NPC_RUNNING) {
         // 总是往地址为`waddr & ~0x7ull`的8字节按写掩码`wmask`写入`wdata`

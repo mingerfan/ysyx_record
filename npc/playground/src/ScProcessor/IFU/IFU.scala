@@ -13,8 +13,8 @@ class INST_READ extends BlackBox {
 }
 
 class IFUBundleOut extends Bundle {
-    val pc = Output(UInt(XLEN.W))
-    val inst = Output(UInt(INS_LEN.W))
+    val pc = UInt(XLEN.W)
+    val inst = UInt(INS_LEN.W)
 }
 
 class IFUBundleIn extends Bundle {
@@ -22,15 +22,18 @@ class IFUBundleIn extends Bundle {
 }
 
 class IFU extends Module {
-    val out = IO(new IFUBundleOut())
-    val in = IO(new IFUBundleIn())
+    val out = IO(DecoupledIO(new IFUBundleOut()))
+    val in = IO(Flipped(DecoupledIO(new IFUBundleIn())))
 
 
     val inst_in = Module(new INST_READ)
     inst_in.io.clk := clock.asBool
     inst_in.io.rst := reset
 
-    inst_in.io.raddr := in.pc
-    out.pc := in.pc
-    out.inst := inst_in.io.rdata
+    inst_in.io.raddr := in.bits.pc
+    out.bits.pc := in.bits.pc
+    out.bits.inst := inst_in.io.rdata
+
+    in.ready := true.B
+    out.valid := true.B
 }

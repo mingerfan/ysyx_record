@@ -57,22 +57,39 @@ class BitPatDec(s: String) extends IsBitPat {
 }
 
 class IDUWrapperBundleOut extends Bundle {
-    val aluOp = Output(UInt(EXU.ALUInfo.OPS_NUM.W)) // one-hot encoding
-    val exuOp = Output(UInt(EXU.EXUInfo.OPS_NUM.W)) // one-hot encoding
-    val ctrls_out = Output(UInt(ctrls.length.W))    // one-hot encoding
-    val pcOp = Output(UInt(PC.PCInfo.OPS_NUM.W))    // one-hot encoding
-    val rfOp = Output(UInt(RF.RFMInfo.OPS_NUM.W))   // one-hot encoding
-    val memOp = Output(UInt(MEMWR.MEMWRInfo.OPS_NUM.W)) // one-hot encoding
-    val csrOp = Output(UInt(RF.CSRInfo.OPS_NUM.W))  // one-hot encoding
-    val dataIdxOut = Output(new DecOutIO())
-    val mem_wr = Output(Bool())
-    val ebreak = Output(Bool())
-    val inv_inst = Output(Bool())
+    val aluOp = UInt(EXU.ALUInfo.OPS_NUM.W) // one-hot encoding
+    val exuOp = UInt(EXU.EXUInfo.OPS_NUM.W) // one-hot encoding
+    val ctrls_out = UInt(ctrls.length.W)    // one-hot encoding
+    val pcOp = UInt(PC.PCInfo.OPS_NUM.W)    // one-hot encoding
+    val rfOp = UInt(RF.RFMInfo.OPS_NUM.W)   // one-hot encoding
+    val memOp = UInt(MEMWR.MEMWRInfo.OPS_NUM.W) // one-hot encoding
+    val csrOp = UInt(RF.CSRInfo.OPS_NUM.W)  // one-hot encoding
+    val dataIdxOut = new DecOutIO()
+    val mem_wr = Bool()
+    val ebreak = Bool()
+    val inv_inst = Bool()
 }
 
-// class IDUWrapper extends Module {
-//     val 
-// }
+
+class IDUWrapper extends Module {
+    val in = IO(Flipped(DecoupledIO(new IFU.IFUBundleOut)))
+    val out = IO(DecoupledIO(new IDUWrapperBundleOut))
+
+    val IDU = Module(new ScProcessor.IDU.IDU)
+    in.ready := true.B
+    IDU.inst := in.bits.inst
+    out.valid := true.B
+    out.bits.aluOp := IDU.dpCtrl.aluOp
+    out.bits.exuOp := IDU.dpCtrl.exuOp
+    out.bits.ctrls_out := IDU.dpCtrl.ctrls_out
+    out.bits.pcOp := IDU.dpCtrl.pcOp
+    out.bits.rfOp := IDU.dpCtrl.rfOp
+    out.bits.memOp:= IDU.dpCtrl.memOp
+    out.bits.csrOp:= IDU.dpCtrl.csrOp
+    out.bits.dataIdxOut <> IDU.dataOut
+    out.bits.mem_wr := IDU.mem_wr
+    out.bits.ebreak := IDU.inv_inst
+}
 
 class IDU extends Module {
     val inst = IO(Input(UInt(topInfo.INS_LEN.W)))

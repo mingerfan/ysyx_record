@@ -53,15 +53,25 @@ class top extends Module {
     pc.in.exu   := exu.io.out
     pc.in.csr   := csr.io.rdData
 
-    ifu.in.pc := pc.pc_out
+    ifu.in.bits.pc := pc.pc_out
+    ifu.in.valid := true.B
+    ifu.out.ready := true.B
 
-    assert(io.inst === ifu.out.inst)
+    val if_id_in = Wire(DecoupledIO(new IFU.IFUBundleOut))
+    val if_id_out = Wire(DecoupledIO(new IFU.IFUBundleOut))
+    if_id_in <> ifu.out
+
+    basic.MyStageConnect(if_id_in, if_id_out)
+
+    if_id_out.ready := true.B
+
+    assert(io.inst === ifu.out.bits.inst)
 
     // IFU is simple, so we don't write it in a single module
     // it seems that it is not neccesary to cache the inst to the register
     io.pc := pc.pc_out
 
-    idu.inst := io.inst
+    idu.inst := if_id_out.bits.inst
     
     rf.io.rdAddr1   := Mux(idu.ebreak, 10.U, idu.dataOut.rs1)
     rf.io.rdAddr2   := idu.dataOut.rs2

@@ -9,6 +9,7 @@ object MyStageConnect {
         if (SC_ARCH == "single") { 
             right.bits := left.bits 
             right.valid := true.B
+            left.ready := true.B
         }
         else if (SC_ARCH == "multi") { right <> left }
     }

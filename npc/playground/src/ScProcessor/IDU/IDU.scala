@@ -64,7 +64,7 @@ class IDUWrapperBundleOut extends Bundle {
     val rfOp = UInt(RF.RFMInfo.OPS_NUM.W)   // one-hot encoding
     val memOp = UInt(MEMWR.MEMWRInfo.OPS_NUM.W) // one-hot encoding
     val csrOp = UInt(RF.CSRInfo.OPS_NUM.W)  // one-hot encoding
-    val dataIdxOut = new DecOutIO()
+    val dataOut = new DecOutIO()
     val mem_wr = Bool()
     val ebreak = Bool()
     val inv_inst = Bool()
@@ -86,9 +86,10 @@ class IDUWrapper extends Module {
     out.bits.rfOp := IDU.dpCtrl.rfOp
     out.bits.memOp:= IDU.dpCtrl.memOp
     out.bits.csrOp:= IDU.dpCtrl.csrOp
-    out.bits.dataIdxOut <> IDU.dataOut
+    out.bits.dataOut <> IDU.dataOut
     out.bits.mem_wr := IDU.mem_wr
-    out.bits.ebreak := IDU.inv_inst
+    out.bits.ebreak := IDU.ebreak
+    out.bits.inv_inst := IDU.inv_inst
 }
 
 class IDU extends Module {

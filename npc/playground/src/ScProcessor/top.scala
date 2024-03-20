@@ -25,7 +25,7 @@ class top extends Module {
     val dbg_regs = IO(Output(UInt(dbg_regs_w.W)))
     val dbg_csrs  = IO(Output(UInt(RF.CSRInfo.DBG_CSR_W.W)))
     
-    val idu = Module(new IDU.IDU)
+    val idu = Module(new IDU.IDUWrapper)
     val exu = Module(new EXU.EXU)
     val rf = Module(new RF.RFModule)    
     val pc = Module(new PC.PC)
@@ -37,17 +37,17 @@ class top extends Module {
     if (NPC_SIM) {
         dbg_regs := rf.dbg_regs
         dbg_csrs  := csr.dbg_csrs
-    }
+    }   
 
-    val hit = U_HIT_CURRYING(idu.dpCtrl.ctrls_out, IDU.IDUInsInfo.ctrls)_
+    val hit = U_HIT_CURRYING(idu.out.bits.ctrls_out, IDU.IDUInsInfo.ctrls)_
 
-    dontTouch(idu.dataOut)
-    dontTouch(idu.dpCtrl)
+    // dontTouch(idu.dataOut)
+    // dontTouch(idu.dpCtrl)
     dontTouch(exu.io)
     dontTouch(rf.io)
 
-    pc.pcOp     := idu.dpCtrl.pcOp
-    pc.in.imm   := idu.dataOut.imm
+    pc.pcOp     := idu.out.bits.pcOp
+    pc.in.imm   := idu.out.bits.dataOut.imm
     pc.in.rs1   := rf.io.rdData1
     pc.in.rs2   := rf.io.rdData2
     pc.in.exu   := exu.io.out
@@ -57,9 +57,12 @@ class top extends Module {
     ifu.in.valid := true.B
     ifu.out.ready := true.B
 
-    val if_id_in = Wire(DecoupledIO(new IFU.IFUBundleOut))
-    val if_id_out = Wire(DecoupledIO(new IFU.IFUBundleOut))
-    if_id_in <> ifu.out
+    val if_id_in = Wire(DecoupledIO(new basic.IF_ID_Bundle))
+    val if_id_out = Wire(DecoupledIO(new basic.IF_ID_Bundle))
+    if_id_in.bits.ifu <> ifu.out.bits
+
+    if_id_in.valid := ifu.out.valid
+    ifu.out.ready := if_id_in.ready
 
     basic.MyStageConnect(if_id_in, if_id_out)
 
@@ -71,51 +74,56 @@ class top extends Module {
     // it seems that it is not neccesary to cache the inst to the register
     io.pc := pc.pc_out
 
-    idu.inst := if_id_out.bits.inst
+    val id_ex_in = Wire(DecoupledIO(new IDU.IDUWrapperBundleOut))
+    val id_ex_out = Wire(DecoupledIO(new IDU.IDUWrapperBundleOut))
+    // id_ex_in.bits.
+
+    idu.in <> if_id_out.map(e => DecoupledIO(e.ifu))
+    idu.out.ready := true.B
     
-    rf.io.rdAddr1   := Mux(idu.ebreak, 10.U, idu.dataOut.rs1)
-    rf.io.rdAddr2   := idu.dataOut.rs2
-    rf.io.wrAddr    := idu.dataOut.rd
+    rf.io.rdAddr1   := Mux(idu.out.bits.ebreak, 10.U, idu.out.bits.dataOut.rs1)
+    rf.io.rdAddr2   := idu.out.bits.dataOut.rs2
+    rf.io.wrAddr    := idu.out.bits.dataOut.rd
     rf.io.wrData    := 1.U  // actually we do not use it
     rf.io.wrEn      := ~hit("nwrEn")
-    rf.rfOp         := idu.dpCtrl.rfOp
+    rf.rfOp         := idu.out.bits.rfOp
     rf.in.exu       := exu.io.out
     rf.in.pc_next   := pc.pc_next
     rf.in.mem       := mem_wr.io.rd
     rf.in.csr       := csr.io.rdData
 
-    exu.io.exuOp    := idu.dpCtrl.exuOp
-    exu.io.aluOp    := idu.dpCtrl.aluOp
-    exu.io.imm      := idu.dataOut.imm
+    exu.io.exuOp    := idu.out.bits.exuOp
+    exu.io.aluOp    := idu.out.bits.aluOp
+    exu.io.imm      := idu.out.bits.dataOut.imm
     exu.io.rs1      := rf.io.rdData1
     exu.io.rs2      := rf.io.rdData2
     exu.io.pc       := pc.pc_out
 
     mem_wr.io.rs1   := rf.io.rdData1
     mem_wr.io.rs2   := rf.io.rdData2
-    mem_wr.io.imm   := idu.dataOut.imm
-    mem_wr.io.memOps:= idu.dpCtrl.memOp
-    mem_wr.io.mem_wr_flag := idu.mem_wr
+    mem_wr.io.imm   := idu.out.bits.dataOut.imm
+    mem_wr.io.memOps:= idu.out.bits.memOp
+    mem_wr.io.mem_wr_flag := idu.out.bits.mem_wr
 
     // csr input
-    csr.io.rdAddr := idu.dataOut.csr
+    csr.io.rdAddr := idu.out.bits.dataOut.csr
     csr.io.wrEn   := hit("csrWr")
-    csr.io.wrAddr := idu.dataOut.csr
+    csr.io.wrAddr := idu.out.bits.dataOut.csr
     csr.io.rsIn   := rf.io.rdData1
-    csr.io.immIn  := idu.dataOut.imm
+    csr.io.immIn  := idu.out.bits.dataOut.imm
     csr.io.pc     := pc.pc_out
-    csr.io.csrOps := idu.dpCtrl.csrOp
+    csr.io.csrOps := idu.out.bits.csrOp
 
     // ebreak and invalid instruction detection
     val ebreak_detect_ = Module(new ebreak_detect)
     val inv_inst_ = Module(new inv_inst)
 
-    ebreak_detect_.io.ebreak    := idu.ebreak
+    ebreak_detect_.io.ebreak    := idu.out.bits.ebreak
     ebreak_detect_.io.clk       := clock.asBool
     ebreak_detect_.io.a0        := rf.io.rdData1
     ebreak_detect_.io.pc        := pc.pc_out
 
-    inv_inst_.io.inv    := idu.inv_inst
+    inv_inst_.io.inv    := idu.out.bits.inv_inst
     inv_inst_.io.clk    := clock.asBool
     inv_inst_.io.pc     := pc.pc_out
 }

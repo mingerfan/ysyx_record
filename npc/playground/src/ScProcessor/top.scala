@@ -46,6 +46,7 @@ class top extends Module {
     dontTouch(exu.io)
     dontTouch(rf.io)
 
+    /***************IFU****************/
     pc.pcOp     := idu.out.bits.pcOp
     pc.in.imm   := idu.out.bits.dataOut.imm
     pc.in.rs1   := rf.io.rdData1
@@ -57,12 +58,9 @@ class top extends Module {
     ifu.in.valid := true.B
     ifu.out.ready := true.B
 
-    val if_id_in = Wire(DecoupledIO(new basic.IF_ID_Bundle))
-    val if_id_out = Wire(DecoupledIO(new basic.IF_ID_Bundle))
-    if_id_in.bits.ifu <> ifu.out.bits
-
-    if_id_in.valid := ifu.out.valid
-    ifu.out.ready := if_id_in.ready
+    val if_id_in = Wire(DecoupledIO(new IFU.IFUBundleOut))
+    val if_id_out = Wire(DecoupledIO(new IFU.IFUBundleOut))
+    if_id_in <> ifu.out
 
     basic.MyStageConnect(if_id_in, if_id_out)
 
@@ -70,16 +68,21 @@ class top extends Module {
 
     assert(io.inst === ifu.out.bits.inst)
 
-    // IFU is simple, so we don't write it in a single module
-    // it seems that it is not neccesary to cache the inst to the register
     io.pc := pc.pc_out
 
-    val id_ex_in = Wire(DecoupledIO(new IDU.IDUWrapperBundleOut))
-    val id_ex_out = Wire(DecoupledIO(new IDU.IDUWrapperBundleOut))
-    // id_ex_in.bits.
+    /***************IFU****************/
 
-    idu.in <> if_id_out.map(e => DecoupledIO(e.ifu))
-    idu.out.ready := true.B
+
+    /***************IDU****************/
+    idu.in <> if_id_out
+
+    val id_ex_bits = Wire(new basic.ID_EX_Bundle)
+    id_ex_bits.idu <> idu.out.bits
+    id_ex_bits.rf.rdData1 := rf.io.rdData1
+    id_ex_bits.rf.rdData2 := rf.io.rdData2
+
+    val id_ex_in = Wire(DecoupledIO(new basic.ID_EX_Bundle))
+    val id_ex_out = Wire(DecoupledIO(new basic.ID_EX_Bundle))
     
     rf.io.rdAddr1   := Mux(idu.out.bits.ebreak, 10.U, idu.out.bits.dataOut.rs1)
     rf.io.rdAddr2   := idu.out.bits.dataOut.rs2
@@ -91,6 +94,14 @@ class top extends Module {
     rf.in.pc_next   := pc.pc_next
     rf.in.mem       := mem_wr.io.rd
     rf.in.csr       := csr.io.rdData
+
+    id_ex_in.bits <> id_ex_bits
+    id_ex_in.valid := idu.out.valid
+    idu.out.ready := id_ex_in.ready
+
+    basic.MyStageConnect(id_ex_in, id_ex_out)
+    id_ex_out.ready := true.B
+    /***************IDU****************/
 
     exu.io.exuOp    := idu.out.bits.exuOp
     exu.io.aluOp    := idu.out.bits.aluOp

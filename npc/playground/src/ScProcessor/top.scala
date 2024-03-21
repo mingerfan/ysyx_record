@@ -39,8 +39,6 @@ class top extends Module {
         dbg_csrs  := csr.dbg_csrs
     }   
 
-    val hit = U_HIT_CURRYING(idu.out.bits.ctrls_out, IDU.IDUInsInfo.ctrls)_
-
     // dontTouch(idu.dataOut)
     // dontTouch(idu.dpCtrl)
     dontTouch(exu.io)
@@ -80,9 +78,12 @@ class top extends Module {
     id_ex_bits.idu <> idu.out.bits
     id_ex_bits.rf.rdData1 := rf.io.rdData1
     id_ex_bits.rf.rdData2 := rf.io.rdData2
+    id_ex_bits.ifu <> if_id_out.bits
 
     val id_ex_in = Wire(DecoupledIO(new basic.ID_EX_Bundle))
     val id_ex_out = Wire(DecoupledIO(new basic.ID_EX_Bundle))
+
+    val hit = U_HIT_CURRYING(id_ex_out.bits.idu.ctrls_out, IDU.IDUInsInfo.ctrls)_
     
     rf.io.rdAddr1   := Mux(idu.out.bits.ebreak, 10.U, idu.out.bits.dataOut.rs1)
     rf.io.rdAddr2   := idu.out.bits.dataOut.rs2
@@ -95,8 +96,17 @@ class top extends Module {
     rf.in.mem       := mem_wr.io.rd
     rf.in.csr       := csr.io.rdData
 
+    // csr input
+    csr.io.rdAddr := idu.out.bits.dataOut.csr
+    csr.io.wrEn   := hit("csrWr")
+    csr.io.wrAddr := idu.out.bits.dataOut.csr
+    csr.io.rsIn   := rf.io.rdData1
+    csr.io.immIn  := idu.out.bits.dataOut.imm
+    csr.io.pc     := pc.pc_out
+    csr.io.csrOps := idu.out.bits.csrOp
+
     id_ex_in.bits <> id_ex_bits
-    id_ex_in.valid := idu.out.valid
+    id_ex_in.valid := idu.out.valid && if_id_out.valid
     idu.out.ready := id_ex_in.ready
 
     basic.MyStageConnect(id_ex_in, id_ex_out)
@@ -115,15 +125,6 @@ class top extends Module {
     mem_wr.io.imm   := idu.out.bits.dataOut.imm
     mem_wr.io.memOps:= idu.out.bits.memOp
     mem_wr.io.mem_wr_flag := idu.out.bits.mem_wr
-
-    // csr input
-    csr.io.rdAddr := idu.out.bits.dataOut.csr
-    csr.io.wrEn   := hit("csrWr")
-    csr.io.wrAddr := idu.out.bits.dataOut.csr
-    csr.io.rsIn   := rf.io.rdData1
-    csr.io.immIn  := idu.out.bits.dataOut.imm
-    csr.io.pc     := pc.pc_out
-    csr.io.csrOps := idu.out.bits.csrOp
 
     // ebreak and invalid instruction detection
     val ebreak_detect_ = Module(new ebreak_detect)

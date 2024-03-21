@@ -42,6 +42,23 @@ class EXU extends Module {
     ))
 }
 
+class EXUWrapper extends Module {
+    val in = IO(Flipped(DecoupledIO(new basic.ID_EX_Bundle)))
+    val out = IO(DecoupledIO(UInt(topInfo.XLEN.W)))
+    in.ready := true.B
+
+    val exu = Module(new EXU)
+    exu.io.imm := in.bits.idu.dataOut.imm
+    exu.io.rs1 := in.bits.rf.rdData1
+    exu.io.rs2 := in.bits.rf.rdData2
+    exu.io.pc  := in.bits.ifu.pc
+    exu.io.exuOp := in.bits.idu.exuOp
+    exu.io.aluOp := in.bits.idu.aluOp
+    
+    out.valid := true.B
+    out.bits := exu.io.out
+}
+
 object EXUMain extends App {
     val s = getVerilogString(new EXU)
     println(s)

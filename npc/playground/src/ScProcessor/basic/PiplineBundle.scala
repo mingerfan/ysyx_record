@@ -12,4 +12,9 @@ class ID_EX_Bundle extends Bundle {
     val rdData1 = UInt(rfInfo.REGS_WIDTH.W)
     val rdData2 = UInt(rfInfo.REGS_WIDTH.W)
   }
+  val ifu = new IFU.IFUBundleOut
+}
+
+class EX_MEM_Bundle extends Bundle {
+  
 }

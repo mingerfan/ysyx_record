@@ -26,11 +26,11 @@ class top extends Module {
     val dbg_csrs  = IO(Output(UInt(RF.CSRInfo.DBG_CSR_W.W)))
     
     val idu = Module(new IDU.IDUWrapper)
-    val exu = Module(new EXU.EXU)
+    val exu = Module(new EXU.EXUWrapper)
     val rf = Module(new RF.RFModule)    
     val pc = Module(new PC.PC)
     val ifu = Module(new IFU.IFU)
-    val mem_wr = Module(new MEMWR.MEMWR)
+    val mem_wr = Module(new MEMWR.MEMWRWrapper)
     val csr = Module(new RF.CSR)
 
     dbg_regs := 0.U
@@ -41,16 +41,24 @@ class top extends Module {
 
     // dontTouch(idu.dataOut)
     // dontTouch(idu.dpCtrl)
-    dontTouch(exu.io)
+    // dontTouch(exu.io)
     dontTouch(rf.io)
 
+    // 因为PC需要用到这个，所以在前面声明了
+    val ex_mem_in = Wire(DecoupledIO(new basic.EX_MEM_Bundle))
+    val ex_mem_out = Wire(DecoupledIO(new basic.EX_MEM_Bundle))
+
+    // 由于RF需要写回，所以在此声明
+    val mem_wb_in = Wire(DecoupledIO(new basic.MEM_WB_Bundle))
+    val mem_wb_out = Wire(DecoupledIO(new basic.MEM_WB_Bundle))
+
     /***************IFU****************/
-    pc.pcOp     := idu.out.bits.pcOp
-    pc.in.imm   := idu.out.bits.dataOut.imm
-    pc.in.rs1   := rf.io.rdData1
-    pc.in.rs2   := rf.io.rdData2
-    pc.in.exu   := exu.io.out
-    pc.in.csr   := csr.io.rdData
+    pc.pcOp     := ex_mem_out.bits.idu.pcOp
+    pc.in.imm   := ex_mem_out.bits.idu.dataOut.imm
+    pc.in.rs1   := ex_mem_out.bits.rf.rdData1
+    pc.in.rs2   := ex_mem_out.bits.rf.rdData2
+    pc.in.exu   := ex_mem_out.bits.exu
+    pc.in.csr   := ex_mem_out.bits.csr
 
     ifu.in.bits.pc := pc.pc_out
     ifu.in.valid := true.B
@@ -79,22 +87,23 @@ class top extends Module {
     id_ex_bits.rf.rdData1 := rf.io.rdData1
     id_ex_bits.rf.rdData2 := rf.io.rdData2
     id_ex_bits.ifu <> if_id_out.bits
+    id_ex_bits.csr <> csr.io.rdData
 
     val id_ex_in = Wire(DecoupledIO(new basic.ID_EX_Bundle))
     val id_ex_out = Wire(DecoupledIO(new basic.ID_EX_Bundle))
 
     val hit = U_HIT_CURRYING(id_ex_out.bits.idu.ctrls_out, IDU.IDUInsInfo.ctrls)_
     
-    rf.io.rdAddr1   := Mux(idu.out.bits.ebreak, 10.U, idu.out.bits.dataOut.rs1)
-    rf.io.rdAddr2   := idu.out.bits.dataOut.rs2
-    rf.io.wrAddr    := idu.out.bits.dataOut.rd
+    rf.io.rdAddr1   := Mux(mem_wb_out.bits.idu.ebreak, 10.U, mem_wb_out.bits.idu.dataOut.rs1)
+    rf.io.rdAddr2   := mem_wb_out.bits.idu.dataOut.rs2
+    rf.io.wrAddr    := mem_wb_out.bits.idu.dataOut.rd
     rf.io.wrData    := 1.U  // actually we do not use it
     rf.io.wrEn      := ~hit("nwrEn")
-    rf.rfOp         := idu.out.bits.rfOp
-    rf.in.exu       := exu.io.out
-    rf.in.pc_next   := pc.pc_next
-    rf.in.mem       := mem_wr.io.rd
-    rf.in.csr       := csr.io.rdData
+    rf.rfOp         := mem_wb_out.bits.idu.rfOp
+    rf.in.exu       := mem_wb_out.bits.exu
+    rf.in.pc_next   := pc.pc_next// Todo: 在实现流水线处理器的时候需要修改
+    rf.in.mem       := mem_wb_out.bits.mem
+    rf.in.csr       := mem_wb_out.bits.csr
 
     // csr input
     csr.io.rdAddr := idu.out.bits.dataOut.csr
@@ -110,22 +119,43 @@ class top extends Module {
     idu.out.ready := id_ex_in.ready
 
     basic.MyStageConnect(id_ex_in, id_ex_out)
-    id_ex_out.ready := true.B
     /***************IDU****************/
 
-    exu.io.exuOp    := idu.out.bits.exuOp
-    exu.io.aluOp    := idu.out.bits.aluOp
-    exu.io.imm      := idu.out.bits.dataOut.imm
-    exu.io.rs1      := rf.io.rdData1
-    exu.io.rs2      := rf.io.rdData2
-    exu.io.pc       := pc.pc_out
 
-    mem_wr.io.rs1   := rf.io.rdData1
-    mem_wr.io.rs2   := rf.io.rdData2
-    mem_wr.io.imm   := idu.out.bits.dataOut.imm
-    mem_wr.io.memOps:= idu.out.bits.memOp
-    mem_wr.io.mem_wr_flag := idu.out.bits.mem_wr
+    /***************EXU****************/
+    exu.in <> id_ex_out
 
+    ex_mem_in.bits.exu_apply(exu.out.bits)
+    ex_mem_in.bits.idu_apply(id_ex_out.bits.idu)
+    ex_mem_in.bits.rf_apply(id_ex_out.bits.rf.rdData1, id_ex_out.bits.rf.rdData2)
+    ex_mem_in.bits.ifu_apply(id_ex_out.bits.ifu)
+    ex_mem_in.bits.csr_apply(id_ex_out.bits.csr)
+
+    ex_mem_in.valid := id_ex_out.valid && exu.out.valid
+    exu.out.ready := ex_mem_in.ready
+
+    basic.MyStageConnect(ex_mem_in, ex_mem_out)
+
+    /***************EXU****************/
+
+
+    /***************MEM****************/
+    mem_wr.in <> ex_mem_out
+
+    mem_wb_in.bits.ex_mem_apply(ex_mem_out.bits)
+    mem_wb_in.bits.mem_apply(mem_wr.out.bits)
+
+    mem_wb_in.valid := ex_mem_out.valid && mem_wr.out.valid
+    mem_wr.out.ready := mem_wb_in.ready
+
+    basic.MyStageConnect(mem_wb_in, mem_wb_out)
+
+    // 这个是额外的保证ready的连接
+    mem_wb_out.ready := true.B
+    /***************MEM****************/
+
+
+    // 这两个暂时不用连接到流水线中，可以直接连接IDU
     // ebreak and invalid instruction detection
     val ebreak_detect_ = Module(new ebreak_detect)
     val inv_inst_ = Module(new inv_inst)

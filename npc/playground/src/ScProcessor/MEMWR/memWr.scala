@@ -24,6 +24,23 @@ class MEM_WR extends BlackBox {
     })
 }
 
+class MEMWRWrapper extends Module {
+    val in = IO(Flipped(DecoupledIO(new basic.EX_MEM_Bundle)))
+    val out = IO(DecoupledIO(UInt(XLEN.W)))
+
+    in.ready := true.B
+
+    val mem_wr = Module(new MEMWR)
+    mem_wr.io.rs1 := in.bits.rf.rdData1
+    mem_wr.io.rs2 := in.bits.rf.rdData2
+    mem_wr.io.imm := in.bits.idu.dataOut.imm
+    mem_wr.io.memOps := in.bits.idu.memOp
+    mem_wr.io.mem_wr_flag := in.bits.idu.mem_wr
+
+    out.valid := true.B
+    out.bits := mem_wr.io.rd
+}
+
 class MEMWR extends Module {
     val io = IO(new Bundle {
         val rs1 = Input(UInt(XLEN.W))

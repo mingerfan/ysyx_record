@@ -68,7 +68,7 @@ class top extends Module {
     val if_id_out = Wire(DecoupledIO(new IFU.IFUBundleOut))
     if_id_in <> ifu.out
 
-    basic.MyStageConnect(if_id_in, if_id_out)
+    basic.MyStageConnect(if_id_in, if_id_out, "IF_ID_Stage")
 
     if_id_out.ready := true.B
 
@@ -118,7 +118,7 @@ class top extends Module {
     id_ex_in.valid := idu.out.valid && if_id_out.valid
     idu.out.ready := id_ex_in.ready
 
-    basic.MyStageConnect(id_ex_in, id_ex_out)
+    basic.MyStageConnect(id_ex_in, id_ex_out, "ID_EX_Stage")
     /***************IDU****************/
 
 
@@ -134,7 +134,7 @@ class top extends Module {
     ex_mem_in.valid := id_ex_out.valid && exu.out.valid
     exu.out.ready := ex_mem_in.ready
 
-    basic.MyStageConnect(ex_mem_in, ex_mem_out)
+    basic.MyStageConnect(ex_mem_in, ex_mem_out, "EX_MEM_Stage")
 
     /***************EXU****************/
 
@@ -148,7 +148,7 @@ class top extends Module {
     mem_wb_in.valid := ex_mem_out.valid && mem_wr.out.valid
     mem_wr.out.ready := mem_wb_in.ready
 
-    basic.MyStageConnect(mem_wb_in, mem_wb_out)
+    basic.MyStageConnect(mem_wb_in, mem_wb_out, "MEM_WB_Stage")
 
     // 这个是额外的保证ready的连接
     mem_wb_out.ready := true.B
